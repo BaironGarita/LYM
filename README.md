@@ -207,15 +207,6 @@ Este proyecto es parte del curso **ISW-613 Programación en Ambiente Web I** de 
 
 Este proyecto está desarrollado con fines académicos para el curso ISW-613.
 
----
-
-## 🔗 Enlaces Importantes
-
-- 📁 **Repositorio**: [GitLab UTN](https://git.isw.utn.ac.cr)
-- 📧 **Contacto**: [nayeliarrieta02@gmail.com](mailto:nayeliarrieta02@gmail.com)
-
----
-
 <div align="center">
 
 **¿Listo para expresar tu estilo único?**

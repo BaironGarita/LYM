@@ -60,10 +60,10 @@ Creemos que la moda es más que ropa: es una forma de comunicar quién eres. Con
 
 ## 👥 Equipo de Desarrollo
 
-| Desarrollador | Identificación | Email | Teléfono |
-|---------------|----------------|-------|----------|
-| **Nayeli Arrieta Castro** | 208610516 | nayeliarrieta02@gmail.com | 85535095 |
-| **Bairon Eduardo Garita Ballestero** | 208650868 | Bairongarita291@gmail.com | 87889979 |
+| Desarrollador | Email | Teléfono |
+|---------------|-------|----------|
+| **Nayeli Arrieta Castro** | nayeliarrieta02@gmail.com | 85535095 |
+| **Bairon Eduardo Garita Ballestero** | Bairongarita291@gmail.com | 87889979 |
 
 ---
 

@@ -1,0 +1,4 @@
+[08-06-2025 06:20:20] [Usuario] error: File: C:\xampp\htdocs\apimovie\routes\RoutesController.php - line: 8 - Message: Class "AuthMiddleware" not found
+ [08-06-2025 06:29:14] [Usuario] error: File: C:\xampp\htdocs\apimovie\routes\RoutesController.php - line: 8 - Message: Class "AuthMiddleware" not found
+ [08-06-2025 06:31:20] [Usuario] error: File: C:\xampp\htdocs\apimovie\routes\RoutesController.php - line: 36 - Message: Call to a member function handle() on null
+ 

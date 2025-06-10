@@ -1,0 +1,17 @@
+{
+    "name": "usuario/apimovie",
+    "autoload": {
+        "psr-4": {
+            "Usuario\\Apimovie\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bairon Garita Ballestero",
+            "email": "ingbairongarita@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^3.0"
+    }
+}

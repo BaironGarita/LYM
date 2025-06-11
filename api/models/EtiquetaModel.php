@@ -49,11 +49,11 @@ class EtiquetaModel
     {
         try {
             $nombre = $this->enlace->escapeString($datos->nombre);
-            $activo = isset($datos->activo) ? (int)$datos->activo : 1;
+            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
             $vSql = "INSERT INTO etiquetas (nombre, activo) 
                      VALUES ('$nombre', $activo)";
-            
+
             $this->enlace->executeSQL_DML($vSql);
             $id = $this->enlace->getLastId();
             return $this->get($id);
@@ -70,15 +70,15 @@ class EtiquetaModel
     public function update($datos)
     {
         try {
-            $id = (int)$datos->id;
+            $id = (int) $datos->id;
             $nombre = $this->enlace->escapeString($datos->nombre);
-            $activo = isset($datos->activo) ? (int)$datos->activo : 1;
+            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
             $vSql = "UPDATE etiquetas SET 
                      nombre = '$nombre',
                      activo = $activo
                      WHERE id = $id";
-            
+
             $this->enlace->executeSQL_DML($vSql);
             return $this->get($id);
         } catch (Exception $e) {

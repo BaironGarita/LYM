@@ -1,0 +1,883 @@
+{
+    "info": {
+        "_postman_id": "lym-ecommerce-2025",
+        "name": "LYM API - Look Your Mood 2025",
+        "description": "API para e-commerce de moda y accesorios personalizables",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "7418211"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:81"
+        },
+        {
+            "key": "api_prefix",
+            "value": "api"
+        }
+    ],
+    "item": [
+        {
+            "name": "🔐 Autenticación",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"correo\": \"admin@lym.com\",\n    \"contrasena\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "auth", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Registro de Usuario",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Juan Pérez\",\n    \"correo\": \"juan@email.com\",\n    \"contrasena\": \"123456\",\n    \"rol\": \"cliente\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/auth/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "auth", "register"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👥 Usuarios",
+            "item": [
+                {
+                    "name": "Lista de Usuarios",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/usuarios",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "usuarios"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Usuario",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/usuarios/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "usuarios", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Usuario",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Juan Carlos Pérez\",\n    \"correo\": \"juan.carlos@email.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/usuarios/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "usuarios", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏷️ Categorías",
+            "item": [
+                {
+                    "name": "Lista de Categorías",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Categoría",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolsos\",\n    \"descripcion\": \"Bolsos y carteras de cuero artesanal\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Categoría",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolsos Premium\",\n    \"descripcion\": \"Bolsos y carteras de cuero premium italiano\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛍️ Productos",
+            "item": [
+                {
+                    "name": "Lista de Productos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Producto",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Producto",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolso Milano Premium\",\n    \"descripcion\": \"Bolso de cuero artesanal italiano con múltiples opciones de personalización\",\n    \"precio\": 299.99,\n    \"categoria_id\": 1,\n    \"stock\": 50,\n    \"etiquetas\": [1, 2, 3],\n    \"opciones_personalizacion\": [\n        {\n            \"opcion_id\": 1,\n            \"obligatorio\": true\n        },\n        {\n            \"opcion_id\": 2,\n            \"obligatorio\": false\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Producto",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolso Milano Premium Actualizado\",\n    \"descripcion\": \"Bolso de cuero premium con nuevas opciones\",\n    \"precio\": 349.99,\n    \"stock\": 45\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Productos por Categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/categoria/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "categoria", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Buscar Productos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/buscar?q=bolso&categoria=1&precio_min=100&precio_max=500",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "buscar"],
+                            "query": [
+                                {"key": "q", "value": "bolso"},
+                                {"key": "categoria", "value": "1"},
+                                {"key": "precio_min", "value": "100"},
+                                {"key": "precio_max", "value": "500"}
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏷️ Etiquetas",
+            "item": [
+                {
+                    "name": "Lista de Etiquetas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Etiqueta",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Premium\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🎨 Personalización",
+            "item": [
+                {
+                    "name": "Opciones de Personalización",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/personalizacion/opciones",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "personalizacion", "opciones"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Opción de Personalización",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Color del Bolso\",\n    \"tipo\": \"Color\",\n    \"descripcion\": \"Selecciona el color de tu bolso Milano\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/personalizacion/opciones",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "personalizacion", "opciones"]
+                        }
+                    }
+                },
+                {
+                    "name": "Valores de Personalización",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/personalizacion/valores/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "personalizacion", "valores", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Valor de Personalización",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"opcion_id\": 1,\n    \"valor\": \"Negro Premium\",\n    \"precio_adicional\": 0.00\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/personalizacion/valores",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "personalizacion", "valores"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛒 Carrito",
+            "item": [
+                {
+                    "name": "Ver Carrito",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/carrito",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "carrito"]
+                        }
+                    }
+                },
+                {
+                    "name": "Agregar al Carrito",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"producto_id\": 1,\n    \"cantidad\": 2,\n    \"personalizacion\": [\n        {\n            \"opcion_id\": 1,\n            \"valor_id\": 1\n        },\n        {\n            \"opcion_id\": 2,\n            \"valor_id\": 3\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/carrito/agregar",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "carrito", "agregar"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Item del Carrito",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"cantidad\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/carrito/items/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "carrito", "items", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Eliminar del Carrito",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/carrito/items/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "carrito", "items", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📦 Pedidos",
+            "item": [
+                {
+                    "name": "Lista de Mis Pedidos",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/pedidos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "pedidos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Pedido",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"direccion_envio_id\": 1,\n    \"items\": [\n        {\n            \"producto_id\": 1,\n            \"cantidad\": 1,\n            \"personalizacion\": [\n                {\"opcion_id\": 1, \"valor_id\": 1},\n                {\"opcion_id\": 2, \"valor_id\": 2}\n            ]\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/pedidos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "pedidos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Pedido",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/pedidos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "pedidos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Estado del Pedido (Admin)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"estado\": \"procesando\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/pedidos/1/estado",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "pedidos", "1", "estado"]
+                        }
+                    }
+                },
+                {
+                    "name": "Historial del Pedido",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/pedidos/1/historial",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "pedidos", "1", "historial"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📍 Direcciones",
+            "item": [
+                {
+                    "name": "Mis Direcciones",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/direcciones",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "direcciones"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Dirección",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"provincia\": \"San José\",\n    \"ciudad\": \"San José\",\n    \"direccion_1\": \"Avenida Central, Calle 5\",\n    \"direccion_2\": \"Edificio Torre del Sol, Apt 302\",\n    \"codigo_postal\": \"10101\",\n    \"telefono\": \"2222-3333\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/direcciones",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "direcciones"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💰 Promociones",
+            "item": [
+                {
+                    "name": "Promociones Activas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/promociones/activas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "promociones", "activas"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Promoción (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Descuento Bolsos Premium\",\n    \"tipo\": \"categoria\",\n    \"categoria_id\": 1,\n    \"porcentaje\": 15.00,\n    \"fecha_inicio\": \"2025-06-01 00:00:00\",\n    \"fecha_fin\": \"2025-06-30 23:59:59\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/promociones",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "promociones"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "⭐ Reseñas",
+            "item": [
+                {
+                    "name": "Reseñas de Producto",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/1/resenas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "1", "resenas"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Reseña",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"producto_id\": 1,\n    \"pedido_id\": 1,\n    \"valoracion\": 5,\n    \"comentario\": \"Excelente calidad del cuero. El bolso es exactamente lo que esperaba. Muy recomendado.\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/resenas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "resenas"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📊 Dashboard Admin",
+            "item": [
+                {
+                    "name": "Estadísticas Generales",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/admin/estadisticas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "admin", "estadisticas"]
+                        }
+                    }
+                },
+                {
+                    "name": "Productos Más Vendidos",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/admin/productos/mas-vendidos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "admin", "productos", "mas-vendidos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Ventas por Mes",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/admin/ventas/por-mes?ano=2025",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "admin", "ventas", "por-mes"],
+                            "query": [{"key": "ano", "value": "2025"}]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📁 Imágenes",
+            "item": [
+                {
+                    "name": "Subir Imagen de Producto",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "producto_id",
+                                    "value": "1",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "imagen",
+                                    "type": "file",
+                                    "src": "/path/to/bolso-milano.jpg"
+                                },
+                                {
+                                    "key": "alt_text",
+                                    "value": "Bolso Milano color negro",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "orden",
+                                    "value": "1",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/imagenes/productos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "imagenes", "productos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Imágenes de Producto",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/1/imagenes",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "1", "imagenes"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

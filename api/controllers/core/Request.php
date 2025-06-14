@@ -1,4 +1,4 @@
-<?php 
+<?php
 class Request
 {
     public $params;
@@ -55,5 +55,5 @@ class Request
 
         return $decoded;
     }
-   
+
 }

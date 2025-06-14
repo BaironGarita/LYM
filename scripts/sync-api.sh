@@ -29,20 +29,20 @@ if [ ! -d "$XAMPP_PATH" ]; then
 fi
 
 # Crear directorio si no existe
-if [ ! -d "$XAMPP_PATH/api" ]; then
-    echo -e "${YELLOW}📁 Creando directorio api...${NC}"
-    mkdir -p "$XAMPP_PATH/api"
+if [ ! -d "$XAMPP_PATH/api_lym" ]; then
+    echo -e "${YELLOW}📁 Creando directorio api_lym...${NC}"
+    mkdir -p "$XAMPP_PATH/api_lym"
 fi
 
 # Sincronizar archivos
 echo -e "${YELLOW}📋 Copiando archivos de API...${NC}"
-cp -r ./api/* "$XAMPP_PATH/api/"
+cp -r ./api/* "$XAMPP_PATH/api_lym/"
 
 echo
 echo -e "${GREEN}✅ API sincronizada exitosamente!${NC}"
 echo
 echo -e "${BLUE}🌐 URLs disponibles:${NC}"
-echo -e "   - API XAMPP: http://localhost/api/"
+echo -e "   - API XAMPP: http://localhost/api_lym/"
 echo -e "   - phpMyAdmin: http://localhost/phpmyadmin/"
 echo
 echo -e "${YELLOW}💡 Recuerda iniciar Apache y MySQL desde XAMPP${NC}"

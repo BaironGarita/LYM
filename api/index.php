@@ -19,9 +19,13 @@ require_once "controllers/core/Response.php";
 
 /***--- Agregar todos los modelos*/
 require_once "models/EtiquetaModel.php";
+require_once "models/ProductoModel.php";
+require_once "models/CategoriaModel.php";
 
 /***--- Agregar todos los controladores*/
 require_once "controllers/EtiquetaController.php";
+require_once "controllers/ProductoController.php";
+require_once "controllers/CategoriaController.php";
 
 //Enrutador
 require_once "routes/RoutesController.php";

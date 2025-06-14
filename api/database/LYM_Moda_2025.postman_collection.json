@@ -1,0 +1,434 @@
+{
+    "info": {
+        "_postman_id": "lym-moda-2025",
+        "name": "LYM API - Look Your Mood 2025 (Moda)",
+        "description": "API completa para e-commerce de moda y accesorios - Sistema LYM actualizado según README.md",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "7418211"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:81"
+        },
+        {
+            "key": "api_prefix",
+            "value": "api"
+        }
+    ],
+    "item": [
+        {
+            "name": "🏷️ Etiquetas",
+            "item": [
+                {
+                    "name": "Lista de Etiquetas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Etiqueta",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas/get?id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas", "get"],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Etiqueta",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Premium\",\n    \"activo\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas/create",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas", "create"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Etiqueta",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id\": 1,\n    \"nombre\": \"Premium Actualizado\",\n    \"activo\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas/update",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas", "update"]
+                        }
+                    }
+                },
+                {
+                    "name": "Eliminar Etiqueta",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/etiquetas/delete?id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "etiquetas", "delete"],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏪 Categorías",
+            "item": [
+                {
+                    "name": "Lista de Categorías",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/get?id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "get"],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Categoría",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolsos Premium\",\n    \"descripcion\": \"Bolsos de cuero artesanal italiano\",\n    \"icono\": \"fas fa-handbag\",\n    \"color\": \"#8B4513\",\n    \"orden\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/create",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "create"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Categoría",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id\": 1,\n    \"nombre\": \"Bolsos Exclusivos\",\n    \"descripcion\": \"Bolsos de cuero premium con personalización\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/update",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "update"]
+                        }
+                    }
+                },
+                {
+                    "name": "Productos de Categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/categorias/productos?categoria_id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "categorias", "productos"],
+                            "query": [
+                                {
+                                    "key": "categoria_id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛍️ Productos",
+            "item": [
+                {
+                    "name": "Lista de Productos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos"]
+                        }
+                    }
+                },
+                {
+                    "name": "Obtener Producto",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/get?id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "get"],
+                            "query": [
+                                {
+                                    "key": "id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Producto - Bolso Milano",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Bolso Milano Premium\",\n    \"descripcion\": \"Bolso de cuero artesanal italiano con opciones de personalización\",\n    \"precio\": 299.99,\n    \"categoria_id\": 1,\n    \"stock\": 50,\n    \"peso\": 0.75,\n    \"dimensiones\": \"30cm x 25cm x 15cm\",\n    \"material\": \"Cuero genuino italiano\",\n    \"color_principal\": \"Negro Premium\",\n    \"genero\": \"unisex\",\n    \"temporada\": \"todo_ano\",\n    \"etiquetas\": [1, 2, 3, 4, 6]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/create",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "create"]
+                        }
+                    }
+                },
+                {
+                    "name": "Actualizar Producto",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id\": 1,\n    \"nombre\": \"Bolso Milano Premium Actualizado\",\n    \"descripcion\": \"Bolso premium con nuevas opciones de personalización\",\n    \"precio\": 349.99,\n    \"stock\": 45\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/update",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "update"]
+                        }
+                    }
+                },
+                {
+                    "name": "Buscar Productos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/buscar?q=bolso&categoria=1&precio_min=100&precio_max=500&etiquetas=1,2",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "buscar"],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "bolso"
+                                },
+                                {
+                                    "key": "categoria",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "precio_min",
+                                    "value": "100"
+                                },
+                                {
+                                    "key": "precio_max",
+                                    "value": "500"
+                                },
+                                {
+                                    "key": "etiquetas",
+                                    "value": "1,2"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Productos por Categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/{{api_prefix}}/productos/categoria?categoria_id=1",
+                            "host": ["{{base_url}}"],
+                            "path": ["{{api_prefix}}", "productos", "categoria"],
+                            "query": [
+                                {
+                                    "key": "categoria_id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔄 Rutas Legacy (Compatibilidad)",
+            "description": "Rutas antiguas mantenidas para compatibilidad - DEPRECATED",
+            "item": [
+                {
+                    "name": "[LEGACY] Lista Etiquetas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/apimovie/etiqueta",
+                            "host": ["{{base_url}}"],
+                            "path": ["apimovie", "etiqueta"]
+                        }
+                    }
+                },
+                {
+                    "name": "[LEGACY] Crear Etiqueta",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Vintage\",\n    \"activo\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/apimovie/etiqueta/create",
+                            "host": ["{{base_url}}"],
+                            "path": ["apimovie", "etiqueta", "create"]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ]
+}

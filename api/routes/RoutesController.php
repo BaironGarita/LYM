@@ -8,7 +8,7 @@ class RoutesController
     {
         // Comentar temporalmente la autenticación
         // $this->authMiddleware = new AuthMiddleware();
-        $this->registerRoutes();
+        //$this->registerRoutes();
         $this->routes();
     }
     private function registerRoutes()
@@ -16,37 +16,29 @@ class RoutesController
         // ============ RUTAS PARA DOMINIO DE MODA - LYM ============
 
         // Rutas para Etiquetas
-        $this->addProtectedRoute('GET', '/api/etiquetas', 'etiqueta', 'index', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('GET', '/api/etiquetas/get', 'etiqueta', 'get', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('POST', '/api/etiquetas/create', 'etiqueta', 'create', ['Administrador']);
-        $this->addProtectedRoute('PUT', '/api/etiquetas/update', 'etiqueta', 'update', ['Administrador']);
-        $this->addProtectedRoute('DELETE', '/api/etiquetas/delete', 'etiqueta', 'delete', ['Administrador']);
+        $this->addProtectedRoute('GET', '/api_lym/etiquetas', 'etiqueta', 'index', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/etiquetas/get', 'etiqueta', 'get', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('POST', '/api_lym/etiquetas/create', 'etiqueta', 'create', ['Administrador']);
+        $this->addProtectedRoute('PUT', '/api_lym/etiquetas/update', 'etiqueta', 'update', ['Administrador']);
+        $this->addProtectedRoute('DELETE', '/api_lym/etiquetas/delete', 'etiqueta', 'delete', ['Administrador']);
 
         // Rutas para Productos
-        $this->addProtectedRoute('GET', '/api/productos', 'producto', 'index', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('GET', '/api/productos/get', 'producto', 'get', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('POST', '/api/productos/create', 'producto', 'create', ['Administrador']);
-        $this->addProtectedRoute('PUT', '/api/productos/update', 'producto', 'update', ['Administrador']);
-        $this->addProtectedRoute('DELETE', '/api/productos/delete', 'producto', 'delete', ['Administrador']);
-        $this->addProtectedRoute('GET', '/api/productos/categoria', 'producto', 'getByCategoria', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('GET', '/api/productos/buscar', 'producto', 'buscar', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/productos', 'producto', 'index', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/productos/get', 'producto', 'get', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('POST', '/api_lym/productos/create', 'producto', 'create', ['Administrador']);
+        $this->addProtectedRoute('PUT', '/api_lym/productos/update', 'producto', 'update', ['Administrador']);
+        $this->addProtectedRoute('DELETE', '/api_lym/productos/delete', 'producto', 'delete', ['Administrador']);
+        $this->addProtectedRoute('GET', '/api_lym/productos/categoria', 'producto', 'getByCategoria', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/productos/buscar', 'producto', 'buscar', ['Administrador', 'Cliente']);
 
         // Rutas para Categorías
-        $this->addProtectedRoute('GET', '/api/categorias', 'categoria', 'index', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('GET', '/api/categorias/get', 'categoria', 'get', ['Administrador', 'Cliente']);
-        $this->addProtectedRoute('POST', '/api/categorias/create', 'categoria', 'create', ['Administrador']);
-        $this->addProtectedRoute('PUT', '/api/categorias/update', 'categoria', 'update', ['Administrador']);
-        $this->addProtectedRoute('DELETE', '/api/categorias/delete', 'categoria', 'delete', ['Administrador']);
-        $this->addProtectedRoute('GET', '/api/categorias/productos', 'categoria', 'getProductos', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/categorias', 'categoria', 'index', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('GET', '/api_lym/categorias/get', 'categoria', 'get', ['Administrador', 'Cliente']);
+        $this->addProtectedRoute('POST', '/api_lym/categorias/create', 'categoria', 'create', ['Administrador']);
+        $this->addProtectedRoute('PUT', '/api_lym/categorias/update', 'categoria', 'update', ['Administrador']);
+        $this->addProtectedRoute('DELETE', '/api_lym/categorias/delete', 'categoria', 'delete', ['Administrador']);
+        $this->addProtectedRoute('GET', '/api_lym/categorias/productos', 'categoria', 'getProductos', ['Administrador', 'Cliente']);
 
-        // ============ RUTAS LEGACY (MANTENER TEMPORALMENTE) ============
-        // Rutas antiguas de películas - DEPRECATED
-        $this->addProtectedRoute('GET', '/apimovie/actor', 'actor', 'index', ['Administrador']);
-        $this->addProtectedRoute('GET', '/apimovie/etiqueta', 'etiqueta', 'index', ['Administrador']);
-        $this->addProtectedRoute('GET', '/apimovie/etiqueta/get', 'etiqueta', 'get', ['Administrador']);
-        $this->addProtectedRoute('POST', '/apimovie/etiqueta/create', 'etiqueta', 'create', ['Administrador']);
-        $this->addProtectedRoute('PUT', '/apimovie/etiqueta/update', 'etiqueta', 'update', ['Administrador']);
-        $this->addProtectedRoute('DELETE', '/apimovie/etiqueta/delete', 'etiqueta', 'delete', ['Administrador']);
     }
 
     public function routes()

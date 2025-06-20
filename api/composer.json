@@ -12,6 +12,7 @@
         }
     ],
     "require": {
-        "monolog/monolog": "^3.0"
+        "monolog/monolog": "^3.0",
+        "psr/log": "^3.0"
     }
 }

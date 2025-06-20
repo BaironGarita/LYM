@@ -16,7 +16,7 @@ require_once "controllers/core/MySqlConnect.php";
 require_once "controllers/core/Request.php";
 require_once "controllers/core/Response.php";
 //Middleware
-require_once "middleware/AuthMiddleware.php";
+//require_once "middleware/AuthMiddleware.php";
 
 
 /***--- Agregar todos los modelos*/

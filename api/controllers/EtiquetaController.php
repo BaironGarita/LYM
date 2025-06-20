@@ -5,112 +5,87 @@
  */
 class EtiquetaController
 {
-    private $model;
-    private $response;
-
-    public function __construct()
-    {
-        $this->model = new EtiquetaModel();
-        $this->response = new Response();
-    }
-
-    /**
-     * GET /api/etiquetas - Obtener todas las etiquetas
-     */
+    //GET listar
     public function index()
     {
         try {
-            $etiquetas = $this->model->all();
-            $this->response->toJSON($etiquetas);
+            $response = new Response();
+            //Instancia modelo
+            $etiquetaM = new EtiquetaModel();
+            //Método del modelo
+            $result = $etiquetaM->all();
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * GET /api/etiquetas/{id} - Obtener etiqueta por ID
-     */
-    public function get()
+    //GET Obtener 
+    public function get($id)
     {
         try {
-            $id = $_GET['id'] ?? null;
-
-            if (!$id) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $result = $this->model->get($id);
-
-            if ($result) {
-                $this->response->toJSON($result);
-            } else {
-                $this->response->status(404)->toJSON(['error' => 'Etiqueta no encontrada']);
-            }
+            $response = new Response();
+            //Instancia del modelo
+            $etiqueta = new EtiquetaModel();
+            //Acción del modelo a ejecutar
+            $result = $etiqueta->get($id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
-    }    /**
-         * POST /api/etiquetas - Crear nueva etiqueta
-         */
+    }
+
+    //POST Crear
     public function create()
     {
         try {
             $request = new Request();
+            $response = new Response();
+            //Obtener json enviado
             $inputJSON = $request->getJSON();
-
-            if (empty($inputJSON->nombre)) {
-                $this->response->status(400)->toJSON(['error' => 'El nombre es obligatorio']);
-                return;
-            }
-
-            $result = $this->model->create($inputJSON);
-            $this->response->status(201)->toJSON($result);
+            //Instancia del modelo
+            $etiqueta = new EtiquetaModel();
+            //Acción del modelo a ejecutar
+            $result = $etiqueta->create($inputJSON);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * PUT /api/etiquetas/{id} - Actualizar etiqueta
-     */
+    //PUT actualizar
     public function update()
     {
         try {
             $request = new Request();
+            $response = new Response();
+            //Obtener json enviado
             $inputJSON = $request->getJSON();
-
-            if (empty($inputJSON->id) || empty($inputJSON->nombre)) {
-                $this->response->status(400)->toJSON(['error' => 'ID y nombre son obligatorios']);
-                return;
-            }
-
-            $result = $this->model->update($inputJSON);
-            $this->response->toJSON($result);
+            //Instancia del modelo
+            $etiqueta = new EtiquetaModel();
+            //Acción del modelo a ejecutar
+            $result = $etiqueta->update($inputJSON);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * DELETE /api/etiquetas/{id} - Eliminar etiqueta
-     */
-    public function delete()
+    //DELETE eliminar
+    public function delete($id)
     {
         try {
-            $id = $_GET['id'] ?? null;
-
-            if (!$id) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-            $result = $this->model->delete($id);
-
-            if ($result) {
-                $this->response->toJSON(['message' => 'Etiqueta eliminada correctamente']);
-            } else {
-                $this->response->status(500)->toJSON(['error' => 'Error al eliminar la etiqueta']);
-            }
+            $response = new Response();
+            //Instancia del modelo
+            $etiqueta = new EtiquetaModel();
+            //Acción del modelo a ejecutar
+            $result = $etiqueta->delete($id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }

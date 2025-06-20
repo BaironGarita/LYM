@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'usuario/apimovie',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '5d8834a05fef42dae906e92a4cd775934e92fb55',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -35,9 +35,9 @@
             ),
         ),
         'usuario/apimovie' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '5d8834a05fef42dae906e92a4cd775934e92fb55',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -23,16 +23,19 @@ require_once "controllers/core/Response.php";
 require_once "models/EtiquetaModel.php";
 require_once "models/ProductoModel.php";
 require_once "models/CategoriaModel.php";
+require_once "models/UsuarioModel.php";
 
 /***--- Agregar todos los controladores*/
 require_once "controllers/EtiquetaController.php";
 require_once "controllers/ProductoController.php";
 require_once "controllers/CategoriaController.php";
+require_once "controllers/UsuarioController.php";
 
 // Crear alias para que el enrutador encuentre las clases
 class_alias('EtiquetaController', 'etiqueta');
 class_alias('ProductoController', 'producto');
 class_alias('CategoriaController', 'categoria');
+class_alias('UsuarioController', 'usuario');
 
 //Enrutador
 require_once "routes/RoutesController.php";

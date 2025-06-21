@@ -16,7 +16,7 @@ class UsuarioModel
     public function all()
     {
         try {
-            $vSql = "SELECT id, nombre, correo, telefono, rol, activo, fecha_nacimiento, genero, created_at, updated_at 
+            $vSql = "SELECT id, nombre, correo, rol, activo 
                      FROM usuarios WHERE activo = 1";
             $vResultado = $this->enlace->ExecuteSQL($vSql);
             return $vResultado;
@@ -33,7 +33,7 @@ class UsuarioModel
     public function get($id)
     {
         try {
-            $vSql = "SELECT id, nombre, correo, telefono, rol, activo, fecha_nacimiento, genero, created_at, updated_at 
+            $vSql = "SELECT id, nombre, correo, rol, activo 
                      FROM usuarios WHERE id = $id AND activo = 1";
             $vResultado = $this->enlace->ExecuteSQL($vSql);
             return !empty($vResultado) ? $vResultado[0] : null;
@@ -54,11 +54,8 @@ class UsuarioModel
             $nombre = addslashes($datos->nombre);
             $correo = addslashes($datos->correo);
             $contrasena = password_hash($datos->contrasena, PASSWORD_DEFAULT);
-            $telefono = isset($datos->telefono) ? addslashes($datos->telefono) : null;
             $rol = isset($datos->rol) ? addslashes($datos->rol) : 'cliente';
             $activo = isset($datos->activo) ? (int) $datos->activo : 1;
-            $fecha_nacimiento = isset($datos->fecha_nacimiento) ? addslashes($datos->fecha_nacimiento) : null;
-            $genero = isset($datos->genero) ? addslashes($datos->genero) : null;
 
             // Verificar si el correo ya existe
             $vSqlCheck = "SELECT id FROM usuarios WHERE correo = '$correo'";
@@ -68,11 +65,8 @@ class UsuarioModel
             }
 
             // Consulta SQL para insertar
-            $vSql = "INSERT INTO usuarios (nombre, correo, contrasena, telefono, rol, activo, fecha_nacimiento, genero) 
-                     VALUES ('$nombre', '$correo', '$contrasena', " .
-                ($telefono ? "'$telefono'" : "NULL") . ", '$rol', $activo, " .
-                ($fecha_nacimiento ? "'$fecha_nacimiento'" : "NULL") . ", " .
-                ($genero ? "'$genero'" : "NULL") . ")";
+            $vSql = "INSERT INTO usuarios (nombre, correo, contrasena, rol, activo) 
+                     VALUES ('$nombre', '$correo', '$contrasena', '$rol', $activo)";
 
             // Ejecutar la consulta y obtener el ID del último insert
             $idUsuario = $this->enlace->executeSQL_DML_last($vSql);
@@ -95,11 +89,9 @@ class UsuarioModel
             $id = (int) $datos->id;
             $nombre = addslashes($datos->nombre);
             $correo = addslashes($datos->correo);
-            $telefono = isset($datos->telefono) ? addslashes($datos->telefono) : null;
             $rol = isset($datos->rol) ? addslashes($datos->rol) : 'cliente';
             $activo = isset($datos->activo) ? (int) $datos->activo : 1;
-            $fecha_nacimiento = isset($datos->fecha_nacimiento) ? addslashes($datos->fecha_nacimiento) : null;
-            $genero = isset($datos->genero) ? addslashes($datos->genero) : null;
+
 
             // Verificar si el correo ya existe en otro usuario
             $vSqlCheck = "SELECT id FROM usuarios WHERE correo = '$correo' AND id != $id";
@@ -111,11 +103,8 @@ class UsuarioModel
             $vSql = "UPDATE usuarios SET 
                      nombre = '$nombre',
                      correo = '$correo',
-                     telefono = " . ($telefono ? "'$telefono'" : "NULL") . ",
                      rol = '$rol',
-                     activo = $activo,
-                     fecha_nacimiento = " . ($fecha_nacimiento ? "'$fecha_nacimiento'" : "NULL") . ",
-                     genero = " . ($genero ? "'$genero'" : "NULL") . "
+                     activo = $activo
                      WHERE id = $id";
 
             $this->enlace->executeSQL_DML($vSql);
@@ -170,7 +159,7 @@ class UsuarioModel
         try {
             $correo = addslashes($datos->correo);
 
-            $vSql = "SELECT id, nombre, correo, contrasena, telefono, rol, activo, fecha_nacimiento, genero, created_at, updated_at 
+            $vSql = "SELECT id, nombre, correo, contrasena, rol, activo 
                      FROM usuarios WHERE correo = '$correo' AND activo = 1";
             $vResultado = $this->enlace->ExecuteSQL($vSql);
 
@@ -200,7 +189,7 @@ class UsuarioModel
     {
         try {
             $correo = addslashes($correo);
-            $vSql = "SELECT id, nombre, correo, telefono, rol, activo, fecha_nacimiento, genero, created_at, updated_at 
+            $vSql = "SELECT id, nombre, correo, rol, activo
                      FROM usuarios WHERE correo = '$correo' AND activo = 1";
             $vResultado = $this->enlace->ExecuteSQL($vSql);
             return !empty($vResultado) ? $vResultado[0] : null;
@@ -218,7 +207,7 @@ class UsuarioModel
     {
         try {
             $rol = addslashes($rol);
-            $vSql = "SELECT id, nombre, correo, telefono, rol, activo, fecha_nacimiento, genero, created_at, updated_at 
+            $vSql = "SELECT id, nombre, correo, rol, activo 
                      FROM usuarios WHERE rol = '$rol' AND activo = 1";
             $vResultado = $this->enlace->ExecuteSQL($vSql);
             return $vResultado;

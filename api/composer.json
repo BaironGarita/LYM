@@ -1,8 +1,8 @@
 {
-    "name": "usuario/apimovie",
+    "name": "usuario/api_lym",
     "autoload": {
         "psr-4": {
-            "Usuario\\Apimovie\\": "src/"
+            "Usuario\\ApiLym\\": "src/"
         }
     },
     "authors": [

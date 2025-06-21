@@ -48,15 +48,19 @@ class EtiquetaModel
     public function create($datos)
     {
         try {
-            $nombre = $this->enlace->escapeString($datos->nombre);
+            // Escapar y validar datos usando funciones nativas de PHP
+            $nombre = addslashes($datos->nombre);
             $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
+            // Consulta SQL para insertar
             $vSql = "INSERT INTO etiquetas (nombre, activo) 
                      VALUES ('$nombre', $activo)";
 
-            $this->enlace->executeSQL_DML($vSql);
-            $id = $this->enlace->getLastId();
-            return $this->get($id);
+            // Ejecutar la consulta y obtener el ID del último insert
+            $idEtiqueta = $this->enlace->executeSQL_DML_last($vSql);
+
+            // Retornar la etiqueta creada
+            return $this->get($idEtiqueta);
         } catch (Exception $e) {
             handleException($e);
         }
@@ -71,7 +75,7 @@ class EtiquetaModel
     {
         try {
             $id = (int) $datos->id;
-            $nombre = $this->enlace->escapeString($datos->nombre);
+            $nombre = addslashes($datos->nombre);
             $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
             $vSql = "UPDATE etiquetas SET 

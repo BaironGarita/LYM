@@ -1,0 +1,2 @@
+[20-06-2025 17:08:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ 

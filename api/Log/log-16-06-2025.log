@@ -1,0 +1,12 @@
+[16-06-2025 05:21:58] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined variable $nombre
+ [16-06-2025 05:59:29] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ [16-06-2025 05:59:39] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ [16-06-2025 05:59:48] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ [16-06-2025 06:17:14] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ [16-06-2025 06:17:36] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 19 - Message: require_once(middleware/AuthMiddleware.php): Failed to open stream: No such file or directory
+ [16-06-2025 06:36:00] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined property: EtiquetaController::$create
+ [16-06-2025 06:36:01] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined property: EtiquetaController::$create
+ [16-06-2025 06:36:03] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined property: EtiquetaController::$create
+ [16-06-2025 06:36:05] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined property: EtiquetaController::$create
+ [16-06-2025 06:36:19] [Usuario] error: File: xdebug://debug-eval - line: 1 - Message: Undefined property: EtiquetaController::$create
+ 

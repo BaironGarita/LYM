@@ -29,6 +29,11 @@ require_once "controllers/EtiquetaController.php";
 require_once "controllers/ProductoController.php";
 require_once "controllers/CategoriaController.php";
 
+// Crear alias para que el enrutador encuentre las clases
+class_alias('EtiquetaController', 'etiqueta');
+class_alias('ProductoController', 'producto');
+class_alias('CategoriaController', 'categoria');
+
 //Enrutador
 require_once "routes/RoutesController.php";
 $index = new RoutesController();

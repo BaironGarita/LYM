@@ -1,8 +1,8 @@
--- ===============================================================-
--- BASE DE DATOS LYM - LOOK YOUR MOOD
--- Sistema de E-commerce para Moda y Accesorios
--- Actualizado según README.md - Dominio de moda
--- ===============================================================-
+-- ================================================================
+-- BASE DE DATOS OPTIMIZADA PARA E-COMMERCE
+-- Esquema basado en los requisitos del usuario, aplicando 3FN y
+-- buenas prácticas para desarrolladores.
+-- ================================================================
 
 -- Crear la base de datos si no existe
 CREATE DATABASE IF NOT EXISTS lym_db
@@ -11,268 +11,254 @@ COLLATE utf8mb4_unicode_ci;
 
 USE lym_db;
 
--- ===============================================================-
--- TABLA: CATEGORÍAS DE PRODUCTOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS categorias (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 1. TABLA DE USUARIOS (Autenticación y Autorización)
+-- ================================================================
+CREATE TABLE usuarios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT,
-    icono VARCHAR(50),
-    color VARCHAR(7) DEFAULT '#000000',
-    orden INT DEFAULT 0,
-    activo TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_activo (activo),
-    INDEX idx_orden (orden)
+    correo VARCHAR(100) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL, -- Se debe almacenar un hash
+    rol ENUM('administrador', 'cliente') NOT NULL DEFAULT 'cliente',
+    activo BOOLEAN DEFAULT TRUE,
+    INDEX idx_correo (correo),
+    INDEX idx_rol (rol)
 );
 
--- ===============================================================-
--- TABLA: ETIQUETAS (TAGS) PARA PRODUCTOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS etiquetas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 2. TABLA DE CATEGORÍAS (Predeterminadas)
+-- ================================================================
+CREATE TABLE categorias (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    activa BOOLEAN DEFAULT TRUE,
+    INDEX idx_nombre_categoria (nombre)
+);
+
+-- ================================================================
+-- 3. TABLA DE ETIQUETAS (Reutilizables)
+-- ================================================================
+CREATE TABLE etiquetas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(50) NOT NULL UNIQUE,
-    activo TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre),
-    INDEX idx_activo (activo)
+    activo BOOLEAN DEFAULT TRUE,
+    INDEX idx_nombre_etiqueta (nombre)
 );
 
--- ===============================================================-
--- TABLA: PRODUCTOS PRINCIPALES
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS productos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 4. TABLA DE PRODUCTOS
+-- ================================================================
+CREATE TABLE productos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(200) NOT NULL,
-    descripcion TEXT,
-    precio DECIMAL(10,2) NOT NULL,
+    descripcion TEXT NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
     categoria_id INT NOT NULL,
-    stock INT DEFAULT 0,
-    sku VARCHAR(50) UNIQUE,
-    peso DECIMAL(8,2) DEFAULT 0.00,
-    dimensiones VARCHAR(100),
-    material VARCHAR(100),
-    color_principal VARCHAR(50),
-    genero ENUM('masculino', 'femenino', 'unisex') DEFAULT 'unisex',
-    temporada ENUM('primavera', 'verano', 'otono', 'invierno', 'todo_ano') DEFAULT 'todo_ano',
-    eliminado TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT,
-    INDEX idx_categoria (categoria_id),
-    INDEX idx_precio (precio),
-    INDEX idx_eliminado (eliminado),
-    INDEX idx_stock (stock),
-    INDEX idx_genero (genero),
-    INDEX idx_created_at (created_at)
+    stock INT NOT NULL DEFAULT 0,
+    activo BOOLEAN DEFAULT TRUE,
+    eliminado BOOLEAN DEFAULT FALSE, -- Para baja lógica
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+    INDEX idx_nombre_producto (nombre),
+    INDEX idx_categoria_id (categoria_id)
 );
 
--- ===============================================================-
--- TABLA: RELACIÓN PRODUCTO-ETIQUETAS (MUCHOS A MUCHOS)
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS producto_etiquetas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 5. TABLA DE IMÁGENES DE PRODUCTOS
+-- ================================================================
+CREATE TABLE producto_imagenes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     producto_id INT NOT NULL,
-    etiqueta_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (etiqueta_id) REFERENCES etiquetas(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_producto_etiqueta (producto_id, etiqueta_id),
-    INDEX idx_producto (producto_id),
-    INDEX idx_etiqueta (etiqueta_id)
-);
-
--- ===============================================================-
--- TABLA: IMÁGENES DE PRODUCTOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS producto_imagenes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    producto_id INT NOT NULL,
-    nombre_archivo VARCHAR(255) NOT NULL,
-    ruta_archivo VARCHAR(500) NOT NULL,
+    url_imagen VARCHAR(500) NOT NULL,
     alt_text VARCHAR(200),
     orden INT DEFAULT 0,
-    es_principal TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    INDEX idx_producto (producto_id),
-    INDEX idx_orden (orden),
-    INDEX idx_principal (es_principal)
+    INDEX idx_producto_id_imagenes (producto_id)
 );
 
--- ===============================================================-
--- TABLA: USUARIOS DEL SISTEMA
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 6. PRODUCTOS-ETIQUETAS (Many-to-Many)
+-- ================================================================
+CREATE TABLE producto_etiquetas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    producto_id INT NOT NULL,
+    etiqueta_id INT NOT NULL,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    FOREIGN KEY (etiqueta_id) REFERENCES etiquetas(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_producto_etiqueta (producto_id, etiqueta_id)
+);
+
+-- ================================================================
+-- 7. TABLA DE OPCIONES DE PERSONALIZACIÓN
+-- ================================================================
+CREATE TABLE opciones_personalizacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
-    correo VARCHAR(150) NOT NULL UNIQUE,
-    contrasena VARCHAR(255) NOT NULL,
-    telefono VARCHAR(20),
-    rol ENUM('administrador', 'cliente') DEFAULT 'cliente',
-    activo TINYINT(1) DEFAULT 1,
-    fecha_nacimiento DATE,
-    genero ENUM('masculino', 'femenino', 'otro', 'prefiero_no_decir'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_correo (correo),
-    INDEX idx_rol (rol),
-    INDEX idx_activo (activo)
+    tipo ENUM('Color', 'Talla', 'Material', 'Otro') NOT NULL,
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT TRUE
 );
 
--- ===============================================================-
--- TABLA: DIRECCIONES DE USUARIOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS direcciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 8. VALORES DE PERSONALIZACIÓN
+-- ================================================================
+CREATE TABLE valores_personalizacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    opcion_id INT NOT NULL,
+    valor VARCHAR(100) NOT NULL,
+    precio_adicional DECIMAL(8, 2) DEFAULT 0.00,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (opcion_id) REFERENCES opciones_personalizacion(id) ON DELETE CASCADE
+);
+
+-- ================================================================
+-- 9. TABLA INTERMEDIA: PRODUCTOS-PERSONALIZACIÓN
+-- ================================================================
+CREATE TABLE producto_personalizacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    producto_id INT NOT NULL,
+    opcion_id INT NOT NULL,
+    obligatorio BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    FOREIGN KEY (opcion_id) REFERENCES opciones_personalizacion(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_producto_opcion (producto_id, opcion_id)
+);
+
+-- ================================================================
+-- 10. TABLA DE PROMOCIONES
+-- ================================================================
+CREATE TABLE promociones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(200) NOT NULL,
+    tipo ENUM('categoria', 'producto') NOT NULL,
+    categoria_id INT NULL,
+    producto_id INT NULL,
+    porcentaje DECIMAL(5, 2) NOT NULL,
+    fecha_inicio DATETIME NOT NULL,
+    fecha_fin DATETIME NOT NULL,
+    activa BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+    FOREIGN KEY (producto_id) REFERENCES productos(id),
+    INDEX idx_fechas_promo (fecha_inicio, fecha_fin),
+    CHECK (
+        (tipo = 'categoria' AND categoria_id IS NOT NULL AND producto_id IS NULL) OR
+        (tipo = 'producto' AND producto_id IS NOT NULL AND categoria_id IS NULL)
+    )
+);
+
+-- ================================================================
+-- 11. TABLA DE DIRECCIONES
+-- ================================================================
+CREATE TABLE direcciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     usuario_id INT NOT NULL,
-    provincia VARCHAR(50) NOT NULL,
+    provincia VARCHAR(100) NOT NULL,
     ciudad VARCHAR(100) NOT NULL,
     direccion_1 VARCHAR(255) NOT NULL,
     direccion_2 VARCHAR(255),
     codigo_postal VARCHAR(20),
     telefono VARCHAR(20),
-    es_principal TINYINT(1) DEFAULT 0,
-    activo TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+    activo BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_principal (es_principal)
+    INDEX idx_usuario_id_direcciones (usuario_id)
 );
 
--- ===============================================================-
--- TABLA: PEDIDOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 12. TABLA DE CARRITOS
+-- ================================================================
+CREATE TABLE carritos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX idx_usuario_id_carritos (usuario_id)
+);
+
+-- ================================================================
+-- 13. TABLA DE ITEMS DEL CARRITO
+-- ================================================================
+CREATE TABLE carrito_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    carrito_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL CHECK (cantidad > 0),
+    precio_unitario DECIMAL(10, 2) NOT NULL, -- Captura el precio al momento de agregar
+    fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (carrito_id) REFERENCES carritos(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_carrito_producto (carrito_id, producto_id)
+);
+
+-- ================================================================
+-- 14. TABLA DE PEDIDOS
+-- ================================================================
+CREATE TABLE pedidos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     usuario_id INT NOT NULL,
     direccion_envio_id INT NOT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
-    impuestos DECIMAL(10,2) DEFAULT 0.00,
-    envio DECIMAL(10,2) DEFAULT 0.00,
-    descuento DECIMAL(10,2) DEFAULT 0.00,
-    total DECIMAL(10,2) NOT NULL,
-    estado ENUM('en_proceso', 'confirmado', 'pagado', 'enviado', 'entregado', 'cancelado') DEFAULT 'en_proceso',
-    metodo_pago VARCHAR(50),
-    notas TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id) ON DELETE RESTRICT,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_estado (estado),
-    INDEX idx_created_at (created_at)
+    numero_pedido VARCHAR(50) NOT NULL UNIQUE,
+    estado ENUM('pendiente', 'procesando', 'enviado', 'entregado', 'cancelado') NOT NULL DEFAULT 'pendiente',
+    subtotal DECIMAL(12, 2) NOT NULL,
+    descuento DECIMAL(12, 2) DEFAULT 0.00,
+    impuestos DECIMAL(12, 2) NOT NULL,
+    total DECIMAL(12, 2) NOT NULL,
+    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id),
+    INDEX idx_usuario_id_pedidos (usuario_id),
+    INDEX idx_estado_pedido (estado)
 );
 
--- ===============================================================-
--- TABLA: DETALLE DE PEDIDOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS pedido_detalles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 15. TABLA DE ITEMS DEL PEDIDO
+-- ================================================================
+CREATE TABLE pedido_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     pedido_id INT NOT NULL,
     producto_id INT NOT NULL,
+    nombre_producto VARCHAR(200) NOT NULL, -- Snapshot del nombre del producto
     cantidad INT NOT NULL,
-    precio_unitario DECIMAL(10,2) NOT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
-    personalizaciones JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+    precio_unitario DECIMAL(10, 2) NOT NULL, -- Snapshot del precio
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    INDEX idx_pedido (pedido_id),
-    INDEX idx_producto (producto_id)
+    FOREIGN KEY (producto_id) REFERENCES productos(id),
+    INDEX idx_pedido_id_items (pedido_id)
 );
 
--- ===============================================================-
--- TABLA: HISTORIAL DE ESTADOS DE PEDIDOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS pedido_historial (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- ================================================================
+-- 16. TABLA DE HISTORIAL DE ESTADOS DEL PEDIDO
+-- ================================================================
+CREATE TABLE pedido_historial_estados (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     pedido_id INT NOT NULL,
-    estado_anterior VARCHAR(20),
-    estado_nuevo VARCHAR(20) NOT NULL,
-    comentario TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+    estado_anterior VARCHAR(50),
+    estado_nuevo VARCHAR(50) NOT NULL,
+    usuario_cambio_id INT, -- Puede ser NULL si el cambio es automático
+    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    INDEX idx_pedido (pedido_id),
-    INDEX idx_created_at (created_at)
+    FOREIGN KEY (usuario_cambio_id) REFERENCES usuarios(id),
+    INDEX idx_pedido_id_historial (pedido_id)
 );
 
--- ===============================================================-
--- TABLA: RESEÑAS Y VALORACIONES
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS resenas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    producto_id INT NOT NULL,
+-- ================================================================
+-- 17. TABLA DE RESEÑAS
+-- ================================================================
+CREATE TABLE resenas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     usuario_id INT NOT NULL,
-    pedido_id INT,
-    valoracion TINYINT(1) NOT NULL CHECK (valoracion >= 1 AND valoracion <= 5),
+    producto_id INT NOT NULL,
+    pedido_id INT NOT NULL, -- Para validar que el usuario compró el producto
+    valoracion INT NOT NULL CHECK (valoracion BETWEEN 1 AND 5),
     comentario TEXT,
-    aprobado TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE SET NULL,
-    INDEX idx_producto (producto_id),
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_valoracion (valoracion),
-    INDEX idx_aprobado (aprobado)
-);
-
--- ===============================================================-
--- TABLA: CARRITO DE COMPRAS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS carrito (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    cantidad INT NOT NULL DEFAULT 1,
-    personalizaciones JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_usuario_producto (usuario_id, producto_id),
-    INDEX idx_usuario (usuario_id)
-);
-
--- ===============================================================-
--- TABLA: PROMOCIONES Y DESCUENTOS
--- ===============================================================-
-CREATE TABLE IF NOT EXISTS promociones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(200) NOT NULL,
-    descripcion TEXT,
-    tipo ENUM('producto', 'categoria', 'total') NOT NULL,
-    producto_id INT NULL,
-    categoria_id INT NULL,
-    porcentaje DECIMAL(5,2) DEFAULT 0.00,
-    monto_fijo DECIMAL(10,2) DEFAULT 0.00,
-    monto_minimo DECIMAL(10,2) DEFAULT 0.00,
-    fecha_inicio TIMESTAMP NOT NULL,
-    fecha_fin TIMESTAMP NOT NULL,
-    activo TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE,
-    INDEX idx_tipo (tipo),
-    INDEX idx_activo (activo),
-    INDEX idx_fechas (fecha_inicio, fecha_fin)
+    fecha_resena TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    FOREIGN KEY (producto_id) REFERENCES productos(id),
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+    UNIQUE KEY uk_usuario_producto_resena (usuario_id, producto_id, pedido_id),
+    INDEX idx_producto_id_resenas (producto_id)
 );
 
 -- ===============================================================-

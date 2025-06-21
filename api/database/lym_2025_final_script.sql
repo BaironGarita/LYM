@@ -1,8 +1,8 @@
--- ================================================================
+-- ===============================================================-
 -- BASE DE DATOS LYM - LOOK YOUR MOOD
 -- Sistema de E-commerce para Moda y Accesorios
 -- Actualizado según README.md - Dominio de moda
--- ================================================================
+-- ===============================================================-
 
 -- Crear la base de datos si no existe
 CREATE DATABASE IF NOT EXISTS lym_db
@@ -11,9 +11,9 @@ COLLATE utf8mb4_unicode_ci;
 
 USE lym_db;
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: CATEGORÍAS DE PRODUCTOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS categorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -28,9 +28,9 @@ CREATE TABLE IF NOT EXISTS categorias (
     INDEX idx_orden (orden)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: ETIQUETAS (TAGS) PARA PRODUCTOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS etiquetas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS etiquetas (
     INDEX idx_activo (activo)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: PRODUCTOS PRINCIPALES
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(200) NOT NULL,
@@ -71,9 +71,9 @@ CREATE TABLE IF NOT EXISTS productos (
     INDEX idx_created_at (created_at)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: RELACIÓN PRODUCTO-ETIQUETAS (MUCHOS A MUCHOS)
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS producto_etiquetas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     producto_id INT NOT NULL,
@@ -87,9 +87,9 @@ CREATE TABLE IF NOT EXISTS producto_etiquetas (
     INDEX idx_etiqueta (etiqueta_id)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: IMÁGENES DE PRODUCTOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS producto_imagenes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     producto_id INT NOT NULL,
@@ -106,9 +106,9 @@ CREATE TABLE IF NOT EXISTS producto_imagenes (
     INDEX idx_principal (es_principal)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: USUARIOS DEL SISTEMA
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -127,9 +127,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
     INDEX idx_activo (activo)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: DIRECCIONES DE USUARIOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS direcciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
@@ -149,9 +149,9 @@ CREATE TABLE IF NOT EXISTS direcciones (
     INDEX idx_principal (es_principal)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: PEDIDOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS pedidos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
@@ -174,9 +174,9 @@ CREATE TABLE IF NOT EXISTS pedidos (
     INDEX idx_created_at (created_at)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: DETALLE DE PEDIDOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS pedido_detalles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pedido_id INT NOT NULL,
@@ -193,9 +193,9 @@ CREATE TABLE IF NOT EXISTS pedido_detalles (
     INDEX idx_producto (producto_id)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: HISTORIAL DE ESTADOS DE PEDIDOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS pedido_historial (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pedido_id INT NOT NULL,
@@ -209,9 +209,9 @@ CREATE TABLE IF NOT EXISTS pedido_historial (
     INDEX idx_created_at (created_at)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: RESEÑAS Y VALORACIONES
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS resenas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     producto_id INT NOT NULL,
@@ -232,9 +232,9 @@ CREATE TABLE IF NOT EXISTS resenas (
     INDEX idx_aprobado (aprobado)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: CARRITO DE COMPRAS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS carrito (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
@@ -250,9 +250,9 @@ CREATE TABLE IF NOT EXISTS carrito (
     INDEX idx_usuario (usuario_id)
 );
 
--- ================================================================
+-- ===============================================================-
 -- TABLA: PROMOCIONES Y DESCUENTOS
--- ================================================================
+-- ===============================================================-
 CREATE TABLE IF NOT EXISTS promociones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(200) NOT NULL,
@@ -275,9 +275,9 @@ CREATE TABLE IF NOT EXISTS promociones (
     INDEX idx_fechas (fecha_inicio, fecha_fin)
 );
 
--- ================================================================
+-- ===============================================================-
 -- DATOS INICIALES
--- ================================================================
+-- ===============================================================-
 
 -- Insertar categorías principales de moda
 INSERT INTO categorias (nombre, descripcion, icono, color, orden) VALUES
@@ -341,9 +341,9 @@ INSERT INTO producto_etiquetas (producto_id, etiqueta_id) VALUES
 (1, 4), -- Hecho a Mano
 (1, 6); -- Personalizable
 
--- ================================================================
+-- ===============================================================-
 -- COMENTARIOS FINALES
--- ================================================================
+-- ===============================================================-
 -- Esta base de datos está diseñada para:
 -- 1. E-commerce de moda y accesorios (según README.md)
 -- 2. Gestión completa de productos con categorías y etiquetas

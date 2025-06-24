@@ -1,142 +1,89 @@
 <?php
-/**
- * Controlador para la gestión de categorías de productos
- * Basado en el README.md - Dominio de moda y accesorios
- */
 class CategoriaController
 {
-    private $model;
-    private $response;
-
-    public function __construct()
-    {
-        $this->model = new CategoriaModel();
-        $this->response = new Response();
-    }
-
-    /**
-     * GET /api/categorias - Obtener todas las categorías
-     */
+    // GET /categoria
     public function index()
     {
         try {
-            $categorias = $this->model->getAll();
-            $this->response->toJSON($categorias);
+            $response = new Response();
+            $model = new CategoriaModel();
+            $result = $model->all();
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * GET /api/categorias/{id} - Obtener categoría por ID
-     */
+    // GET /categoria/{id}
     public function get()
     {
         try {
-            $request = new Request();
-            $id = $request->getParam('id');
+            $response = new Response();
 
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
+            $id = isset($_GET['id']) ? $_GET['id'] : null;
+
+            if (!$id) {
+                throw new Exception("Parámetro 'id' requerido.");
             }
 
-            $categoria = $this->model->get($id);
+            $model = new CategoriaModel();
+            $categoria = $model->get($id);
+
             if (!$categoria) {
-                $this->response->status(404)->toJSON(['error' => 'Categoría no encontrada']);
-                return;
+                throw new Exception("Categoría no encontrada.");
             }
 
-            $this->response->toJSON($categoria);
+            $response->toJSON($categoria);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * POST /api/categorias - Crear nueva categoría
-     */
+    // POST /categoria
     public function create()
     {
         try {
             $request = new Request();
-            $data = $request->getBody();
+            $response = new Response();
 
-            // Validaciones
-            if (empty($data->nombre)) {
-                $this->response->status(400)->toJSON(['error' => 'El nombre es obligatorio']);
-                return;
-            }
+            $data = json_decode(json_encode($request->getJSON()), true);
 
-            $categoria = $this->model->create($data);
-            $this->response->status(201)->toJSON($categoria);
+            $model = new CategoriaModel();
+            $result = $model->create($data);
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * PUT /api/categorias/{id} - Actualizar categoría
-     */
+    // PUT /categoria/{id}
     public function update()
     {
         try {
             $request = new Request();
-            $data = $request->getBody();
+            $response = new Response();
 
-            if (empty($data->id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
+            $data = json_decode(json_encode($request->getJSON()), true);
 
-            $categoria = $this->model->update($data);
-            $this->response->toJSON($categoria);
+            $id = $data["id"] ?? null;
+            if (!$id) throw new Exception("ID no proporcionado para actualizar", 400);
+
+            $model = new CategoriaModel();
+            $result = $model->update($id, $data);
+
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
-
-    /**
-     * DELETE /api/categorias/{id} - Eliminar categoría
-     */
-    public function delete()
+    // DELETE /categoria/{id}
+    public function delete($id)
     {
         try {
-            $request = new Request();
-            $id = $request->getParam('id');
-
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $result = $this->model->delete($id);
-            if ($result) {
-                $this->response->toJSON(['message' => 'Categoría eliminada correctamente']);
-            } else {
-                $this->response->status(404)->toJSON(['error' => 'Categoría no encontrada']);
-            }
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * GET /api/categorias/{id}/productos - Obtener productos de una categoría
-     */
-    public function getProductos()
-    {
-        try {
-            $request = new Request();
-            $id = $request->getParam('categoria_id');
-
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID de categoría es requerido']);
-                return;
-            }
-
-            $productos = $this->model->getProductos($id);
-            $this->response->toJSON($productos);
+            $response = new Response();
+            $model = new CategoriaModel();
+            $result = $model->delete($id);
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }

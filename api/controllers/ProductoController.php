@@ -5,170 +5,165 @@
  */
 class ProductoController
 {
-    private $model;
-    private $response;
-
-    public function __construct()
-    {
-        $this->model = new ProductoModel();
-        $this->response = new Response();
-    }
-
-    /**
-     * GET /api/productos - Obtener todos los productos
-     */
+    //GET listar todos los productos
     public function index()
     {
         try {
-            $productos = $this->model->getAll();
-            $this->response->toJSON($productos);
+            $response = new Response();
+            //Instancia modelo
+            $productoM = new ProductoModel();
+            //Método del modelo
+            $result = $productoM->all();
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * GET /api/productos/{id} - Obtener producto por ID
-     */
-    public function get()
+    //GET Obtener producto por ID
+    public function get($id)
     {
         try {
-            $request = new Request();
-            $id = $request->get('id');
-
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $producto = $this->model->get($id);
-            if (!$producto) {
-                $this->response->status(404)->toJSON(['error' => 'Producto no encontrado']);
-                return;
-            }
-
-            $this->response->toJSON($producto);
+            $response = new Response();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->get($id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * POST /api/productos - Crear nuevo producto
-     */
+    //POST Crear nuevo producto
     public function create()
     {
         try {
             $request = new Request();
-            $data = $request->getBody();
-
-            // Validaciones
-            if (empty($data->nombre)) {
-                $this->response->status(400)->toJSON(['error' => 'El nombre es obligatorio']);
-                return;
-            }
-
-            if (empty($data->precio)) {
-                $this->response->status(400)->toJSON(['error' => 'El precio es obligatorio']);
-                return;
-            }
-
-            if (empty($data->categoria_id)) {
-                $this->response->status(400)->toJSON(['error' => 'La categoría es obligatoria']);
-                return;
-            }
-
-            $producto = $this->model->create($data);
-            $this->response->status(201)->toJSON($producto);
+            $response = new Response();
+            //Obtener json enviado
+            $inputJSON = $request->getJSON();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->create($inputJSON);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * PUT /api/productos/{id} - Actualizar producto
-     */
+    //PUT actualizar producto
     public function update()
     {
         try {
             $request = new Request();
-            $data = $request->getBody();
-
-            if (empty($data->id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $producto = $this->model->update($data);
-            $this->response->toJSON($producto);
+            $response = new Response();
+            //Obtener json enviado
+            $inputJSON = $request->getJSON();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->update($inputJSON);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * DELETE /api/productos/{id} - Eliminar producto (soft delete)
-     */
-    public function delete()
+    //DELETE eliminar producto
+    public function delete($id)
     {
         try {
-            $request = new Request();
-            $id = $request->get('id');
-
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $result = $this->model->delete($id);
-            if ($result) {
-                $this->response->toJSON(['message' => 'Producto eliminado correctamente']);
-            } else {
-                $this->response->status(404)->toJSON(['error' => 'Producto no encontrado']);
-            }
+            $response = new Response();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->delete($id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * GET /api/productos/categoria/{id} - Productos por categoría
-     */
-    public function getByCategoria()
+    //GET productos por categoría
+    public function getByCategoria($categoria_id)
     {
         try {
-            $request = new Request();
-            $categoria_id = $request->get('categoria_id');
-
-            if (empty($categoria_id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID de categoría es requerido']);
-                return;
-            }
-
-            $productos = $this->model->getByCategoria($categoria_id);
-            $this->response->toJSON($productos);
+            $response = new Response();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->getByCategoria($categoria_id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
-    /**
-     * GET /api/productos/buscar - Buscar productos
-     */
+    //GET buscar productos
     public function buscar()
     {
         try {
             $request = new Request();
+            $response = new Response();
+
+            // Obtener parámetros de búsqueda
             $filters = [
                 'q' => $request->get('q'),
                 'categoria' => $request->get('categoria'),
                 'precio_min' => $request->get('precio_min'),
                 'precio_max' => $request->get('precio_max'),
-                'etiquetas' => $request->get('etiquetas')
+                'etiquetas' => $request->get('etiquetas'),
+                'material' => $request->get('material'),
+                'color' => $request->get('color'),
+                'genero' => $request->get('genero')
             ];
 
-            $productos = $this->model->buscar($filters);
-            $this->response->toJSON($productos);
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->buscar($filters);
+            //Dar respuesta
+            $response->toJSON($result);
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    //GET productos con etiquetas
+    public function indexWithEtiquetas()
+    {
+        try {
+            $response = new Response();
+            //Instancia modelo
+            $productoM = new ProductoModel();
+            //Método del modelo
+            $result = $productoM->allWithEtiquetas();
+            //Dar respuesta
+            $response->toJSON($result);
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    //GET producto con etiquetas por ID
+    public function getWithEtiquetas($id)
+    {
+        try {
+            $response = new Response();
+            //Instancia del modelo
+            $producto = new ProductoModel();
+            //Acción del modelo a ejecutar
+            $result = $producto->getWithEtiquetas($id);
+            //Dar respuesta
+            $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);
         }

@@ -5,7 +5,8 @@
  */
 class ProductoModel
 {
-    private $enlace;
+    // Conexión a la base de datos
+    public $enlace;
 
     public function __construct()
     {
@@ -14,20 +15,68 @@ class ProductoModel
 
     /**
      * Obtener todos los productos activos
+     * @return array - Lista de productos
      */
-    public function getAll()
+    public function all()
     {
         try {
-            $vSql = "SELECT p.*, c.nombre as categoria_nombre, 
-                           COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+            $vSql = "SELECT p.*, c.nombre as categoria_nombre
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
-                    LEFT JOIN resenas r ON p.id = r.producto_id
-                    WHERE p.eliminado = 0 
-                    GROUP BY p.id
-                    ORDER BY p.created_at DESC";
-            return $this->enlace->executeSQL_DQL($vSql);
+                    WHERE p.eliminado = 0 AND p.activo = 1
+                    ORDER BY p.id DESC";
+            $vResultado = $this->enlace->ExecuteSQL($vSql);
+            return $vResultado;
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    /**
+     * Obtener todos los productos con sus etiquetas
+     * @return array - Lista de productos con etiquetas
+     */
+    public function allWithEtiquetas()
+    {
+        try {
+            $vSql = "SELECT 
+                        p.id,
+                        p.nombre,
+                        p.descripcion,
+                        p.precio,
+                        p.stock,
+                        p.activo,
+                        c.nombre as categoria_nombre,
+                        JSON_ARRAYAGG(
+                            CASE 
+                                WHEN e.id IS NOT NULL THEN
+                                    JSON_OBJECT(
+                                        'id', e.id,
+                                        'nombre', e.nombre,
+                                        'activo', e.activo
+                                    )
+                                ELSE NULL
+                            END
+                        ) as etiquetas
+                     FROM productos p
+                     LEFT JOIN categorias c ON p.categoria_id = c.id
+                     LEFT JOIN producto_etiquetas pe ON p.id = pe.producto_id
+                     LEFT JOIN etiquetas e ON pe.etiqueta_id = e.id AND e.activo = 1
+                     WHERE p.eliminado = 0 AND p.activo = 1
+                     GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock, p.activo, c.nombre
+                     ORDER BY p.id DESC";
+            $vResultado = $this->enlace->ExecuteSQL($vSql);
+
+            // Procesar el JSON de etiquetas
+            foreach ($vResultado as &$producto) {
+                $etiquetas = json_decode($producto['etiquetas'], true);
+                // Filtrar etiquetas nulas
+                $producto['etiquetas'] = array_filter($etiquetas, function ($etiqueta) {
+                    return $etiqueta !== null;
+                });
+            }
+
+            return $vResultado;
         } catch (Exception $e) {
             handleException($e);
         }
@@ -35,21 +84,41 @@ class ProductoModel
 
     /**
      * Obtener producto por ID
+     * @param $id - ID del producto
+     * @return object - Datos del producto
      */
     public function get($id)
     {
         try {
-            $id = $this->enlace->escapeString($id);
-            $vSql = "SELECT p.*, c.nombre as categoria_nombre,
-                           COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+            $vSql = "SELECT p.*, c.nombre as categoria_nombre
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
-                    LEFT JOIN resenas r ON p.id = r.producto_id
-                    WHERE p.id = '$id' AND p.eliminado = 0
-                    GROUP BY p.id";
-            $result = $this->enlace->executeSQL_DQL($vSql);
-            return $result ? $result[0] : null;
+                    WHERE p.id = $id AND p.eliminado = 0 AND p.activo = 1";
+            $vResultado = $this->enlace->ExecuteSQL($vSql);
+            return !empty($vResultado) ? $vResultado[0] : null;
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    /**
+     * Obtener producto con etiquetas por ID
+     * @param $id - ID del producto
+     * @return object - Datos del producto con etiquetas
+     */
+    public function getWithEtiquetas($id)
+    {
+        try {
+            $producto = $this->get($id);
+            if ($producto) {
+                $vSql = "SELECT e.* FROM etiquetas e
+                        INNER JOIN producto_etiquetas pe ON e.id = pe.etiqueta_id
+                        WHERE pe.producto_id = $id AND e.activo = 1
+                        ORDER BY e.nombre";
+                $etiquetas = $this->enlace->ExecuteSQL($vSql);
+                $producto['etiquetas'] = $etiquetas;
+            }
+            return $producto;
         } catch (Exception $e) {
             handleException($e);
         }
@@ -57,65 +126,72 @@ class ProductoModel
 
     /**
      * Crear nuevo producto
+     * @param $datos - Datos del producto a crear
+     * @return object - Datos del producto creado
      */
     public function create($datos)
     {
         try {
-            $nombre = $this->enlace->escapeString($datos->nombre);
-            $descripcion = $this->enlace->escapeString($datos->descripcion ?? '');
+            // Escapar y validar datos
+            $nombre = addslashes($datos->nombre);
+            $descripcion = isset($datos->descripcion) ? addslashes($datos->descripcion) : '';
             $precio = (float) $datos->precio;
             $categoria_id = (int) $datos->categoria_id;
-            $stock = (int) ($datos->stock ?? 0);
-            $sku = $this->enlace->escapeString($datos->sku ?? $this->generateSKU());
-            $peso = (float) ($datos->peso ?? 0);
-            $dimensiones = $this->enlace->escapeString($datos->dimensiones ?? '');
-            $material = $this->enlace->escapeString($datos->material ?? '');
-            $color_principal = $this->enlace->escapeString($datos->color_principal ?? '');
-            $genero = $this->enlace->escapeString($datos->genero ?? 'unisex');
-            $temporada = $this->enlace->escapeString($datos->temporada ?? '');
+            $stock = isset($datos->stock) ? (int) $datos->stock : 0;
+            $sku = isset($datos->sku) ? addslashes($datos->sku) : $this->generateSKU();
+            $peso = isset($datos->peso) ? (float) $datos->peso : 0;
+            $dimensiones = isset($datos->dimensiones) ? addslashes($datos->dimensiones) : '';
+            $material = isset($datos->material) ? addslashes($datos->material) : '';
+            $color_principal = isset($datos->color_principal) ? addslashes($datos->color_principal) : '';
+            $genero = isset($datos->genero) ? addslashes($datos->genero) : 'unisex';
+            $temporada = isset($datos->temporada) ? addslashes($datos->temporada) : '';
+            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
+            // Consulta SQL para insertar
             $vSql = "INSERT INTO productos (
                         nombre, descripcion, precio, categoria_id, stock, sku,
-                        peso, dimensiones, material, color_principal, genero, temporada,
-                        created_at
+                        peso, dimensiones, material, color_principal, genero, temporada, activo
                     ) VALUES (
                         '$nombre', '$descripcion', $precio, $categoria_id, $stock, '$sku',
-                        $peso, '$dimensiones', '$material', '$color_principal', '$genero', '$temporada',
-                        NOW()
+                        $peso, '$dimensiones', '$material', '$color_principal', '$genero', '$temporada', $activo
                     )";
 
-            $this->enlace->executeSQL_DML($vSql);
-            $id = $this->enlace->getLastId();
+            // Ejecutar la consulta y obtener el ID del último insert
+            $idProducto = $this->enlace->executeSQL_DML_last($vSql);
 
             // Si hay etiquetas, las asociamos
             if (isset($datos->etiquetas) && is_array($datos->etiquetas)) {
-                $this->associateEtiquetas($id, $datos->etiquetas);
+                $this->associateEtiquetas($idProducto, $datos->etiquetas);
             }
 
-            return $this->get($id);
+            // Retornar el producto creado
+            return $this->get($idProducto);
         } catch (Exception $e) {
             handleException($e);
         }
     }
 
     /**
-     * Actualizar producto
+     * Actualizar producto existente
+     * @param $datos - Datos del producto a actualizar
+     * @return object - Datos del producto actualizado
      */
     public function update($datos)
     {
         try {
             $id = (int) $datos->id;
-            $nombre = $this->enlace->escapeString($datos->nombre);
-            $descripcion = $this->enlace->escapeString($datos->descripcion ?? '');
+            $nombre = addslashes($datos->nombre);
+            $descripcion = isset($datos->descripcion) ? addslashes($datos->descripcion) : '';
             $precio = (float) $datos->precio;
             $categoria_id = (int) $datos->categoria_id;
-            $stock = (int) ($datos->stock ?? 0);
-            $peso = (float) ($datos->peso ?? 0);
-            $dimensiones = $this->enlace->escapeString($datos->dimensiones ?? '');
-            $material = $this->enlace->escapeString($datos->material ?? '');
-            $color_principal = $this->enlace->escapeString($datos->color_principal ?? '');
-            $genero = $this->enlace->escapeString($datos->genero ?? 'unisex');
-            $temporada = $this->enlace->escapeString($datos->temporada ?? '');
+            $stock = isset($datos->stock) ? (int) $datos->stock : 0;
+            $peso = isset($datos->peso) ? (float) $datos->peso : 0;
+            $dimensiones = isset($datos->dimensiones) ? addslashes($datos->dimensiones) : '';
+            $material = isset($datos->material) ? addslashes($datos->material) : '';
+            $color_principal = isset($datos->color_principal) ? addslashes($datos->color_principal) : '';
+            $genero = isset($datos->genero) ? addslashes($datos->genero) : 'unisex';
+            $temporada = isset($datos->temporada) ? addslashes($datos->temporada) : '';
+            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
             $vSql = "UPDATE productos SET 
                         nombre = '$nombre',
@@ -129,7 +205,7 @@ class ProductoModel
                         color_principal = '$color_principal',
                         genero = '$genero',
                         temporada = '$temporada',
-                        updated_at = NOW()
+                        activo = $activo
                     WHERE id = $id AND eliminado = 0";
 
             $this->enlace->executeSQL_DML($vSql);
@@ -146,14 +222,16 @@ class ProductoModel
     }
 
     /**
-     * Eliminar producto (soft delete)
+     * Eliminar lógicamente un producto
+     * @param $id - ID del producto a eliminar
+     * @return bool - True si se eliminó correctamente
      */
     public function delete($id)
     {
         try {
-            $id = $this->enlace->escapeString($id);
-            $vSql = "UPDATE productos SET eliminado = 1, updated_at = NOW() WHERE id = '$id'";
-            return $this->enlace->executeSQL_DML($vSql);
+            $vSql = "UPDATE productos SET eliminado = 1 WHERE id = $id";
+            $this->enlace->executeSQL_DML($vSql);
+            return true;
         } catch (Exception $e) {
             handleException($e);
         }
@@ -161,21 +239,19 @@ class ProductoModel
 
     /**
      * Obtener productos por categoría
+     * @param $categoria_id - ID de la categoría
+     * @return array - Lista de productos de la categoría
      */
     public function getByCategoria($categoria_id)
     {
         try {
-            $categoria_id = $this->enlace->escapeString($categoria_id);
-            $vSql = "SELECT p.*, c.nombre as categoria_nombre,
-                           COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+            $vSql = "SELECT p.*, c.nombre as categoria_nombre
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
-                    LEFT JOIN resenas r ON p.id = r.producto_id
-                    WHERE p.categoria_id = '$categoria_id' AND p.eliminado = 0
-                    GROUP BY p.id
-                    ORDER BY p.created_at DESC";
-            return $this->enlace->executeSQL_DQL($vSql);
+                    WHERE p.categoria_id = $categoria_id AND p.eliminado = 0 AND p.activo = 1
+                    ORDER BY p.id DESC";
+            $vResultado = $this->enlace->ExecuteSQL($vSql);
+            return $vResultado;
         } catch (Exception $e) {
             handleException($e);
         }
@@ -183,20 +259,22 @@ class ProductoModel
 
     /**
      * Buscar productos con filtros
+     * @param $filters - Array de filtros de búsqueda
+     * @return array - Lista de productos que coinciden con los filtros
      */
     public function buscar($filters)
     {
         try {
-            $conditions = ["p.eliminado = 0"];
+            $conditions = ["p.eliminado = 0", "p.activo = 1"];
 
             if (!empty($filters['q'])) {
-                $q = $this->enlace->escapeString($filters['q']);
+                $q = addslashes($filters['q']);
                 $conditions[] = "(p.nombre LIKE '%$q%' OR p.descripcion LIKE '%$q%' OR p.material LIKE '%$q%')";
             }
 
             if (!empty($filters['categoria'])) {
-                $categoria = $this->enlace->escapeString($filters['categoria']);
-                $conditions[] = "p.categoria_id = '$categoria'";
+                $categoria = (int) $filters['categoria'];
+                $conditions[] = "p.categoria_id = $categoria";
             }
 
             if (!empty($filters['precio_min'])) {
@@ -209,12 +287,27 @@ class ProductoModel
                 $conditions[] = "p.precio <= $precio_max";
             }
 
+            if (!empty($filters['material'])) {
+                $material = addslashes($filters['material']);
+                $conditions[] = "p.material LIKE '%$material%'";
+            }
+
+            if (!empty($filters['color'])) {
+                $color = addslashes($filters['color']);
+                $conditions[] = "p.color_principal LIKE '%$color%'";
+            }
+
+            if (!empty($filters['genero'])) {
+                $genero = addslashes($filters['genero']);
+                $conditions[] = "p.genero = '$genero'";
+            }
+
             if (!empty($filters['etiquetas'])) {
                 $etiquetas = explode(',', $filters['etiquetas']);
                 $etiqueta_conditions = [];
                 foreach ($etiquetas as $etiqueta) {
-                    $etiqueta = $this->enlace->escapeString(trim($etiqueta));
-                    $etiqueta_conditions[] = "pe.etiqueta_id = '$etiqueta'";
+                    $etiqueta = (int) trim($etiqueta);
+                    $etiqueta_conditions[] = "pe.etiqueta_id = $etiqueta";
                 }
                 if (!empty($etiqueta_conditions)) {
                     $conditions[] = "EXISTS (
@@ -226,17 +319,13 @@ class ProductoModel
 
             $where_clause = implode(' AND ', $conditions);
 
-            $vSql = "SELECT p.*, c.nombre as categoria_nombre,
-                           COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+            $vSql = "SELECT p.*, c.nombre as categoria_nombre
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
-                    LEFT JOIN resenas r ON p.id = r.producto_id
                     WHERE $where_clause
-                    GROUP BY p.id
-                    ORDER BY p.created_at DESC";
+                    ORDER BY p.id DESC";
 
-            return $this->enlace->executeSQL_DQL($vSql);
+            return $this->enlace->ExecuteSQL($vSql);
         } catch (Exception $e) {
             handleException($e);
         }
@@ -244,14 +333,16 @@ class ProductoModel
 
     /**
      * Asociar etiquetas a un producto
+     * @param $producto_id - ID del producto
+     * @param $etiquetas - Array de IDs de etiquetas
      */
     private function associateEtiquetas($producto_id, $etiquetas)
     {
         try {
             foreach ($etiquetas as $etiqueta_id) {
-                $etiqueta_id = $this->enlace->escapeString($etiqueta_id);
+                $etiqueta_id = (int) $etiqueta_id;
                 $vSql = "INSERT IGNORE INTO producto_etiquetas (producto_id, etiqueta_id) 
-                        VALUES ($producto_id, '$etiqueta_id')";
+                        VALUES ($producto_id, $etiqueta_id)";
                 $this->enlace->executeSQL_DML($vSql);
             }
         } catch (Exception $e) {
@@ -261,6 +352,8 @@ class ProductoModel
 
     /**
      * Actualizar etiquetas de un producto
+     * @param $producto_id - ID del producto
+     * @param $etiquetas - Array de IDs de etiquetas
      */
     private function updateEtiquetas($producto_id, $etiquetas)
     {
@@ -278,6 +371,7 @@ class ProductoModel
 
     /**
      * Generar SKU único para el producto
+     * @return string - SKU generado
      */
     private function generateSKU()
     {

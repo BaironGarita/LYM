@@ -1,7 +1,6 @@
 <?php
 class CategoriaController
 {
-    // GET /categoria
     public function index()
     {
         try {
@@ -14,13 +13,13 @@ class CategoriaController
         }
     }
 
-    // GET /categoria/{id}
     public function get()
     {
         try {
+            $request = new Request();
             $response = new Response();
 
-            $id = isset($_GET['id']) ? $_GET['id'] : null;
+           $id = isset($_GET['id']) ? $_GET['id'] : null;
 
             if (!$id) {
                 throw new Exception("Parámetro 'id' requerido.");
@@ -39,7 +38,7 @@ class CategoriaController
         }
     }
 
-    // POST /categoria
+
     public function create()
     {
         try {
@@ -56,7 +55,7 @@ class CategoriaController
         }
     }
 
-    // PUT /categoria/{id}
+
     public function update()
     {
         try {
@@ -76,13 +75,22 @@ class CategoriaController
             handleException($e);
         }
     }
-    // DELETE /categoria/{id}
-    public function delete($id)
+
+
+    public function delete()
     {
         try {
+            $request = new Request();
             $response = new Response();
+
+            $data = $request->getJSON();
+
+            $id = $data["id"] ?? null;
+            if (!$id) throw new Exception("ID no proporcionado para eliminar", 400);
+
             $model = new CategoriaModel();
             $result = $model->delete($id);
+
             $response->toJSON($result);
         } catch (Exception $e) {
             handleException($e);

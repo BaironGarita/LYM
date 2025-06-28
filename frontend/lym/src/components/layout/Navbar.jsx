@@ -14,7 +14,9 @@ const NavLink = ({ href, children }) => (
 );
 
 const Button = ({ children, variant, size, className }) => (
-  <button className={`${className || ''} inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${variant === 'ghost' ? 'hover:bg-accent hover:text-accent-foreground' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}>
+  <button
+    className={`${className || ""} inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${variant === "ghost" ? "hover:bg-accent hover:text-accent-foreground" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
+  >
     {children}
   </button>
 );
@@ -37,20 +39,23 @@ export function Navbar() {
             <NavLink href="/contact">Contacto</NavLink>
           </nav>
         </div>
-        
+
         <div className="flex flex-1 items-center justify-end space-x-2">
           {/* Botón para menú móvil */}
           <div className="md:hidden">
-             <Button variant="ghost">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Abrir Menú</span>
+            <Button variant="ghost">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Abrir Menú</span>
             </Button>
           </div>
-         
-          <nav className="hidden items-center md:flex">
+
+          <nav className="hidden items-center space-x-2 md:flex">
+            <a href="/login">
+              <Button variant="ghost">Iniciar Sesión</Button>
+            </a>
             <Button>
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Carrito (0)
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Carrito (0)
             </Button>
           </nav>
         </div>

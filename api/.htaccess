@@ -1,32 +1,10 @@
-# Esto te permite hacer uso del módulo mod_rewrite
-
-# para poder reescribir o redireccionar URLs.
-
 RewriteEngine On
+# Permitir acceso directo a archivos en /uploads/
+RewriteCond %{REQUEST_URI} ^/uploads/
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^.*$ - [L]
 
-# Si las siguientes condiciones son verdaderas, entonces
-
-# se redirecciona a la URL:
-
-# si el nombre de fichero solicitado no es un archivo que
-
-# ya exista (podría existir a nivel de servidor)
-
+# Reglas existentes para enrutar todo lo demás a index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.\*)$ index.php [QSA,L]
-
-# Entonces sobreescribe la URL de la siguiente forma:
-
-# Toma el fichero solicitado y se convierte en
-
-# un parámetro de URL. Esto además añade cualquier texto
-
-# de la URL original como parámetros adicionales [QSA]
-
-#QSA : añade la cadena de la consulta a la URL que sustituye.
-RewriteRule ^ index.php [QSA,L]
-
-Header always set Access-Control-Allow-Origin "http://localhost:81"
-Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

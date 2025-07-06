@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Modelo para la gestión de productos de moda
  * Basado en el README.md - Sistema de e-commerce de moda
@@ -11,14 +12,17 @@ class ProductoModel
     {
         $this->enlace = new MySqlConnect();
     }
+    
 
     /**
      * Obtener todos los productos activos
-     */
+    */
     public function getAll()
     {
+        error_log('Antes de ejecutar SQL en getAll');
+
         try {
-            $vSql = "SELECT p.*, c.nombre as categoria_nombre, 
+           $vSql = "SELECT p.*, c.nombre as categoria_nombre, 
                            COUNT(r.id) as total_resenas,
                            AVG(r.valoracion) as promedio_valoracion
                     FROM productos p 
@@ -27,7 +31,11 @@ class ProductoModel
                     WHERE p.eliminado = 0 
                     GROUP BY p.id
                     ORDER BY p.created_at DESC";
-            return $this->enlace->executeSQL_DQL($vSql);
+                    
+            
+            return $this->enlace->executeSQL($vSql);
+            error_log('Después de ejecutar SQL en getAll');
+
         } catch (Exception $e) {
             handleException($e);
         }
@@ -48,7 +56,7 @@ class ProductoModel
                     LEFT JOIN resenas r ON p.id = r.producto_id
                     WHERE p.id = '$id' AND p.eliminado = 0
                     GROUP BY p.id";
-            $result = $this->enlace->executeSQL_DQL($vSql);
+            $result = $this->enlace->executeSQL($vSql);
             return $result ? $result[0] : null;
         } catch (Exception $e) {
             handleException($e);
@@ -175,7 +183,7 @@ class ProductoModel
                     WHERE p.categoria_id = '$categoria_id' AND p.eliminado = 0
                     GROUP BY p.id
                     ORDER BY p.created_at DESC";
-            return $this->enlace->executeSQL_DQL($vSql);
+            return $this->enlace->executeSQL($vSql);
         } catch (Exception $e) {
             handleException($e);
         }
@@ -236,7 +244,7 @@ class ProductoModel
                     GROUP BY p.id
                     ORDER BY p.created_at DESC";
 
-            return $this->enlace->executeSQL_DQL($vSql);
+            return $this->enlace->executeSQL($vSql);
         } catch (Exception $e) {
             handleException($e);
         }
@@ -282,5 +290,51 @@ class ProductoModel
     private function generateSKU()
     {
         return 'LYM-' . strtoupper(substr(uniqid(), -8));
+    }
+
+    /**
+     * Insertar imagen de producto en la base de datos
+     */
+    public function addImagen($data)
+    {
+        try {
+            $producto_id = (int)$data['producto_id'];
+            $nombre_archivo = $this->enlace->escapeString($data['nombre_archivo']);
+            $ruta_archivo = $this->enlace->escapeString($data['ruta_archivo']);
+            $alt_text = $this->enlace->escapeString($data['alt_text']);
+            $orden = (int)$data['orden'];
+            $es_principal = (int)$data['es_principal'];
+
+            $sql = "INSERT INTO producto_imagenes (producto_id, nombre_archivo, ruta_archivo, alt_text, orden, es_principal, created_at)
+                    VALUES ($producto_id, '$nombre_archivo', '$ruta_archivo', '$alt_text', $orden, $es_principal, NOW())";
+            $this->enlace->executeSQL_DML($sql);
+            $id = $this->enlace->getLastId();
+            return [
+                'id' => $id,
+                'producto_id' => $producto_id,
+                'nombre_archivo' => $nombre_archivo,
+                'ruta_archivo' => $ruta_archivo,
+                'alt_text' => $alt_text,
+                'orden' => $orden,
+                'es_principal' => $es_principal
+            ];
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    /**
+     * Obtener imágenes de un producto
+     */
+    public function getImagenes($producto_id)
+    {
+        try {
+            $producto_id = (int)$producto_id;
+            $sql = "SELECT * FROM producto_imagenes WHERE producto_id = $producto_id ORDER BY orden ASC, id ASC";
+            $imagenes = $this->enlace->executeSQL($sql);
+            return $imagenes;
+        } catch (Exception $e) {
+            handleException($e);
+        }
     }
 }

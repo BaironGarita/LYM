@@ -44,26 +44,31 @@ class MySqlConnect
 	//
 	public function executeSQL($sql, $resultType = "obj")
 	{
-		$lista = NULL;
+		$lista = [];
 		try {
 			$this->connect();
 			if ($result = $this->link->query($sql)) {
-				for ($num_fila = $result->num_rows - 1; $num_fila >= 0; $num_fila--) {
-					$result->data_seek($num_fila);
-					switch ($resultType) {
-						case "obj":
-							$lista[] = mysqli_fetch_object($result);
-							break;
-						case "asoc":
-							$lista[] = mysqli_fetch_assoc($result);
-							break;
-						case "num":
-							$lista[] = mysqli_fetch_row($result);
-							break;
-						default:
-							$lista[] = mysqli_fetch_object($result);
-							break;
-					}
+				switch ($resultType) {
+					case "obj":
+						while ($row = $result->fetch_object()) {
+							$lista[] = $row;
+						}
+						break;
+					case "asoc":
+						while ($row = $result->fetch_assoc()) {
+							$lista[] = $row;
+						}
+						break;
+					case "num":
+						while ($row = $result->fetch_row()) {
+							$lista[] = $row;
+						}
+						break;
+					default:
+						while ($row = $result->fetch_object()) {
+							$lista[] = $row;
+						}
+						break;
 				}
 			} else {
 				handleException($this->link->error);
@@ -223,5 +228,21 @@ class MySqlConnect
 		} catch (Exception $e) {
 			handleException($e);
 		}
+	}
+
+	public function escapeString($string)
+	{
+		$this->connect();
+		$escaped = $this->link->real_escape_string($string);
+		$this->link->close();
+		return $escaped;
+	}
+
+	public function getLastId()
+	{
+		$this->connect();
+		$id = $this->link->insert_id;
+		$this->link->close();
+		return $id;
 	}
 }

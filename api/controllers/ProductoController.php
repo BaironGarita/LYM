@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controlador para la gestión de productos de moda
  * Basado en el README.md - Dominio de moda y accesorios
@@ -20,8 +21,10 @@ class ProductoController
     public function index()
     {
         try {
+            error_log('Entrando a index de ProductoController');
             $productos = $this->model->getAll();
             $this->response->toJSON($productos);
+            error_log('Productos obtenidos: ' . json_encode($productos));
         } catch (Exception $e) {
             handleException($e);
         }
@@ -169,6 +172,80 @@ class ProductoController
 
             $productos = $this->model->buscar($filters);
             $this->response->toJSON($productos);
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    /**
+     * POST /api/productos/{id}/imagenes - Subir imagen para un producto
+     */
+    public function addImagen()
+    {
+        try {
+            error_log('FILES: ' . print_r($_FILES, true));
+            error_log('POST: ' . print_r($_POST, true));
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->response->status(405)->toJSON(['error' => 'Método no permitido']);
+                return;
+            }
+            $producto_id = $_POST['producto_id'] ?? null;
+            if (!$producto_id) {
+                $this->response->status(400)->toJSON(['error' => 'producto_id es requerido']);
+                return;
+            }
+            if (!isset($_FILES['imagen'])) {
+                $this->response->status(400)->toJSON(['error' => 'No se envió ninguna imagen']);
+                return;
+            }
+            $file = $_FILES['imagen'];
+            $alt_text = $_POST['alt_text'] ?? '';
+            $orden = $_POST['orden'] ?? 1;
+            $es_principal = $_POST['es_principal'] ?? 0;
+
+            // Validar y mover archivo
+            $uploads_dir = __DIR__ . '/../uploads/';
+            if (!is_dir($uploads_dir)) {
+                mkdir($uploads_dir, 0777, true);
+            }
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $nombre_archivo = uniqid('prodimg_') . '.' . $ext;
+            $ruta_archivo = $uploads_dir . $nombre_archivo;
+            $ruta_db = 'uploads/' . $nombre_archivo;
+
+            if (!move_uploaded_file($file['tmp_name'], $ruta_archivo)) {
+                $this->response->status(500)->toJSON(['error' => 'Error al guardar la imagen']);
+                return;
+            }
+
+            $imagen = $this->model->addImagen([
+                'producto_id' => $producto_id,
+                'nombre_archivo' => $nombre_archivo,
+                'ruta_archivo' => $ruta_db,
+                'alt_text' => $alt_text,
+                'orden' => $orden,
+                'es_principal' => $es_principal
+            ]);
+            $this->response->status(201)->toJSON($imagen);
+        } catch (Exception $e) {
+            handleException($e);
+        }
+    }
+
+    /**
+     * GET /api/productos/{id}/imagenes - Obtener imágenes de un producto
+     */
+    public function getImagenes()
+    {
+        try {
+            $request = new Request();
+            $producto_id = $request->get('producto_id') ?? $request->get('id');
+            if (!$producto_id) {
+                $this->response->status(400)->toJSON(['error' => 'producto_id es requerido']);
+                return;
+            }
+            $imagenes = $this->model->getImagenes($producto_id);
+            $this->response->toJSON($imagenes);
         } catch (Exception $e) {
             handleException($e);
         }

@@ -74,12 +74,7 @@ const ProductCard = ({ product, onAddToCart }) => {
         {product.temporada && (
           <div className="text-xs text-gray-600 mb-1">Temporada: {product.temporada}</div>
         )}
-        <button
-          className="mt-2 px-3 py-1 bg-primary text-white rounded shadow hover:bg-primary-dark text-xs"
-          onClick={() => onAddToCart && onAddToCart(product)}
-        >
-          Añadir al carrito
-        </button>
+        {/* Botón de añadir al carrito eliminado */}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, ShoppingCart, Heart, Star, Truck } from "lucide-react";
+import { Eye, ShoppingCart, Heart, Star, Truck, Tag } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
 import { Button } from "./UI/button";
 import { Card, CardContent } from "./UI/card";
@@ -40,6 +40,16 @@ const ProductCard = ({ product, onAddToCart }) => {
   const placeholder = "https://via.placeholder.com/200x200?text=Sin+Imagen";
   const navigate = useNavigate();
 
+  // Obtener información de promoción del producto
+  const promocionInfo = product.promocionInfo || {
+    precioOriginal: product.precio,
+    precioFinal: product.precio,
+    descuento: 0,
+    promocionAplicada: null,
+  };
+
+  const isOnSale = promocionInfo.descuento > 0;
+
   useEffect(() => {
     setIsLoading(true);
     fetch(
@@ -69,8 +79,13 @@ const ProductCard = ({ product, onAddToCart }) => {
     if (onAddToCart) {
       setIsAddingToCart(true);
       try {
-        await onAddToCart(product);
-        // Opcional: mostrar feedback visual
+        // Enviar producto con precio promocional
+        await onAddToCart({
+          ...product,
+          precio: promocionInfo.precioFinal,
+          precioOriginal: promocionInfo.precioOriginal,
+          promocionAplicada: promocionInfo.promocionAplicada,
+        });
       } catch (error) {
         console.error("Error adding to cart:", error);
       } finally {
@@ -78,18 +93,6 @@ const ProductCard = ({ product, onAddToCart }) => {
       }
     }
   };
-
-  const getDiscountPercentage = () => {
-    if (product.precio_original && product.precio_original > product.precio) {
-      return Math.round(
-        ((product.precio_original - product.precio) / product.precio_original) *
-          100
-      );
-    }
-    return 0;
-  };
-
-  const isOnSale = getDiscountPercentage() > 0;
 
   if (isLoading) {
     return <ProductCardSkeleton />;
@@ -99,13 +102,22 @@ const ProductCard = ({ product, onAddToCart }) => {
     <TooltipProvider>
       <Card className="group w-full max-w-sm mx-auto overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 shadow-md">
         <CardContent className="p-0">
-          {/* Contenedor de imagen con overlay */}
           <div className="relative overflow-hidden">
-            {/* Badge de descuento */}
+            {/* Badge de descuento mejorado */}
             {isOnSale && (
               <div className="absolute top-3 left-3 z-20">
-                <Badge className="bg-red-500 text-white font-bold px-2 py-1 text-xs">
-                  -{getDiscountPercentage()}%
+                <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg">
+                  <Tag className="h-3 w-3 mr-1" />
+                  -{promocionInfo.descuento}% OFF
+                </Badge>
+              </div>
+            )}
+
+            {/* Badge de promoción específica */}
+            {promocionInfo.promocionAplicada && (
+              <div className="absolute bottom-3 left-3 z-20">
+                <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white font-medium px-2 py-1 text-xs shadow-lg">
+                  {promocionInfo.promocionAplicada.nombre}
                 </Badge>
               </div>
             )}
@@ -178,13 +190,10 @@ const ProductCard = ({ product, onAddToCart }) => {
               )}
             </div>
 
-            {/* Overlay gradiente mejorado */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
 
-          {/* Información del producto */}
           <div className="p-5 space-y-3">
-            {/* Rating y envío (opcional) */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -196,7 +205,6 @@ const ProductCard = ({ product, onAddToCart }) => {
               </div>
             </div>
 
-            {/* Nombre del producto */}
             <h3
               className="font-semibold text-lg leading-tight line-clamp-2 text-gray-900 cursor-pointer hover:text-primary transition-colors"
               onClick={() => navigate(`/producto/${product.id}`)}
@@ -204,19 +212,27 @@ const ProductCard = ({ product, onAddToCart }) => {
               {product.nombre}
             </h3>
 
-            {/* Precio mejorado */}
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-primary">
-                {formatPrice(product.precio)}
-              </span>
-              {isOnSale && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.precio_original)}
+            {/* Precio mejorado con promoción */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-primary">
+                  {formatPrice(promocionInfo.precioFinal)}
                 </span>
+                {isOnSale && (
+                  <span className="text-sm text-gray-500 line-through">
+                    {formatPrice(promocionInfo.precioOriginal)}
+                  </span>
+                )}
+              </div>
+              {isOnSale && (
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                    Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
+                  </Badge>
+                </div>
               )}
             </div>
 
-            {/* Características del producto mejoradas */}
             <div className="flex flex-wrap gap-1.5">
               {product.color_principal && (
                 <Badge
@@ -244,7 +260,6 @@ const ProductCard = ({ product, onAddToCart }) => {
               )}
             </div>
 
-            {/* Botón de añadir al carrito mejorado */}
             <Button
               className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAddToCart}
@@ -258,12 +273,13 @@ const ProductCard = ({ product, onAddToCart }) => {
               ) : (
                 <>
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Añadir al carrito
+                  {isOnSale
+                    ? `Añadir por ${formatPrice(promocionInfo.precioFinal)}`
+                    : "Añadir al carrito"}
                 </>
               )}
             </Button>
 
-            {/* Mensaje de stock (opcional) */}
             {product.stock && product.stock < 5 && (
               <p className="text-xs text-orange-600 font-medium text-center">
                 ¡Solo quedan {product.stock} unidades!

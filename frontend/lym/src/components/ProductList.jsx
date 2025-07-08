@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import CategoryFilter from "./CategoryFilter";
+import { usePromociones } from "../hooks/usePromociones";
 
 const ProductList = ({ onAddToCart }) => {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { promociones, calcularPrecio } = usePromociones();
 
   useEffect(() => {
     setIsLoading(true);
@@ -20,16 +22,21 @@ const ProductList = ({ onAddToCart }) => {
       })
       .then((data) => {
         console.log("🛍️ Productos recibidos:", data);
-        setProducts(data);
+        // Enriquecer productos con información de promociones
+        const productosConPromociones = data.map((producto) => ({
+          ...producto,
+          promocionInfo: calcularPrecio(producto),
+        }));
+        setProducts(productosConPromociones);
       })
       .catch((err) => {
         console.error("❌ Error al obtener productos:", err);
-        setProducts([]); // Limpiar productos en caso de error
+        setProducts([]);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [selectedCategory]);
+  }, [selectedCategory, promociones, calcularPrecio]);
 
   return (
     <div>

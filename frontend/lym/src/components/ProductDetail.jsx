@@ -20,6 +20,8 @@ import {
   Facebook,
   Twitter,
   Link2,
+  Tag,
+  Percent
 } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
 import { Button } from "./UI/button";
@@ -35,6 +37,7 @@ import {
   TooltipContent,
 } from "./UI/tooltip";
 import { toast } from "sonner";
+import { usePromociones } from "../hooks/usePromociones";
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -66,6 +69,7 @@ const ProductDetail = ({ onAddToCart }) => {
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const [viewCount, setViewCount] = useState(0);
   const shareMenuRef = useRef(null);
+  const { calcularPrecio } = usePromociones();
 
   useClickOutside(shareMenuRef, () => setShareMenuOpen(false));
 
@@ -89,27 +93,31 @@ const ProductDetail = ({ onAddToCart }) => {
         const productData = await productResponse.json();
         const imagesData = await imagesResponse.json();
 
-        // **Ajuste clave**: Si la API devuelve un array, toma el primer elemento.
         const productObject = Array.isArray(productData)
           ? productData[0]
           : productData;
+
+        // Enriquecer con información de promoción
+        if (productObject) {
+          productObject.promocionInfo = calcularPrecio(productObject);
+        }
 
         setProduct(productObject);
         setImagenes(Array.isArray(imagesData) ? imagesData : []);
 
         if (productObject) {
-          setViewCount(Math.floor(Math.random() * 1000) + 100); // Simular vistas
+          setViewCount(Math.floor(Math.random() * 1000) + 100);
         }
       } catch (error) {
         console.error("Error al cargar los datos del producto:", error);
-        setProduct(null); // Asegurarse de que no hay datos de un producto anterior
+        setProduct(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [id, calcularPrecio]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("es-CR", {
@@ -120,20 +128,20 @@ const ProductDetail = ({ onAddToCart }) => {
   };
 
   const getDiscountPercentage = () => {
-    if (product?.precio_original && product.precio_original > product.precio) {
-      return Math.round(
-        ((product.precio_original - product.precio) / product.precio_original) *
-          100
-      );
-    }
-    return 0;
+    return product?.promocionInfo?.descuento || 0;
   };
 
   const handleAddToCart = async () => {
     if (onAddToCart) {
       setIsAddingToCart(true);
       try {
-        await onAddToCart({ ...product, quantity });
+        await onAddToCart({ 
+          ...product, 
+          quantity,
+          precio: product.promocionInfo.precioFinal,
+          precioOriginal: product.promocionInfo.precioOriginal,
+          promocionAplicada: product.promocionInfo.promocionAplicada
+        });
         toast.success("¡Agregado al carrito!", {
           description: `${product.nombre} (${quantity}) se agregó a tu carrito`,
         });
@@ -226,6 +234,12 @@ const ProductDetail = ({ onAddToCart }) => {
   const isOnSale = getDiscountPercentage() > 0;
   const isInStock = product?.stock > 0;
   const stockStatus = product ? getStockStatus() : null;
+  const promocionInfo = product?.promocionInfo || {
+    precioOriginal: product?.precio || 0,
+    precioFinal: product?.precio || 0,
+    descuento: 0,
+    promocionAplicada: null
+  };
 
   if (loading) {
     return (
@@ -309,7 +323,14 @@ const ProductDetail = ({ onAddToCart }) => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div 
+        className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
+        style={{ 
+          background: 'linear-gradient(135deg, rgb(249 250 251) 0%, rgb(255 255 255) 100%)',
+          position: 'relative',
+          zIndex: 0
+        }}
+      >
         {/* Enhanced Breadcrumb */}
         <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 py-4">
@@ -348,7 +369,18 @@ const ProductDetail = ({ onAddToCart }) => {
                     {isOnSale && (
                       <div className="absolute top-6 left-6 z-10">
                         <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                          <Tag className="h-4 w-4 mr-2" />
                           -{getDiscountPercentage()}% OFF
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Badge de promoción específica */}
+                    {promocionInfo.promocionAplicada && (
+                      <div className="absolute bottom-6 left-6 z-10">
+                        <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                          <Percent className="h-4 w-4 mr-2" />
+                          {promocionInfo.promocionAplicada.nombre}
                         </Badge>
                       </div>
                     )}
@@ -520,21 +552,45 @@ const ProductDetail = ({ onAddToCart }) => {
                   </span>
                 </div>
 
-                {/* Price */}
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                    {formatPrice(product.precio)}
-                  </span>
+                {/* Enhanced Price with Promotion */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                      {formatPrice(promocionInfo.precioFinal)}
+                    </span>
+                    {isOnSale && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl text-gray-500 line-through">
+                          {formatPrice(promocionInfo.precioOriginal)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
                   {isOnSale && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl text-gray-500 line-through">
-                        {formatPrice(product.precio_original)}
-                      </span>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Ahorras{" "}
-                        {formatPrice(product.precio_original - product.precio)}
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
+                        Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
+                      </Badge>
+                      <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-3 py-1">
+                        {promocionInfo.descuento}% de descuento
                       </Badge>
                     </div>
+                  )}
+
+                  {/* Información de la promoción */}
+                  {promocionInfo.promocionAplicada && (
+                    <Alert className="border-green-200 bg-green-50">
+                      <Tag className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="text-green-800">
+                        <strong>Promoción activa:</strong> {promocionInfo.promocionAplicada.nombre}
+                        {promocionInfo.promocionAplicada.fecha_fin && (
+                          <span className="block text-sm mt-1">
+                            Válida hasta: {new Date(promocionInfo.promocionAplicada.fecha_fin).toLocaleDateString()}
+                          </span>
+                        )}
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </div>
               </div>
@@ -576,7 +632,7 @@ const ProductDetail = ({ onAddToCart }) => {
                 </Card>
               </div>
 
-              {/* Quantity and Add to Cart */}
+              {/* Enhanced Add to Cart Button */}
               <Card className="border-0 bg-gray-50">
                 <CardContent className="p-6">
                   <div className="space-y-6">
@@ -620,10 +676,25 @@ const ProductDetail = ({ onAddToCart }) => {
                       ) : (
                         <>
                           <ShoppingCart className="h-6 w-6 mr-3" />
-                          {isInStock ? "Añadir al carrito" : "Sin stock"}
+                          {isInStock ? 
+                            (isOnSale ? 
+                              `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}` : 
+                              "Añadir al carrito"
+                            ) : 
+                            "Sin stock"
+                          }
                         </>
                       )}
                     </Button>
+
+                    {/* Mostrar ahorro total por cantidad */}
+                    {isOnSale && quantity > 1 && (
+                      <div className="text-center">
+                        <Badge className="bg-green-100 text-green-800 border-green-200">
+                          Ahorro total: {formatPrice(promocionInfo.ahorroMonetario * quantity)}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

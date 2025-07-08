@@ -54,6 +54,10 @@ class RoutesController
                 $controller = new EtiquetaController();
                 $this->handleEtiquetaRoutes($controller);
                 break;
+            case 'promociones':
+                $controller = new PromocionController();
+                $this->handlePromocionRoutes($controller);
+                break;
             default:
                 $this->notFound();
                 break;
@@ -126,6 +130,27 @@ class RoutesController
     }
 
     private function handleEtiquetaRoutes($controller)
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        if ($method === 'GET') {
+            if (isset($_GET['id'])) {
+                $controller->get();
+            } else {
+                $controller->index();
+            }
+        } elseif ($method === 'POST') {
+            $controller->create();
+        } elseif ($method === 'PUT') {
+            $controller->update();
+        } elseif ($method === 'DELETE') {
+            $controller->delete();
+        } else {
+            $this->methodNotAllowed();
+        }
+    }
+
+    private function handlePromocionRoutes($controller)
     {
         $method = $_SERVER['REQUEST_METHOD'];
 

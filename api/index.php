@@ -1,25 +1,25 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Credentials: true");
+header("Content-Type: application/json");
+
 // Composer autoloader
 require_once 'vendor/autoload.php';
-/*Encabezada de las solicitudes*/
-/*CORS*/
-header("Access-Control-Allow-Origin: * ");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
-header('Content-Type: application/json');
 
-/*--- Requerimientos Clases o librerías*/
+/* Requerimientos Clases o librerías */
 require_once "controllers/core/Config.php";
 require_once "controllers/core/HandleException.php";
 require_once "controllers/core/Logger.php";
 require_once "controllers/core/MySqlConnect.php";
 require_once "controllers/core/Request.php";
 require_once "controllers/core/Response.php";
-//Middleware
-//require_once "middleware/AuthMiddleware.php";
 
-
-/***--- Agregar todos los modelos*/
+/* Modelos */
 require_once "models/EtiquetaModel.php";
 require_once "models/ProductoModel.php";
 require_once "models/CategoriaModel.php";
@@ -27,7 +27,7 @@ require_once "models/DireccionModel.php";
 require_once "models/OpcionPersonalizacionModel.php";
 require_once "models/UsuarioModel.php";
 
-/***--- Agregar todos los controladores*/
+/* Controladores */
 require_once "controllers/EtiquetaController.php";
 require_once "controllers/ProductoController.php";
 require_once "controllers/CategoriaController.php";
@@ -35,7 +35,7 @@ require_once "controllers/DireccionController.php";
 require_once "controllers/OpcionPersonalizacionController.php";
 require_once "controllers/UsuarioController.php";
 
-// Crear alias para que el enrutador encuentre las clases
+/* Alias para enrutador */
 class_alias('EtiquetaController', 'etiqueta');
 class_alias('ProductoController', 'producto');
 class_alias('CategoriaController', 'categoria');
@@ -43,7 +43,7 @@ class_alias('DireccionController', 'direccion');
 class_alias('OpcionPersonalizacionController', 'opcionpersonalizacion');
 class_alias('UsuarioController', 'usuario');
 
-//Enrutador
+/* Enrutador */
 require_once "routes/RoutesController.php";
 $index = new RoutesController();
 $index->index();

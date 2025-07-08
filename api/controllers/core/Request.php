@@ -56,4 +56,21 @@ class Request
         return $decoded;
     }
 
+    public function get($key, $default = null)
+    {
+        // Primero busca en los parámetros de la URL (GET)
+        if (isset($_GET[$key])) {
+            return $_GET[$key];
+        }
+        // Luego busca en POST
+        if (isset($_POST[$key])) {
+            return $_POST[$key];
+        }
+        // Si tienes parámetros personalizados en $this->params
+        if (isset($this->params[$key])) {
+            return $this->params[$key];
+        }
+        // Si no existe, retorna el valor por defecto
+        return $default;
+    }
 }

@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:81',  // Redirige todas las solicitudes /api a tu backend en el puerto 81
+    },
+  },
 });

@@ -1,0 +1,5 @@
+[01-07-2025 08:18:02] [nayel] error: File: C:\xampp\htdocs\LYM\api\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [01-07-2025 08:22:35] [nayel] error: File: C:\xampp\htdocs\LYM\api\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [01-07-2025 08:22:37] [nayel] error: File: C:\xampp\htdocs\LYM\api\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [01-07-2025 08:38:00] [nayel] error: File: C:\xampp\htdocs\LYM\api\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ 

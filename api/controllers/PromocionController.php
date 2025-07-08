@@ -61,9 +61,34 @@ class PromocionController
             $request = new Request();
             $data = $request->getBody();
 
-            // Validaciones básicas
-            if (empty($data->nombre) || empty($data->tipo) || empty($data->porcentaje) || empty($data->fecha_inicio) || empty($data->fecha_fin)) {
-                $this->response->status(400)->toJSON(['error' => 'Faltan campos obligatorios: nombre, tipo, porcentaje, fecha_inicio, fecha_fin.']);
+            // Validaciones mejoradas
+            $errores = [];
+            
+            if (!isset($data->nombre) || trim($data->nombre) === '') {
+                $errores[] = 'nombre';
+            }
+            
+            if (!isset($data->tipo) || !in_array($data->tipo, ['categoria', 'producto'])) {
+                $errores[] = 'tipo válido (categoria o producto)';
+            }
+            
+            if (!isset($data->porcentaje) || !is_numeric($data->porcentaje) || $data->porcentaje <= 0) {
+                $errores[] = 'porcentaje válido';
+            }
+            
+            if (!isset($data->fecha_inicio) || trim($data->fecha_inicio) === '') {
+                $errores[] = 'fecha_inicio';
+            }
+            
+            if (!isset($data->fecha_fin) || trim($data->fecha_fin) === '') {
+                $errores[] = 'fecha_fin';
+            }
+
+            if (!empty($errores)) {
+                $this->response->status(400)->toJSON([
+                    'error' => 'Faltan campos obligatorios: ' . implode(', ', $errores),
+                    'datos_recibidos' => $data // Para debugging
+                ]);
                 return;
             }
 

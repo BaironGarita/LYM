@@ -2,11 +2,40 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+// Configuración de CORS más permisiva
+$allowed_origins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:5177',
+    'http://localhost:5178',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175',
+    'http://127.0.0.1:5176',
+    'http://127.0.0.1:5177',
+    'http://127.0.0.1:5178',
+    'http://127.0.0.1:3000'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header("Access-Control-Allow-Origin: *");
+}
+
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
+
+// Manejar preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
 
 // Composer autoloader
 require_once 'vendor/autoload.php';
@@ -26,6 +55,8 @@ require_once "models/CategoriaModel.php";
 require_once "models/DireccionModel.php";
 require_once "models/OpcionPersonalizacionModel.php";
 require_once "models/UsuarioModel.php";
+require_once "models/PromocionModel.php";
+require_once "models/ResenaModel.php";
 
 /* Controladores */
 require_once "controllers/EtiquetaController.php";
@@ -34,6 +65,8 @@ require_once "controllers/CategoriaController.php";
 require_once "controllers/DireccionController.php";
 require_once "controllers/OpcionPersonalizacionController.php";
 require_once "controllers/UsuarioController.php";
+require_once "controllers/PromocionController.php";
+require_once "controllers/ResenaController.php";
 
 /* Alias para enrutador */
 class_alias('EtiquetaController', 'etiqueta');
@@ -42,6 +75,100 @@ class_alias('CategoriaController', 'categoria');
 class_alias('DireccionController', 'direccion');
 class_alias('OpcionPersonalizacionController', 'opcionpersonalizacion');
 class_alias('UsuarioController', 'usuario');
+class_alias('PromocionController', 'promocion');
+class_alias('ResenaController', 'resena');
+
+/* Manejar rutas de imágenes antes del enrutador */
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+
+// Endpoint para verificar imágenes
+if (strpos($requestUri, '/verify-images') !== false) {
+    try {
+        $config = require_once 'config.php';
+        
+        $conn = new PDO("mysql:host={$config['DB_HOST']};dbname={$config['DB_DBNAME']}", 
+                       $config['DB_USERNAME'], $config['DB_PASSWORD']);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        $sql = "SELECT pi.*, p.nombre as producto_nombre 
+                FROM producto_imagenes pi 
+                JOIN productos p ON pi.producto_id = p.id 
+                WHERE p.eliminado = 0
+                ORDER BY pi.producto_id, pi.orden";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $resultado = [
+            'total_imagenes' => count($imagenes),
+            'imagenes' => [],
+            'errores' => []
+        ];
+        
+        foreach ($imagenes as $imagen) {
+            $rutaCompleta = __DIR__ . '/uploads/' . basename($imagen['ruta_archivo']);
+            $existe = file_exists($rutaCompleta);
+            $tamaño = $existe ? filesize($rutaCompleta) : 0;
+            
+            $info = [
+                'id' => $imagen['id'],
+                'producto_id' => $imagen['producto_id'],
+                'producto_nombre' => $imagen['producto_nombre'],
+                'nombre_archivo' => $imagen['nombre_archivo'],
+                'ruta_archivo' => $imagen['ruta_archivo'],
+                'archivo_existe' => $existe,
+                'tamaño_bytes' => $tamaño,
+                'url_acceso' => "http://localhost:81/LYM/api/" . $imagen['ruta_archivo']
+            ];
+            
+            if (!$existe) {
+                $resultado['errores'][] = "Archivo no encontrado: " . $rutaCompleta;
+            }
+            
+            $resultado['imagenes'][] = $info;
+        }
+        
+        header('Content-Type: application/json');
+        echo json_encode($resultado, JSON_PRETTY_PRINT);
+        exit;
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'error' => 'Error al verificar imágenes',
+            'mensaje' => $e->getMessage()
+        ]);
+        exit;
+    }
+}
+
+if (preg_match('/\/uploads\/([^\/]+\.(jpg|jpeg|png|gif|webp))$/i', $requestUri, $matches)) {
+    $imageName = $matches[1];
+    $imagePath = __DIR__ . '/uploads/' . basename($imageName);
+    
+    if (file_exists($imagePath)) {
+        $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp'
+        ];
+        
+        $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+        
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($imagePath));
+        header('Cache-Control: max-age=86400');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', filemtime($imagePath)));
+        
+        readfile($imagePath);
+        exit;
+    }
+}
 
 /* Enrutador */
 require_once "routes/RoutesController.php";

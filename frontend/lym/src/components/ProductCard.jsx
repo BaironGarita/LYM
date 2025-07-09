@@ -1,82 +1,289 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, ShoppingCart, Heart, Star, Truck, Tag } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
+import { Button } from "./UI/button";
+import { Card, CardContent } from "./UI/card";
+import { Badge } from "./UI/badge";
+import { Skeleton } from "./UI/skeleton";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "./UI/tooltip";
+
+export function ProductCardSkeleton() {
+  return (
+    <Card className="w-full max-w-sm mx-auto">
+      <CardContent className="p-0">
+        <Skeleton className="h-64 w-full rounded-t-lg" />
+        <div className="p-4 space-y-3">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-6 w-1/2" />
+          <div className="flex gap-2">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-5 w-16" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 const ProductCard = ({ product, onAddToCart }) => {
   const [imagenes, setImagenes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const placeholder = "https://via.placeholder.com/200x200?text=Sin+Imagen";
   const navigate = useNavigate();
 
+
+  // Obtener información de promoción del producto
+  const promocionInfo = product.promocionInfo || {
+    precioOriginal: product.precio,
+    precioFinal: product.precio,
+    descuento: 0,
+    promocionAplicada: null,
+  };
+
+   const isOnSale = promocionInfo.descuento > 0;
+
   useEffect(() => {
-    fetch(`http://backend.local:81/productos/imagenes?producto_id=${product.id}`)
-      .then(res => res.json())
-      .then(data => {
+    setIsLoading(true);
+    fetch(`http://localhost:8000/?url=productos/imagenes&producto_id=${product.id}`)
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setImagenes(data);
         } else {
           setImagenes([]);
         }
       })
-      .catch(() => setImagenes([]));
+      .catch(() => setImagenes([]))
+      .finally(() => setIsLoading(false));
   }, [product.id]);
 
-  return (
-    <div className="border p-4 rounded shadow hover:shadow-lg transition flex flex-col items-center relative">
-      {/* Iconos en la esquina superior derecha */}
-      <div className="absolute top-2 right-2 flex gap-2 z-10">
-        {/* Ver detalles */}
-        <button
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow hover:bg-gray-100 border border-gray-200"
-          title="Ver detalles"
-          onClick={() => navigate(`/producto/${product.id}`)}
-        >
-          {/* Icono ojo */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-700">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
-          </svg>
-        </button>
-        {/* Añadir al carrito */}
-        <button
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow hover:bg-gray-100 border border-gray-200"
-          title="Añadir al carrito"
-          onClick={() => onAddToCart && onAddToCart(product)}
-        >
-          {/* Icono carrito */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-700">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386a2.25 2.25 0 0 1 2.17 1.684l.298 1.192M6.104 5.876l1.347 5.39m0 0l.298 1.192A2.25 2.25 0 0 0 9.919 15h7.331a2.25 2.25 0 0 0 2.22-1.876l1.125-9A2.25 2.25 0 0 0 18.375 2.25H5.25a2.25 2.25 0 0 0-2.22 1.876l-.298 1.192M7.451 11.266h9.098" />
-            <circle cx="9" cy="20" r="1" />
-            <circle cx="17" cy="20" r="1" />
-          </svg>
-        </button>
-      </div>
-      {/* Carrusel de imágenes o imagen principal */}
-      <div className="w-full flex justify-center items-center" style={{maxWidth: '220px', minHeight: '180px'}}>
-        {imagenes.length > 0 ? (
-          <ImageCarousel imagenes={imagenes} nombre={product.nombre} hoverOnly hideDots />
-        ) : (
-          <img
-            src={placeholder}
-            alt="Sin imagen"
-            className="w-32 h-32 object-contain rounded border"
-          />
-        )}
-      </div>
-      <div className="mt-2 w-full flex flex-col items-center">
-        <div className="font-bold text-lg mb-1 text-center">{product.nombre}</div>
-        <div className="text-primary font-semibold text-md mb-1">₡{Number(product.precio).toLocaleString('es-CR', {minimumFractionDigits:2})}</div>
-        {product.color_principal && (
-          <div className="text-xs text-gray-600 mb-1">Color: {product.color_principal}</div>
-        )}
-        {product.material && (
-          <div className="text-xs text-gray-600 mb-1">Material: {product.material}</div>
-        )}
-        {product.temporada && (
-          <div className="text-xs text-gray-600 mb-1">Temporada: {product.temporada}</div>
-        )}
-        {/* Botón de añadir al carrito eliminado */}
-      </div>
-    </div>
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency: "CRC",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+    const handleAddToCart = async () => {
+    if (onAddToCart) {
+      setIsAddingToCart(true);
+      try {
+        // Enviar producto con precio promocional
+        await onAddToCart({
+          ...product,
+          precio: promocionInfo.precioFinal,
+          precioOriginal: promocionInfo.precioOriginal,
+          promocionAplicada: promocionInfo.promocionAplicada,
+        });
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      } finally {
+        setIsAddingToCart(false);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <ProductCardSkeleton />;
+  }
+ return (
+    <Card className="group w-full max-w-sm mx-auto overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 shadow-md">
+      <CardContent className="p-0">
+        <div className="relative overflow-hidden">
+          {/* Badge de descuento mejorado */}
+          {isOnSale && (
+            <div className="absolute top-3 left-3 z-20">
+              <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg">
+                <Tag className="h-3 w-3 mr-1" />
+                -{promocionInfo.descuento}% OFF
+              </Badge>
+            </div>
+          )}
+
+          {/* Badge de promoción específica */}
+          {promocionInfo.promocionAplicada && (
+            <div className="absolute bottom-3 left-3 z-20">
+              <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white font-medium px-2 py-1 text-xs shadow-lg">
+                {promocionInfo.promocionAplicada.nombre}
+              </Badge>
+            </div>
+          )}
+
+          {/* Botones de acción flotantes */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-10 w-10 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsFavorite(!isFavorite);
+                  }}
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-colors ${
+                      isFavorite
+                        ? "fill-red-500 text-red-500"
+                        : "text-gray-600 hover:text-red-500"
+                    }`}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-10 w-10 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/producto/${product.id}`);
+                  }}
+                >
+                  <Eye className="h-4 w-4 text-gray-600 hover:text-blue-500 transition-colors" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver detalles</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+            {/* Imagen del producto */}
+            <div
+              className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 cursor-pointer"
+              onClick={() => navigate(`/producto/${product.id}`)}
+            >
+              {imagenes.length > 0 ? (
+                <ImageCarousel
+                  imagenes={imagenes}
+                  nombre={product.nombre}
+                  hoverOnly
+                  hideDots
+                  className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <img
+                  src={placeholder}
+                  alt="Sin imagen"
+                  className="w-full h-full object-contain rounded-lg opacity-60 group-hover:opacity-80 transition-opacity"
+                />
+              )}
+            </div>
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+
+          <div className="p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm text-gray-600">4.5</span>
+              </div>
+              <div className="flex items-center gap-1 text-green-600">
+                <Truck className="h-4 w-4" />
+                <span className="text-xs font-medium">Envío gratis</span>
+              </div>
+            </div>
+
+            <h3
+              className="font-semibold text-lg leading-tight line-clamp-2 text-gray-900 cursor-pointer hover:text-primary transition-colors"
+              onClick={() => navigate(`/producto/${product.id}`)}
+            >
+              {product.nombre}
+            </h3>
+
+            {/* Precio mejorado con promoción */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-primary">
+                  {formatPrice(promocionInfo.precioFinal)}
+                </span>
+                {isOnSale && (
+                  <span className="text-sm text-gray-500 line-through">
+                    {formatPrice(promocionInfo.precioOriginal)}
+                  </span>
+                )}
+              </div>
+              {isOnSale && (
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                    Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
+                  </Badge>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {product.color_principal && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  {product.color_principal}
+                </Badge>
+              )}
+              {product.material && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-gray-200 text-gray-600"
+                >
+                  {product.material}
+                </Badge>
+              )}
+              {product.temporada && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-gray-200 text-gray-600"
+                >
+                  {product.temporada}
+                </Badge>
+              )}
+            </div>
+
+            <Button
+              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Agregando...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {isOnSale
+                    ? `Añadir por ${formatPrice(promocionInfo.precioFinal)}`
+                    : "Añadir al carrito"}
+                </>
+              )}
+            </Button>
+
+            {product.stock && product.stock < 5 && (
+              <p className="text-xs text-orange-600 font-medium text-center">
+                ¡Solo quedan {product.stock} unidades!
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
   );
 };
 

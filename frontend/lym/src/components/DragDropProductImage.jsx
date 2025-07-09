@@ -20,7 +20,7 @@ const DragDropProductImage = ({ productoId, onUpload }) => {
       formData.append("orden", i + 1);
       formData.append("es_principal", 0);
       try {
-        const res = await fetch("http://backend.local:81/productos/imagenes", {
+        const res = await fetch("http://localhost:8000/?url=productos/imagenes", {
           method: "POST",
           body: formData,
         });

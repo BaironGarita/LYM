@@ -1,6 +1,9 @@
 RewriteEngine On
-# Permitir acceso directo a archivos en /uploads/
-RewriteCond %{REQUEST_URI} ^/uploads/
+
+
+
+# Permitir acceso directo al directorio uploads
+RewriteCond %{REQUEST_URI} ^/?uploads/ [NC]
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^.*$ - [L]
 

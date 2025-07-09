@@ -1,33 +1,82 @@
 import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./UI/select"; // Asegúrate que la ruta sea correcta
+import { List } from "lucide-react";
 
 const CategoryFilter = ({ onChange }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://backend.local:81/categorias")
-      .then(res => res.json())
-      .then(data => {
-        setCategories(data);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch("http://localhost:8000/?url=categorias");
+        if (!response.ok) {
+          throw new Error("No se pudieron cargar las categorías.");
+        }
+        const data = await response.json();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err.message);
+        console.error(err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchCategories();
   }, []);
 
+  const handleValueChange = (value) => {
+    // El valor "all" representará a todas las categorías
+    onChange(value === "all" ? "" : value);
+  };
+
+  if (error) {
+    return (
+      <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+        {error}
+      </div>
+    );
+  }
+
   return (
-    <div className="mb-4 flex items-center gap-2">
-      <label htmlFor="category-select" className="font-semibold text-sm">Categoría:</label>
-      <select
-        id="category-select"
-        className="border rounded px-2 py-1 text-sm"
-        onChange={e => onChange(e.target.value)}
-        defaultValue=""
+    <div className="w-full sm:w-64 ml-4">
+      <Select
+        onValueChange={handleValueChange}
+        defaultValue="all"
+        disabled={loading}
       >
-        <option value="">Todas</option>
-        {categories.map(cat => (
-          <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-        ))}
-      </select>
-      {loading && <span className="text-xs text-gray-400 ml-2">Cargando...</span>}
+        <SelectTrigger className="h-11 text-base">
+          <div className="flex items-center gap-2">
+            <List className="h-4 w-4 text-gray-500" />
+            <SelectValue placeholder="Filtrar por categoría..." />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {loading ? (
+            <SelectItem value="loading" disabled>
+              Cargando categorías...
+            </SelectItem>
+          ) : (
+            <>
+              <SelectItem value="all">Todas las categorías</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>
+                  {cat.nombre}
+                </SelectItem>
+              ))}
+            </>
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

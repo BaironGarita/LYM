@@ -441,6 +441,26 @@ LOCK TABLES `resenas` WRITE;
 /*!40000 ALTER TABLE `resenas` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- Ejemplo 1: Reseña básica (los campos created_at y updated_at se llenan automáticamente)
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (1, 1, 5, 'Producto excelente, muy recomendado!', 1, '2025-05-01 15:30:00');
+
+-- Ejemplo 2: Reseña con fecha específica
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (2, 2, 4, 'Buena calidad, llegó rápido', 1, '2025-07-08 15:30:00');
+
+-- Ejemplo 3: Reseña pendiente de aprobación
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (4, 3, 3, 'Las gafas están bien pero esperaba más', 0, '2025-01-015 13:30:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (5, 4, 5, 'Billetera perfecta, justo lo que buscaba', 1, '2025-03-08 14:00:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (6, 5, 4, 'Cinturón de buena calidad', 1, '2025-06-25 15:00:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado) 
+VALUES (7, 6, 5, 'Collar hermoso, llegó bien empacado', 1);
 --
 -- Table structure for table `usuarios`
 --

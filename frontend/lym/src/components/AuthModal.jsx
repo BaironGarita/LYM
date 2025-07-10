@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../hooks/useAuth.jsx"; // 1. Importar useAuth
 
 // Reutilizamos el componente Button de Navbar o lo definimos aquí si es necesario
 const Button = ({ children, variant, size, className, ...props }) => (
@@ -28,10 +29,37 @@ const Input = ({ icon, ...props }) => (
 );
 
 export function AuthModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("login"); // 'login' o 'register'
+  const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
 
+  // 2. Añadir estados para el formulario y la lógica de login
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    try {
+      const result = await login({ email, password });
+      if (result.success) {
+        onClose(); // Cerrar modal si el login es exitoso
+      } else {
+        setError(
+          result.error || "Error al iniciar sesión. Verifique sus credenciales."
+        );
+      }
+    } catch (err) {
+      setError("Ocurrió un error inesperado. Intente de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOverlayClick = (e) => {
     // Cierra el modal solo si se hace clic en el overlay directamente
@@ -77,7 +105,9 @@ export function AuthModal({ isOpen, onClose }) {
         </div>
 
         {activeTab === "login" ? (
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleLogin}>
+            {" "}
+            {/* 3. Añadir onSubmit */}
             <h2 className="text-2xl font-bold text-center text-foreground">
               Bienvenido de vuelta
             </h2>
@@ -87,6 +117,9 @@ export function AuthModal({ isOpen, onClose }) {
                 type="email"
                 placeholder="correo@ejemplo.com"
                 required
+                value={email} // 4. Enlazar estado
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
               <div className="relative">
                 <Input
@@ -94,6 +127,9 @@ export function AuthModal({ isOpen, onClose }) {
                   type={showPassword ? "text" : "password"}
                   placeholder="Contraseña"
                   required
+                  value={password} // 5. Enlazar estado
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -109,7 +145,17 @@ export function AuthModal({ isOpen, onClose }) {
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
-            <Button className="w-full !py-3 !text-base">Iniciar Sesión</Button>
+            {/* 6. Mostrar errores y estado de carga */}
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+            <Button
+              className="w-full !py-3 !text-base"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
+            </Button>
           </form>
         ) : (
           <form className="space-y-6">

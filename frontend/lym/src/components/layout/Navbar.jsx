@@ -6,7 +6,8 @@ import {
   Heart,
   Settings,
   LogOut,
-  Percent, // Añadir icono para ofertas
+  Percent,
+  Package, // Añadir icono para pedidos
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import CartDropdown from "../CartDropdown.jsx";
@@ -113,6 +114,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               <>
                 <NavLink href="/admin/dashboard">Panel Admin</NavLink>
                 <NavLink href="/admin/products">Gestionar Productos</NavLink>
+                <NavLink href="/admin/orders">Gestionar Pedidos</NavLink>
               </>
             )}
           </nav>
@@ -155,14 +157,18 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                           href="/profile"
                           className="block px-4 py-2 text-sm hover:bg-gray-100"
                         >
+                          <User className="h-4 w-4 inline mr-2" />
                           Mi Perfil
                         </a>
-                        <a
-                          href="/orders"
-                          className="block px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Mis Pedidos
-                        </a>
+                        {!isAdmin() && (
+                          <a
+                            href="/orders"
+                            className="block px-4 py-2 text-sm hover:bg-gray-100"
+                          >
+                            <Package className="h-4 w-4 inline mr-2" />
+                            Mis Pedidos
+                          </a>
+                        )}
                         {isAdmin() && (
                           <>
                             <hr className="my-1" />
@@ -172,6 +178,13 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                             >
                               <Settings className="h-4 w-4 inline mr-2" />
                               Panel Administrador
+                            </a>
+                            <a
+                              href="/admin/orders"
+                              className="block px-4 py-2 text-sm hover:bg-gray-100"
+                            >
+                              <Package className="h-4 w-4 inline mr-2" />
+                              Gestionar Pedidos
                             </a>
                           </>
                         )}
@@ -298,6 +311,13 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <Settings className="h-5 w-5 inline mr-2" />
                         Panel Admin
                       </a>
+                      <a
+                        href="/admin/orders"
+                        className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <Package className="h-5 w-5 inline mr-2" />
+                        Gestionar Pedidos
+                      </a>
                     </>
                   )}
 
@@ -313,13 +333,22 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         Mi Perfil
                       </a>
                       {!isAdmin() && (
-                        <a
-                          href="/favorites"
-                          className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <Heart className="h-5 w-5 inline mr-2" />
-                          Favoritos
-                        </a>
+                        <>
+                          <a
+                            href="/orders"
+                            className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                          >
+                            <Package className="h-5 w-5 inline mr-2" />
+                            Mis Pedidos
+                          </a>
+                          <a
+                            href="/favorites"
+                            className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                          >
+                            <Heart className="h-5 w-5 inline mr-2" />
+                            Favoritos
+                          </a>
+                        </>
                       )}
                       <button
                         onClick={handleLogout}

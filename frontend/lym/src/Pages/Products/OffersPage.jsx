@@ -13,7 +13,7 @@ const OffersPage = () => {
   const fetchOfertas = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:81/api/promociones");
+      const response = await fetch("http://localhost:81/api_lym/promociones");
 
       if (!response.ok) {
         throw new Error("Error al cargar las ofertas");

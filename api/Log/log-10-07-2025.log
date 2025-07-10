@@ -1,0 +1,7 @@
+[10-07-2025 04:30:36] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 54 - Message: Attempt to read property "nombre" on null
+ [10-07-2025 04:39:09] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 54 - Message: Undefined property: stdClass::$nombre
+ [10-07-2025 04:55:42] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 54 - Message: Undefined property: stdClass::$nombre
+ [10-07-2025 04:55:58] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 54 - Message: Undefined property: stdClass::$nombre
+ [10-07-2025 04:56:22] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 54 - Message: Undefined property: stdClass::$nombre
+ [10-07-2025 05:04:09] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\UsuarioModel.php - line: 64 - Message: El correo electrónico ya está registrado
+ 

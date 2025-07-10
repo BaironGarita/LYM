@@ -27,6 +27,7 @@ require_once "models/DireccionModel.php";
 require_once "models/OpcionPersonalizacionModel.php";
 require_once "models/UsuarioModel.php";
 require_once "models/PromocionModel.php";
+require_once "models/PedidoModel.php";
 
 /* Controladores */
 require_once "controllers/EtiquetaController.php";
@@ -36,6 +37,7 @@ require_once "controllers/DireccionController.php";
 require_once "controllers/OpcionPersonalizacionController.php";
 require_once "controllers/UsuarioController.php";
 require_once "controllers/PromocionController.php";
+require_once "controllers/PedidoController.php";
 
 /* Alias para enrutador */
 class_alias('EtiquetaController', 'etiqueta');
@@ -45,6 +47,7 @@ class_alias('DireccionController', 'direccion');
 class_alias('OpcionPersonalizacionController', 'opcionpersonalizacion');
 class_alias('UsuarioController', 'usuario');
 class_alias('PromocionController', 'promocion');
+class_alias('PedidoController', 'pedido');
 
 /* Enrutador */
 require_once "routes/RoutesController.php";

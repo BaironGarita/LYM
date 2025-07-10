@@ -3,13 +3,15 @@
 class RoutesController
 {
     private $controllers = [];
-    
+
     public function __construct()
     {
         // Auto-registro de controladores disponibles
         $this->controllers = [
             'productos' => 'ProductoController',
             'products' => 'ProductoController',
+            'pedido' => 'PedidoController',
+            'pedidos' => 'PedidoController',
             'categorias' => 'CategoriaController',
             'etiquetas' => 'EtiquetaController',
             'promociones' => 'PromocionController',
@@ -47,13 +49,13 @@ class RoutesController
         // Enrutamiento dinámico
         if (isset($this->controllers[$resource])) {
             $controllerClass = $this->controllers[$resource];
-            
+
             // Casos especiales que no siguen el patrón estándar
             if ($resource === 'carrito') {
                 $this->handleCarritoRoutes();
                 return;
             }
-            
+
             // Patrón estándar para la mayoría de controladores
             $controller = new $controllerClass();
             $this->handleStandardRoutes($controller, $resource);
@@ -64,6 +66,15 @@ class RoutesController
 
     private function handleSpecialRoutes($resource, $segments, $offset)
     {
+        // Endpoint para login de usuario
+        if ($resource === 'usuario' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'login') {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller = new UsuarioController();
+                $controller->login();
+                return true; // Ruta manejada, detener procesamiento
+            }
+        }
+
         // Endpoint para imágenes de productos
         if ($resource === 'productos' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'imagenes') {
             $controller = new ProductoController();
@@ -74,7 +85,7 @@ class RoutesController
             }
             return true;
         }
-        
+
         return false;
     }
 
@@ -121,7 +132,7 @@ class RoutesController
         $method = $_SERVER['REQUEST_METHOD'];
         $usuario_id = $_GET['usuario_id'] ?? null;
         $id = $_GET['id'] ?? null;
-        
+
         if ($method === 'GET' && $usuario_id) {
             CarritoController::get($usuario_id);
         } elseif ($method === 'POST') {

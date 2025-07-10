@@ -28,8 +28,9 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData.user); // Asumiendo que la API devuelve { user: {...}, token: '...' }
+        localStorage.setItem("user", JSON.stringify(userData.user));
+        localStorage.setItem("token", userData.token); // Guardar el token
         return { success: true };
       }
       return { success: false, error: "Credenciales inválidas" };
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Limpiar el token al cerrar sesión
   };
 
   const isAdmin = () => user?.rol === "admin";

@@ -8,7 +8,9 @@ import { useCart } from "./components/useCart";
 import { Toaster } from "@/components/UI/sonner";
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import OffersPage from "./Pages/OffersPage.jsx";
+import OffersPage from "./Pages/Products/OffersPage.jsx";
+import OrdersPage from "./Pages/Orders/OrdersPage.jsx";
+import AdminOrdersPage from "./Pages/Admin/AdminOrdersPage.jsx";
 
 function App() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
@@ -45,6 +47,7 @@ function App() {
               element={<ProductDetail onAddToCart={addToCart} />}
             />
             <Route path="/offers" element={<OffersPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
 
             {/* Rutas protegidas para usuarios autenticados */}
             <Route
@@ -94,6 +97,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin={true}>
                   <UploadProductImage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminOrdersPage />
                 </ProtectedRoute>
               }
             />

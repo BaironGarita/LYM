@@ -1,0 +1,68 @@
+[08-07-2025 18:57:35] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 18:57:35] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 18:58:54] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 18:58:54] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:04:11] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:04:11] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:04:13] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:25] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:28] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:28] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:32] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:32] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:33] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:33] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:36] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:36] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:38] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:05:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'promo.activa' in 'where clause'
+ [08-07-2025 19:10:05] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:10:05] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:12:29] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:12:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:12:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:13:28] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:13:29] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:13:41] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:13:42] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:14:56] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 369 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:29:13] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 377 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:29:13] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 377 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:31:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:15] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:15] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:15] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:15] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:31:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:33:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:33:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:33:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 386 - Message: Unclosed '{' on line 376
+ [08-07-2025 19:37:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:37:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:37:26] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:37:26] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:38:16] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:38:16] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:38:55] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:38:56] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:38:58] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:40:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:40:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 379 - Message: Cannot use object of type stdClass as array
+ [08-07-2025 19:43:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:43:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:44:30] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [08-07-2025 19:44:30] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [08-07-2025 19:44:30] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\Logger.php - line: 20 - Message: preg_replace(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
+ [08-07-2025 19:44:52] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:44:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:45:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:45:01] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 19:45:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: Unknown column 'p.activo' in 'where clause'
+ [08-07-2025 22:26:38] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ 

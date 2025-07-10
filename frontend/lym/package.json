@@ -1,7 +1,7 @@
 {
-  "name": "lym",
+  "name": "tu-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -71,5 +71,6 @@
   "resolutions": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
-  }
+  },
+  "proxy": "http://localhost:81"
 }

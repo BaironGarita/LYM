@@ -66,6 +66,15 @@ class RoutesController
 
     private function handleSpecialRoutes($resource, $segments, $offset)
     {
+        // Endpoint para login de usuario
+        if ($resource === 'usuarios' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'login') {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller = new UsuarioController();
+                $controller->login();
+                return true;
+            }
+        }
+        
         // Endpoint para servir imágenes estáticas
         if ($resource === 'images' && isset($segments[$offset + 1])) {
             $this->serveImage($segments[$offset + 1]);

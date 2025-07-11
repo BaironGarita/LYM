@@ -39,6 +39,13 @@ const ProductReviews = ({ productId }) => {
     }
   }, [productId]);
 
+  // Cerrar el formulario si el usuario cierra sesión
+  useEffect(() => {
+    if (!isAuthenticated() && showForm) {
+      setShowForm(false);
+    }
+  }, [isAuthenticated, showForm]);
+
   const fetchResenas = async () => {
     try {
       const response = await fetch(`http://localhost:8000/?url=resenas&producto_id=${productId}`);
@@ -194,6 +201,12 @@ const ProductReviews = ({ productId }) => {
   const handleSubmitResena = async (e) => {
     e.preventDefault();
     
+    // Verificar que el usuario esté autenticado
+    if (!isAuthenticated() || !user?.id) {
+      toast.error("Debes iniciar sesión para escribir una reseña");
+      return;
+    }
+    
     if (!formData.comentario.trim()) {
       toast.error("Por favor escribe un comentario");
       return;
@@ -209,25 +222,21 @@ const ProductReviews = ({ productId }) => {
         },
         body: JSON.stringify({
           producto_id: productId,
-          usuario_id: user?.id || 1,
+          usuario_id: user.id,
           valoracion: formData.valoracion,
           comentario: formData.comentario.trim()
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Error al enviar la reseña");
-      }
-
       const result = await response.json();
-      
-      if (result.success) {
+
+      if (response.ok && result.success) {
         toast.success("¡Reseña enviada exitosamente!");
         
         // Simplemente recargar la página completa para evitar errores de React
         window.location.reload();
       } else {
-        throw new Error(result.error || "Error desconocido");
+        throw new Error(result.error || "Error al enviar la reseña");
       }
       
     } catch (err) {
@@ -309,19 +318,31 @@ const ProductReviews = ({ productId }) => {
           <p className="text-gray-600 mb-6">
             Sé el primero en compartir tu experiencia con este producto
           </p>
-          {!showForm && (
-            <Button 
-              className="flex items-center gap-2 mx-auto"
-              onClick={() => setShowForm(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Crear reseña
-            </Button>
+          
+          {isAuthenticated() ? (
+            !showForm && (
+              <Button 
+                className="flex items-center gap-2 mx-auto"
+                onClick={() => setShowForm(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Crear reseña
+              </Button>
+            )
+          ) : (
+            <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-600 mb-2">
+                ¿Tienes experiencia con este producto?
+              </p>
+              <p className="text-sm text-blue-600 font-medium">
+                Inicia sesión para escribir tu primera reseña
+              </p>
+            </div>
           )}
         </div>
         
         {/* Formulario de reseña */}
-        {showForm && (
+        {showForm && isAuthenticated() && (
           <ResenaForm 
             key={`resena-form-empty-${productId}`}
             formData={formData}
@@ -331,6 +352,24 @@ const ProductReviews = ({ productId }) => {
             handleComentarioChange={handleComentarioChange}
             resetForm={resetForm}
           />
+        )}
+        
+        {/* Mensaje de autenticación si el formulario se intenta mostrar sin login */}
+        {showForm && !isAuthenticated() && (
+          <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-center">
+              <span className="font-medium">¡Ups!</span> Necesitas iniciar sesión para escribir una reseña.
+            </p>
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowForm(false)}
+                className="text-yellow-700 border-yellow-300"
+              >
+                Cerrar
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     );
@@ -345,19 +384,29 @@ const ProductReviews = ({ productId }) => {
         <h3 className="text-lg font-semibold text-gray-900">
           Reseñas de clientes
         </h3>
-        {!showForm && (
-          <Button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Crear reseña
-          </Button>
+        
+        {isAuthenticated() ? (
+          !showForm && (
+            <Button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Crear reseña
+            </Button>
+          )
+        ) : (
+          <div className="flex items-center gap-2 text-sm text-gray-500 bg-blue-50 px-3 py-2 rounded-md">
+            <User className="h-4 w-4" />
+            <span>
+              <span className="text-blue-600 font-medium">Inicia sesión</span> para escribir una reseña
+            </span>
+          </div>
         )}
       </div>
 
       {/* Formulario de reseña */}
-      {showForm && (
+      {showForm && isAuthenticated() && (
         <ResenaForm 
           key={`resena-form-${productId}`}
           formData={formData}
@@ -367,6 +416,24 @@ const ProductReviews = ({ productId }) => {
           handleComentarioChange={handleComentarioChange}
           resetForm={resetForm}
         />
+      )}
+      
+      {/* Mensaje de autenticación si el formulario se intenta mostrar sin login */}
+      {showForm && !isAuthenticated() && (
+        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800 text-center">
+            <span className="font-medium">¡Ups!</span> Necesitas iniciar sesión para escribir una reseña.
+          </p>
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowForm(false)}
+              className="text-yellow-700 border-yellow-300"
+            >
+              Cerrar
+            </Button>
+          </div>
+        </div>
       )}
       
       <div className="space-y-4">

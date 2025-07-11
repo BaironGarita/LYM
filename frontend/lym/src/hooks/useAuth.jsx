@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useCallback } from "react";
 
 const AuthContext = createContext();
 
@@ -10,15 +10,22 @@ export const AuthProvider = ({ children }) => {
     // Verificar si hay un usuario guardado en localStorage
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Error parsing saved user:", error);
+        localStorage.removeItem("user");
+      }
     }
     setLoading(false);
   }, []);
 
-  const login = async (credentials) => {
+  const login = useCallback(async (email, password) => {
     try {
+      const credentials = { correo: email, contrasena: password };
+      
       const response = await fetch(
-        "http://localhost:8000/?url=usuario/login",
+        "http://localhost:8000/?url=usuarios/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -26,26 +33,60 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
-      if (response.ok) {
-        const userData = await response.json();
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Use a more reliable method to update state
+        const userData = data.usuario;
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-        return { success: true };
+        
+        return { success: true, user: userData };
       }
-      return { success: false, error: "Credenciales inválidas" };
+      return { success: false, message: data.error || "Credenciales inválidas" };
     } catch (error) {
-      return { success: false, error: "Error de conexión" };
+      console.error("Login error:", error);
+      return { success: false, message: "Error de conexión" };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const register = useCallback(async (name, email, password) => {
+    try {
+      const userData = { 
+        nombre: name, 
+        correo: email, 
+        contrasena: password 
+      };
+      
+      const response = await fetch(
+        "http://localhost:8000/?url=usuarios",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        }
+      );
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.error || "Error al registrar usuario" };
+    } catch (error) {
+      console.error("Register error:", error);
+      return { success: false, message: "Error de conexión" };
+    }
+  }, []);
+
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem("user");
-  };
+  }, []);
 
-  const isAdmin = () => user?.rol === "admin";
-  const isClient = () => user?.rol === "cliente";
-  const isAuthenticated = () => !!user;
+  const isAdmin = useCallback(() => user?.rol === "admin", [user]);
+  const isClient = useCallback(() => user?.rol === "cliente", [user]);
+  const isAuthenticated = useCallback(() => !!user, [user]);
 
   return (
     <AuthContext.Provider
@@ -53,6 +94,7 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         login,
+        register,
         logout,
         isAdmin,
         isClient,

@@ -1,6 +1,7 @@
 <?php
 
 require_once "models/ResenaModel.php";
+require_once "models/UsuarioModel.php";
 require_once "controllers/core/Response.php";
 require_once "controllers/core/Request.php";
 
@@ -280,6 +281,14 @@ class ResenaController
                 }
             }
 
+            // Validar que el usuario existe y está activo
+            $usuarioModel = new UsuarioModel();
+            $usuario = $usuarioModel->get($data['usuario_id']);
+            if (!$usuario) {
+                $this->response->status(401)->toJSON(['error' => 'Usuario no válido o no autenticado']);
+                return;
+            }
+
             // Validar valoración
             $valoracion = intval($data['valoracion']);
             if ($valoracion < 1 || $valoracion > 5) {
@@ -288,6 +297,12 @@ class ResenaController
             }
 
             $comentario = isset($data['comentario']) ? trim($data['comentario']) : '';
+            
+            // Validar que el comentario no esté vacío
+            if (empty($comentario)) {
+                $this->response->status(400)->toJSON(['error' => 'El comentario es requerido']);
+                return;
+            }
             
             $result = $this->model->createResenaSimple(
                 $data['usuario_id'],

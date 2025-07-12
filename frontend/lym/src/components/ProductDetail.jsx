@@ -21,7 +21,7 @@ import {
   Twitter,
   Link2,
   Tag,
-  Percent
+  Percent,
 } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
 import { Button } from "./UI/button";
@@ -38,6 +38,7 @@ import {
 } from "./UI/tooltip";
 import { toast } from "sonner";
 import { usePromociones } from "../hooks/usePromociones";
+import ProductReviews from "./ProductReviews";
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -73,14 +74,21 @@ const ProductDetail = ({ onAddToCart }) => {
 
   useClickOutside(shareMenuRef, () => setShareMenuOpen(false));
 
+  // Helper function to safely get rating value
+  const getRatingValue = (rating) => {
+    if (rating === null || rating === undefined) return 0;
+    const numRating = Number(rating);
+    return isNaN(numRating) ? 0 : numRating;
+  };
+
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
       try {
         const [productResponse, imagesResponse] = await Promise.all([
-          fetch(`http://localhost:81/api_lym/productos?id=${id}`),
+          fetch(`http://localhost:81/api_lym/productos&id=${id}`),
           fetch(
-            `http://localhost:81/api_lym/productos/imagenes?producto_id=${id}`
+            `http://localhost:81/api_lym/productos/imagenes&producto_id=${id}`
           ),
         ]);
 
@@ -106,11 +114,11 @@ const ProductDetail = ({ onAddToCart }) => {
         setImagenes(Array.isArray(imagesData) ? imagesData : []);
 
         if (productObject) {
-          setViewCount(Math.floor(Math.random() * 1000) + 100);
+          setViewCount(Math.floor(Math.random() * 1000) + 100); // Simular vistas
         }
       } catch (error) {
         console.error("Error al cargar los datos del producto:", error);
-        setProduct(null);
+        setProduct(null); // Asegurarse de que no hay datos de un producto anterior
       } finally {
         setLoading(false);
       }
@@ -135,12 +143,12 @@ const ProductDetail = ({ onAddToCart }) => {
     if (onAddToCart) {
       setIsAddingToCart(true);
       try {
-        await onAddToCart({ 
-          ...product, 
+        await onAddToCart({
+          ...product,
           quantity,
           precio: product.promocionInfo.precioFinal,
           precioOriginal: product.promocionInfo.precioOriginal,
-          promocionAplicada: product.promocionInfo.promocionAplicada
+          promocionAplicada: product.promocionInfo.promocionAplicada,
         });
         toast.success("¡Agregado al carrito!", {
           description: `${product.nombre} (${quantity}) se agregó a tu carrito`,
@@ -238,7 +246,7 @@ const ProductDetail = ({ onAddToCart }) => {
     precioOriginal: product?.precio || 0,
     precioFinal: product?.precio || 0,
     descuento: 0,
-    promocionAplicada: null
+    promocionAplicada: null,
   };
 
   if (loading) {
@@ -323,12 +331,13 @@ const ProductDetail = ({ onAddToCart }) => {
 
   return (
     <TooltipProvider>
-      <div 
+      <div
         className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
-        style={{ 
-          background: 'linear-gradient(135deg, rgb(249 250 251) 0%, rgb(255 255 255) 100%)',
-          position: 'relative',
-          zIndex: 0
+        style={{
+          background:
+            "linear-gradient(135deg, rgb(249 250 251) 0%, rgb(255 255 255) 100%)",
+          position: "relative",
+          zIndex: 0,
         }}
       >
         {/* Enhanced Breadcrumb */}
@@ -369,8 +378,8 @@ const ProductDetail = ({ onAddToCart }) => {
                     {isOnSale && (
                       <div className="absolute top-6 left-6 z-10">
                         <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                          <Tag className="h-4 w-4 mr-2" />
-                          -{getDiscountPercentage()}% OFF
+                          <Tag className="h-4 w-4 mr-2" />-
+                          {getDiscountPercentage()}% OFF
                         </Badge>
                       </div>
                     )}
@@ -538,7 +547,10 @@ const ProductDetail = ({ onAddToCart }) => {
                       <Star
                         key={i}
                         className={`h-5 w-5 ${
-                          i < Math.floor(product.promedio_valoracion || 0)
+                          i <
+                          Math.floor(
+                            getRatingValue(product.promedio_valoracion)
+                          )
                             ? "fill-amber-400 text-amber-400"
                             : "text-gray-300"
                         }`}
@@ -546,8 +558,8 @@ const ProductDetail = ({ onAddToCart }) => {
                     ))}
                   </div>
                   <span className="text-sm text-gray-600">
-                    {product.promedio_valoracion
-                      ? `${product.promedio_valoracion.toFixed(1)} (${Math.floor(Math.random() * 100) + 10} reseñas)`
+                    {getRatingValue(product.promedio_valoracion) > 0
+                      ? `${getRatingValue(product.promedio_valoracion).toFixed(1)} (${product.total_resenas || 0} reseñas)`
                       : "Sin valoraciones"}
                   </span>
                 </div>
@@ -566,7 +578,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       </div>
                     )}
                   </div>
-                  
+
                   {isOnSale && (
                     <div className="flex flex-wrap gap-2">
                       <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
@@ -583,10 +595,14 @@ const ProductDetail = ({ onAddToCart }) => {
                     <Alert className="border-green-200 bg-green-50">
                       <Tag className="h-4 w-4 text-green-600" />
                       <AlertDescription className="text-green-800">
-                        <strong>Promoción activa:</strong> {promocionInfo.promocionAplicada.nombre}
+                        <strong>Promoción activa:</strong>{" "}
+                        {promocionInfo.promocionAplicada.nombre}
                         {promocionInfo.promocionAplicada.fecha_fin && (
                           <span className="block text-sm mt-1">
-                            Válida hasta: {new Date(promocionInfo.promocionAplicada.fecha_fin).toLocaleDateString()}
+                            Válida hasta:{" "}
+                            {new Date(
+                              promocionInfo.promocionAplicada.fecha_fin
+                            ).toLocaleDateString()}
                           </span>
                         )}
                       </AlertDescription>
@@ -676,13 +692,11 @@ const ProductDetail = ({ onAddToCart }) => {
                       ) : (
                         <>
                           <ShoppingCart className="h-6 w-6 mr-3" />
-                          {isInStock ? 
-                            (isOnSale ? 
-                              `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}` : 
-                              "Añadir al carrito"
-                            ) : 
-                            "Sin stock"
-                          }
+                          {isInStock
+                            ? isOnSale
+                              ? `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}`
+                              : "Añadir al carrito"
+                            : "Sin stock"}
                         </>
                       )}
                     </Button>
@@ -691,7 +705,10 @@ const ProductDetail = ({ onAddToCart }) => {
                     {isOnSale && quantity > 1 && (
                       <div className="text-center">
                         <Badge className="bg-green-100 text-green-800 border-green-200">
-                          Ahorro total: {formatPrice(promocionInfo.ahorroMonetario * quantity)}
+                          Ahorro total:{" "}
+                          {formatPrice(
+                            promocionInfo.ahorroMonetario * quantity
+                          )}
                         </Badge>
                       </div>
                     )}
@@ -816,25 +833,7 @@ const ProductDetail = ({ onAddToCart }) => {
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-8">
-                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Star className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Aún no hay reseñas
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        Sé el primero en compartir tu experiencia con este
-                        producto
-                      </p>
-                      <Button variant="outline" className="rounded-full">
-                        Escribir reseña
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ProductReviews productId={product.id} />
               </TabsContent>
             </Tabs>
           </div>

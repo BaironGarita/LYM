@@ -1,209 +1,246 @@
 import { useState } from "react";
-import { X, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../hooks/useAuth.jsx"; // 1. Importar useAuth
+import { X, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../hooks/useAuth.jsx";
 
-// Reutilizamos el componente Button de Navbar o lo definimos aquí si es necesario
-const Button = ({ children, variant, size, className, ...props }) => (
+const Button = ({ children, variant = "default", className = "", disabled, ...props }) => (
   <button
-    className={`${className || ""} inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
-      variant === "ghost"
-        ? "hover:bg-accent hover:text-accent-foreground"
-        : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
-    }`}
+    className={`inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
+      variant === "outline"
+        ? "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+        : "bg-primary text-primary-foreground hover:bg-primary/90"
+    } ${className}`}
+    disabled={disabled}
     {...props}
   >
     {children}
   </button>
 );
 
-const Input = ({ icon, ...props }) => (
+const Input = ({ type = "text", placeholder, value, onChange, className = "", icon: Icon, ...props }) => (
   <div className="relative">
-    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-      {icon}
-    </span>
+    {Icon && (
+      <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    )}
     <input
-      className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+        Icon ? "pl-10" : ""
+      } ${className}`}
       {...props}
     />
   </div>
 );
 
 export function AuthModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("login");
+  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-
-  // 2. Añadir estados para el formulario y la lógica de login
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  
+  // Form data
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("");
+  
+  const { login, register } = useAuth();
+
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setName("");
+    setError("");
+    setSuccess("");
+    setShowPassword(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    setTimeout(() => {
+      onClose();
+    }, 100);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const result = await login(email, password);
+        if (result.success) {
+          setSuccess("¡Inicio de sesión exitoso!");
+          setTimeout(() => {
+            handleClose();
+          }, 1000);
+        } else {
+          setError(result.message || "Error al iniciar sesión");
+        }
+      } else {
+        const result = await register(name, email, password);
+        if (result.success) {
+          setSuccess("¡Registro exitoso! Ahora puedes iniciar sesión.");
+          setTimeout(() => {
+            setIsLogin(true);
+            setError("");
+            setSuccess("");
+          }, 2000);
+        } else {
+          setError(result.message || "Error al registrar usuario");
+        }
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      setError("Error de conexión. Intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const switchMode = () => {
+    setIsLogin(!isLogin);
+    setError("");
+    setSuccess("");
+  };
 
   if (!isOpen) return null;
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    try {
-      const result = await login({ email, password });
-      if (result.success) {
-        onClose(); // Cerrar modal si el login es exitoso
-      } else {
-        setError(
-          result.error || "Error al iniciar sesión. Verifique sus credenciales."
-        );
-      }
-    } catch (err) {
-      setError("Ocurrió un error inesperado. Intente de nuevo.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOverlayClick = (e) => {
-    // Cierra el modal solo si se hace clic en el overlay directamente
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-md transition-opacity duration-300" // Clases para opacidad y blur ajustadas aquí
-      onClick={handleOverlayClick}
-    >
-      <div className="relative bg-background rounded-2xl shadow-2xl w-full max-w-md m-4 p-8 transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <X size={24} />
-        </button>
-
-        <div className="flex mb-6 border-b">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+          </h2>
           <button
-            onClick={() => setActiveTab("login")}
-            className={`flex-1 py-3 text-center font-semibold transition-all duration-300 ${
-              activeTab === "login"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            onClick={handleClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            Iniciar Sesión
-          </button>
-          <button
-            onClick={() => setActiveTab("register")}
-            className={`flex-1 py-3 text-center font-semibold transition-all duration-300 ${
-              activeTab === "register"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Registrarse
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
-        {activeTab === "login" ? (
-          <form className="space-y-6" onSubmit={handleLogin}>
-            {" "}
-            {/* 3. Añadir onSubmit */}
-            <h2 className="text-2xl font-bold text-center text-foreground">
-              Bienvenido de vuelta
-            </h2>
-            <div className="space-y-4">
+        {/* Content */}
+        <div className="p-6">
+          {/* Success Message */}
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+              {success}
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name field for register */}
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nombre completo
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Ingresa tu nombre completo"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  icon={User}
+                  required
+                />
+              </div>
+            )}
+
+            {/* Email field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Correo electrónico
+              </label>
               <Input
-                icon={<Mail size={18} className="text-muted-foreground" />}
                 type="email"
-                placeholder="correo@ejemplo.com"
-                required
-                value={email} // 4. Enlazar estado
+                placeholder="Ingresa tu correo electrónico"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                icon={Mail}
+                required
               />
+            </div>
+
+            {/* Password field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña
+              </label>
               <div className="relative">
                 <Input
-                  icon={<Lock size={18} className="text-muted-foreground" />}
                   type={showPassword ? "text" : "password"}
-                  placeholder="Contraseña"
-                  required
-                  value={password} // 5. Enlazar estado
+                  placeholder="Ingresa tu contraseña"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  icon={Lock}
+                  className="pr-10"
+                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <a href="#" className="text-sm text-primary hover:underline">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-            {/* 6. Mostrar errores y estado de carga */}
-            {error && (
-              <p className="text-sm text-red-500 text-center">{error}</p>
-            )}
+
+            {/* Submit button */}
             <Button
-              className="w-full !py-3 !text-base"
               type="submit"
-              disabled={isLoading}
+              className="w-full"
+              disabled={loading}
             >
-              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  {isLogin ? "Iniciando sesión..." : "Registrando..."}
+                </div>
+              ) : (
+                isLogin ? "Iniciar Sesión" : "Crear Cuenta"
+              )}
             </Button>
           </form>
-        ) : (
-          <form className="space-y-6">
-            <h2 className="text-2xl font-bold text-center text-foreground">
-              Crea tu cuenta
-            </h2>
-            <div className="space-y-4">
-              <Input
-                icon={<User size={18} className="text-muted-foreground" />}
-                type="text"
-                placeholder="Nombre completo"
-                required
-              />
-              <Input
-                icon={<Mail size={18} className="text-muted-foreground" />}
-                type="email"
-                placeholder="correo@ejemplo.com"
-                required
-              />
-              <Input
-                icon={<Lock size={18} className="text-muted-foreground" />}
-                type="password"
-                placeholder="Contraseña"
-                required
-              />
-            </div>
-            <Button className="w-full !py-3 !text-base">Crear Cuenta</Button>
-          </form>
-        )}
 
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t"></span>
+          {/* Switch mode */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
+              <button
+                type="button"
+                onClick={switchMode}
+                className="ml-1 text-primary hover:text-primary/80 font-medium"
+              >
+                {isLogin ? "Regístrate aquí" : "Inicia sesión aquí"}
+              </button>
+            </p>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              O continúa con
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="ghost" className="border !py-3">
-            Google
-          </Button>
-          <Button variant="ghost" className="border !py-3">
-            Facebook
-          </Button>
         </div>
       </div>
     </div>

@@ -37,7 +37,7 @@ class UsuarioController
         }
     }
 
-    //POST Crear nuevo usuario
+    //POST Crear nuevo usuario (registro)
     public function create()
     {
         try {
@@ -45,14 +45,55 @@ class UsuarioController
             $response = new Response();
             //Obtener json enviado
             $inputJSON = $request->getJSON();
+            
+            // Validaciones básicas
+            if (empty($inputJSON->nombre)) {
+                $response->status(400)->toJSON(['error' => 'El nombre es obligatorio']);
+                return;
+            }
+            
+            if (empty($inputJSON->correo)) {
+                $response->status(400)->toJSON(['error' => 'El correo es obligatorio']);
+                return;
+            }
+            
+            if (empty($inputJSON->contrasena)) {
+                $response->status(400)->toJSON(['error' => 'La contraseña es obligatoria']);
+                return;
+            }
+            
+            if (strlen($inputJSON->contrasena) < 6) {
+                $response->status(400)->toJSON(['error' => 'La contraseña debe tener al menos 6 caracteres']);
+                return;
+            }
+            
+            // Validar formato de correo
+            if (!filter_var($inputJSON->correo, FILTER_VALIDATE_EMAIL)) {
+                $response->status(400)->toJSON(['error' => 'El formato del correo no es válido']);
+                return;
+            }
+            
             //Instancia del modelo
             $usuario = new UsuarioModel();
             //Acción del modelo a ejecutar
             $result = $usuario->create($inputJSON);
-            //Dar respuesta
-            $response->toJSON($result);
+            
+            if ($result) {
+                $response->status(201)->toJSON([
+                    'success' => true,
+                    'message' => 'Usuario registrado exitosamente',
+                    'usuario' => $result
+                ]);
+            } else {
+                $response->status(500)->toJSON(['error' => 'Error al crear el usuario']);
+            }
         } catch (Exception $e) {
-            handleException($e);
+            $response = new Response();
+            if (strpos($e->getMessage(), 'ya está registrado') !== false) {
+                $response->status(409)->toJSON(['error' => $e->getMessage()]);
+            } else {
+                $response->status(500)->toJSON(['error' => 'Error interno del servidor']);
+            }
         }
     }
 
@@ -99,14 +140,37 @@ class UsuarioController
             $response = new Response();
             //Obtener json enviado
             $inputJSON = $request->getJSON();
+            
+            // Validaciones básicas
+            if (empty($inputJSON->correo)) {
+                $response->status(400)->toJSON(['error' => 'El correo es obligatorio']);
+                return;
+            }
+            
+            if (empty($inputJSON->contrasena)) {
+                $response->status(400)->toJSON(['error' => 'La contraseña es obligatoria']);
+                return;
+            }
+            
             //Instancia del modelo
             $usuario = new UsuarioModel();
             //Acción del modelo a ejecutar
             $result = $usuario->login($inputJSON);
-            //Dar respuesta
-            $response->toJSON($result);
+            
+            if ($result) {
+                $response->toJSON([
+                    'success' => true,
+                    'message' => 'Login exitoso',
+                    'usuario' => $result
+                ]);
+            } else {
+                $response->status(401)->toJSON([
+                    'error' => 'Credenciales incorrectas'
+                ]);
+            }
         } catch (Exception $e) {
-            handleException($e);
+            $response = new Response();
+            $response->status(500)->toJSON(['error' => 'Error interno del servidor']);
         }
     }
 }

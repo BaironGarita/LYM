@@ -6,8 +6,8 @@ import {
   Heart,
   Settings,
   LogOut,
-  Percent,
-  Package, // Añadir icono para pedidos
+  Percent, // Icono para ofertas
+  Package, // Icono para pedidos
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import CartDropdown from "../CartDropdown.jsx";
@@ -95,7 +95,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
             </a>
           </div>
 
-          {/* Navegación Desktop */}
+          {/* Navegación Desktop (Fusionada) */}
           <nav className="hidden md:flex items-center space-x-8 flex-1">
             <NavLink href="/products">Productos</NavLink>
             <NavLink href="/collections">Colecciones</NavLink>
@@ -107,9 +107,18 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               Ofertas
             </NavLink>
             <NavLink href="/about">Nosotros</NavLink>
+            <NavLink href="/resenas">Reseñas</NavLink>
             <NavLink href="/contact">Contacto</NavLink>
 
-            {/* Enlaces solo para administradores */}
+            {/* Enlaces para usuarios logueados */}
+            {isAuthenticated() && !isAdmin() && (
+              <NavLink href="/orders">
+                <Package className="h-4 w-4 inline mr-1" />
+                Pedidos
+              </NavLink>
+            )}
+
+            {/* Enlaces solo para administradores (Fusionados) */}
             {isAdmin() && (
               <>
                 <NavLink href="/admin/dashboard">Panel Admin</NavLink>
@@ -121,7 +130,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
 
           {/* Acciones del usuario */}
           <div className="flex items-center space-x-3">
-            {/* Botón favoritos - Solo para usuarios autenticados */}
+            {/* Botón favoritos */}
             {isAuthenticated() && (
               <div className="hidden md:block">
                 <Button variant="ghost" size="sm">
@@ -131,7 +140,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               </div>
             )}
 
-            {/* Menú de usuario */}
+            {/* Menú de usuario (Fusionado y mejorado) */}
             <div className="hidden md:block relative" ref={userMenuRef}>
               {isAuthenticated() ? (
                 <>
@@ -155,7 +164,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                       <div className="py-1">
                         <a
                           href="/profile"
-                          className="block px-4 py-2 text-sm hover:bg-gray-100"
+                          className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
                         >
                           <User className="h-4 w-4 inline mr-2" />
                           Mi Perfil
@@ -163,7 +172,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         {!isAdmin() && (
                           <a
                             href="/orders"
-                            className="block px-4 py-2 text-sm hover:bg-gray-100"
+                            className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
                           >
                             <Package className="h-4 w-4 inline mr-2" />
                             Mis Pedidos
@@ -174,14 +183,14 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                             <hr className="my-1" />
                             <a
                               href="/admin/dashboard"
-                              className="block px-4 py-2 text-sm hover:bg-gray-100"
+                              className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
                             >
                               <Settings className="h-4 w-4 inline mr-2" />
-                              Panel Administrador
+                              Panel Admin
                             </a>
                             <a
                               href="/admin/orders"
-                              className="block px-4 py-2 text-sm hover:bg-gray-100"
+                              className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
                             >
                               <Package className="h-4 w-4 inline mr-2" />
                               Gestionar Pedidos
@@ -191,7 +200,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <hr className="my-1" />
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                          className="w-full text-left flex items-center px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
                         >
                           <LogOut className="h-4 w-4 inline mr-2" />
                           Cerrar Sesión
@@ -212,7 +221,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               )}
             </div>
 
-            {/* Carrito - Solo para clientes */}
+            {/* Carrito */}
             {(isAuthenticated() && !isAdmin()) || !isAuthenticated() ? (
               <div className="relative" ref={cartBtnRef}>
                 <Button
@@ -244,7 +253,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               </div>
             ) : null}
 
-            {/* Menú móvil */}
+            {/* Menú móvil (botón) */}
             <div className="md:hidden">
               <Button
                 variant="ghost"
@@ -261,7 +270,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
         </div>
       </header>
 
-      {/* Menú móvil actualizado */}
+      {/* Menú móvil (contenido fusionado) */}
       {showMobileMenu && (
         <div className="md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-sm">
           <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background shadow-xl border-l">
@@ -295,10 +304,16 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                   </a>
                   <a
                     href="/offers"
-                    className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors text-red-500 font-semibold"
+                    className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors text-red-500 font-semibold"
                   >
                     <Percent className="h-5 w-5 inline mr-2" />
                     Ofertas
+                  </a>
+                  <a
+                    href="/resenas"
+                    className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                  >
+                    Reseñas
                   </a>
 
                   {isAdmin() && (
@@ -306,14 +321,14 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                       <hr className="my-4" />
                       <a
                         href="/admin/dashboard"
-                        className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                       >
                         <Settings className="h-5 w-5 inline mr-2" />
                         Panel Admin
                       </a>
                       <a
                         href="/admin/orders"
-                        className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                       >
                         <Package className="h-5 w-5 inline mr-2" />
                         Gestionar Pedidos
@@ -327,7 +342,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                     <>
                       <a
                         href="/profile"
-                        className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                       >
                         <User className="h-5 w-5 inline mr-2" />
                         Mi Perfil
@@ -336,14 +351,14 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <>
                           <a
                             href="/orders"
-                            className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                            className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                           >
                             <Package className="h-5 w-5 inline mr-2" />
                             Mis Pedidos
                           </a>
                           <a
                             href="/favorites"
-                            className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                            className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                           >
                             <Heart className="h-5 w-5 inline mr-2" />
                             Favoritos
@@ -352,7 +367,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                       )}
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left block py-3 px-4 rounded-lg hover:bg-accent transition-colors text-red-600"
+                        className="w-full text-left flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors text-red-600"
                       >
                         <LogOut className="h-5 w-5 inline mr-2" />
                         Cerrar Sesión
@@ -364,7 +379,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         setIsAuthModalOpen(true);
                         setShowMobileMenu(false);
                       }}
-                      className="w-full text-left block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      className="w-full text-left flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                     >
                       <User className="h-5 w-5 inline mr-2" />
                       Iniciar Sesión

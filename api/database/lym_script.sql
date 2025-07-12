@@ -105,7 +105,7 @@ CREATE TABLE `direcciones` (
   KEY `idx_usuario` (`usuario_id`),
   KEY `idx_principal` (`es_principal`),
   CONSTRAINT `direcciones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,7 +114,6 @@ CREATE TABLE `direcciones` (
 
 LOCK TABLES `direcciones` WRITE;
 /*!40000 ALTER TABLE `direcciones` DISABLE KEYS */;
-INSERT INTO `direcciones` VALUES (7,4,'San José','San José Centro','Avenida Central, Casa 123','Apartamento 2B','10101','2234-5678',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58'),(8,5,'Alajuela','Alajuela Centro','Calle 5, Casa 456',NULL,'20101','2445-7890',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58'),(9,6,'Cartago','Cartago Centro','Avenida 2, Edificio Los Robles','Oficina 301','30101','2551-2345',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58'),(10,7,'Heredia','Heredia Centro','Calle Principal 789',NULL,'40101','2260-6789',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58'),(11,8,'Puntarenas','Puntarenas Centro','Paseo de los Turistas 321','Local 15','60101','2661-4567',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58'),(12,9,'Guanacaste','Liberia','Barrio La Victoria, Casa 654',NULL,'50101','2666-8901',1,1,'2025-07-10 01:27:58','2025-07-10 01:27:58');
 /*!40000 ALTER TABLE `direcciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,7 +168,7 @@ CREATE TABLE `pedido_detalles` (
   KEY `idx_producto` (`producto_id`),
   CONSTRAINT `pedido_detalles_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `pedido_detalles_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +177,6 @@ CREATE TABLE `pedido_detalles` (
 
 LOCK TABLES `pedido_detalles` WRITE;
 /*!40000 ALTER TABLE `pedido_detalles` DISABLE KEYS */;
-INSERT INTO `pedido_detalles` VALUES (5,7,1,1,30000.00,30000.00,NULL,'2025-07-10 01:45:46'),(6,7,5,1,7500.00,7500.00,NULL,'2025-07-10 01:45:46'),(7,8,6,1,8000.00,8000.00,NULL,'2025-07-10 01:45:46'),(8,8,4,2,5500.00,11000.00,NULL,'2025-07-10 01:45:46'),(9,9,1,2,30000.00,60000.00,NULL,'2025-07-10 01:45:46'),(10,9,4,1,5500.00,5500.00,NULL,'2025-07-10 01:45:46'),(11,9,5,1,7500.00,7500.00,NULL,'2025-07-10 01:45:46'),(12,10,2,2,10000.00,20000.00,NULL,'2025-07-10 01:45:47'),(13,11,1,1,30000.00,30000.00,NULL,'2025-07-10 01:46:29'),(14,11,7,2,5000.00,10000.00,NULL,'2025-07-10 01:46:29'),(15,11,4,1,5500.00,5500.00,NULL,'2025-07-10 01:46:29');
 /*!40000 ALTER TABLE `pedido_detalles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -200,7 +198,7 @@ CREATE TABLE `pedido_historial` (
   KEY `idx_pedido` (`pedido_id`),
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `pedido_historial_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -209,7 +207,6 @@ CREATE TABLE `pedido_historial` (
 
 LOCK TABLES `pedido_historial` WRITE;
 /*!40000 ALTER TABLE `pedido_historial` DISABLE KEYS */;
-INSERT INTO `pedido_historial` VALUES (1,7,NULL,'en_proceso','Pedido creado','2025-01-05 16:30:00'),(2,7,'en_proceso','confirmado','Pedido confirmado por el cliente','2025-01-06 14:15:00'),(3,7,'confirmado','pagado','Pago procesado exitosamente','2025-01-06 20:30:00'),(4,7,'pagado','enviado','Paquete enviado','2025-01-07 20:30:00'),(5,7,'enviado','entregado','Entrega confirmada','2025-01-08 20:20:00'),(6,8,NULL,'en_proceso','Pedido creado','2025-01-06 21:45:00'),(7,8,'en_proceso','confirmado','Pedido confirmado','2025-01-07 16:20:00'),(8,8,'confirmado','pagado','Pago con SINPE Móvil confirmado','2025-01-08 15:00:00'),(9,8,'pagado','enviado','En camino al destino','2025-01-09 15:15:00'),(10,9,NULL,'en_proceso','Pedido creado','2025-01-07 17:20:00'),(11,9,'en_proceso','confirmado','Confirmado - pedido grande','2025-01-07 22:30:00'),(12,9,'confirmado','pagado','Transferencia bancaria recibida','2025-01-08 22:30:00'),(13,10,NULL,'en_proceso','Pedido creado','2025-01-08 15:15:00'),(14,10,'en_proceso','confirmado','Confirmado por el cliente','2025-01-08 22:45:00'),(15,11,NULL,'en_proceso','Pedido creado','2025-01-04 20:00:00'),(16,11,'en_proceso','confirmado','Confirmado','2025-01-05 15:30:00'),(17,11,'confirmado','pagado','Pago en efectivo programado','2025-01-05 17:15:00'),(18,11,'pagado','enviado','Enviado con envío gratis','2025-01-06 17:15:00'),(19,11,'enviado','entregado','Entregado y pagado en efectivo','2025-01-07 18:45:00'),(20,12,NULL,'en_proceso','Pedido creado','2025-01-03 22:30:00'),(21,12,'en_proceso','cancelado','Cancelado por el cliente','2025-01-05 16:00:00');
 /*!40000 ALTER TABLE `pedido_historial` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -241,7 +238,7 @@ CREATE TABLE `pedidos` (
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `pedidos_ibfk_2` FOREIGN KEY (`direccion_envio_id`) REFERENCES `direcciones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,7 +247,6 @@ CREATE TABLE `pedidos` (
 
 LOCK TABLES `pedidos` WRITE;
 /*!40000 ALTER TABLE `pedidos` DISABLE KEYS */;
-INSERT INTO `pedidos` VALUES (7,3,7,38998.00,5070.00,2000.00,0.00,46068.00,'entregado','tarjeta_credito',NULL,'2025-01-05 16:30:00','2025-01-08 20:20:00'),(8,4,8,21498.00,2795.00,1500.00,2300.00,23493.00,'enviado','sinpe_movil',NULL,'2025-01-06 21:45:00','2025-01-09 15:15:00'),(9,5,9,67997.00,8840.00,0.00,6800.00,70037.00,'pagado','transferencia',NULL,'2025-01-07 17:20:00','2025-01-08 22:30:00'),(10,6,10,17999.00,2340.00,1500.00,0.00,21839.00,'confirmado','tarjeta_debito',NULL,'2025-01-08 15:15:00','2025-01-08 22:45:00'),(11,7,11,39997.00,5200.00,0.00,4000.00,41197.00,'entregado','efectivo',NULL,'2025-01-04 20:00:00','2025-01-07 18:45:00'),(12,8,12,19498.00,2535.00,1500.00,0.00,23533.00,'cancelado','tarjeta_credito',NULL,'2025-01-03 22:30:00','2025-01-05 16:00:00');
 /*!40000 ALTER TABLE `pedidos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -394,7 +390,7 @@ CREATE TABLE `promociones` (
   KEY `idx_fechas` (`fecha_inicio`,`fecha_fin`),
   CONSTRAINT `promociones_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `promociones_ibfk_2` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -403,7 +399,7 @@ CREATE TABLE `promociones` (
 
 LOCK TABLES `promociones` WRITE;
 /*!40000 ALTER TABLE `promociones` DISABLE KEYS */;
-INSERT INTO `promociones` VALUES (1,'Promo de ejemplo','20% de descuento en producto de prueba','producto',1,NULL,20.00,0.00,0.00,'2025-07-07 00:43:55','2025-07-14 00:43:55',1,'2025-07-07 00:43:55'),(2,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:29:40'),(3,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:30:35'),(4,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:43:28'),(5,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:50:21'),(6,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:55:42'),(7,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 20:56:04'),(8,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 21:02:59'),(9,'Descuento de Verano',NULL,'categoria',NULL,2,20.00,0.00,0.00,'2025-07-08 06:00:00','2025-08-01 05:59:59',1,'2025-07-08 21:07:44');
+INSERT INTO `promociones` VALUES (1,'Promo de ejemplo','20% de descuento en producto de prueba','producto',1,NULL,20.00,0.00,0.00,'2025-07-07 00:43:55','2025-07-14 00:43:55',1,'2025-07-07 00:43:55');
 /*!40000 ALTER TABLE `promociones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -445,6 +441,26 @@ LOCK TABLES `resenas` WRITE;
 /*!40000 ALTER TABLE `resenas` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- Ejemplo 1: Reseña básica (los campos created_at y updated_at se llenan automáticamente)
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (1, 1, 5, 'Producto excelente, muy recomendado!', 1, '2025-05-01 15:30:00');
+
+-- Ejemplo 2: Reseña con fecha específica
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (2, 2, 4, 'Buena calidad, llegó rápido', 1, '2025-07-08 15:30:00');
+
+-- Ejemplo 3: Reseña pendiente de aprobación
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (4, 3, 3, 'Las gafas están bien pero esperaba más', 0, '2025-01-015 13:30:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (5, 4, 5, 'Billetera perfecta, justo lo que buscaba', 1, '2025-03-08 14:00:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado, created_at) 
+VALUES (6, 5, 4, 'Cinturón de buena calidad', 1, '2025-06-25 15:00:00');
+
+INSERT INTO resenas (producto_id, usuario_id, valoracion, comentario, aprobado) 
+VALUES (7, 6, 5, 'Collar hermoso, llegó bien empacado', 1);
 --
 -- Table structure for table `usuarios`
 --
@@ -469,7 +485,7 @@ CREATE TABLE `usuarios` (
   KEY `idx_correo` (`correo`),
   KEY `idx_rol` (`rol`),
   KEY `idx_activo` (`activo`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -478,9 +494,13 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'Administrador LYM','admin@lym.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'administrador',1,NULL,NULL,'2025-06-21 04:25:50','2025-06-21 04:25:50'),(3,'Bairon','Bairongaba@gmail.com','$2y$10$M76I0LgFpdJM35CiYJEaFuX/CyoJco8Oez6dXkR6USE/g958z.nRq',NULL,'administrador',1,NULL,NULL,'2025-07-08 22:11:02','2025-07-08 22:11:02'),(4,'María González','maria.gonzalez@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25'),(5,'Carlos Rodríguez','carlos.rodriguez@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25'),(6,'Ana Patricia Jiménez','ana.jimenez@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25'),(7,'Roberto Vargas','roberto.vargas@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25'),(8,'Laura Solís','laura.solis@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25'),(9,'José Miguel Castro','jose.castro@email.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'cliente',1,NULL,NULL,'2025-07-10 01:26:25','2025-07-10 01:26:25');
+INSERT INTO `usuarios` VALUES (1,'Administrador LYM','admin@lym.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,'administrador',1,NULL,NULL,'2025-06-21 04:25:50','2025-06-21 04:25:50');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping events for database 'lym_db'
+--
 
 --
 -- Dumping routines for database 'lym_db'
@@ -495,4 +515,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-09 21:40:04
+-- Dump completed on 2025-07-07 11:45:28

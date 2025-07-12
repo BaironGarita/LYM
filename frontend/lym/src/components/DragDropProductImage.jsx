@@ -20,10 +20,13 @@ const DragDropProductImage = ({ productoId, onUpload }) => {
       formData.append("orden", i + 1);
       formData.append("es_principal", 0);
       try {
-        const res = await fetch("http://backend.local:81/productos/imagenes", {
-          method: "POST",
-          body: formData,
-        });
+        const res = await fetch(
+          "http://localhost:81/api_lym/productos/imagenes",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
         if (res.ok) success++;
       } catch {}
     }
@@ -39,10 +42,16 @@ const DragDropProductImage = ({ productoId, onUpload }) => {
   return (
     <div
       ref={dropRef}
-      onDragOver={e => { e.preventDefault(); setDragActive(true); }}
-      onDragLeave={e => { e.preventDefault(); setDragActive(false); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragActive(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        setDragActive(false);
+      }}
       onDrop={handleDrop}
-      className={`border-2 border-dashed rounded p-4 text-center cursor-pointer transition ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+      className={`border-2 border-dashed rounded p-4 text-center cursor-pointer transition ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
       style={{ minHeight: 80 }}
     >
       <div className="text-sm text-gray-600">

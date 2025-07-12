@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import CategoryFilter from "./CategoryFilter";
 import { usePromociones } from "../hooks/usePromociones";
+import { TooltipProvider } from "./UI/tooltip";
 
 const ProductList = ({ onAddToCart }) => {
   const [products, setProducts] = useState([]);
@@ -39,24 +40,26 @@ const ProductList = ({ onAddToCart }) => {
   }, [selectedCategory, promociones, calcularPrecio]);
 
   return (
-    <div>
-      <div className="mt-8">
-        <CategoryFilter onChange={setSelectedCategory} />
+    <TooltipProvider>
+      <div>
+        <div className="mt-8">
+          <CategoryFilter onChange={setSelectedCategory} />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))
+            : products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                />
+              ))}
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-        {isLoading
-          ? Array.from({ length: 8 }).map((_, index) => (
-              <ProductCardSkeleton key={index} />
-            ))
-          : products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-              />
-            ))}
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

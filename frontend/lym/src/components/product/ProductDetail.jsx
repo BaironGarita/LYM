@@ -24,20 +24,20 @@ import {
   Percent,
 } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
-import { Button } from "./UI/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./UI/card";
-import { Badge } from "./UI/badge";
-import { Separator } from "./UI/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./UI/tabs";
-import { Alert, AlertDescription } from "./UI/alert";
+import { Button } from "@/components/UI/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
+import { Badge } from "@/components/UI/badge";
+import { Separator } from "@/components/UI/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
+import { Alert, AlertDescription } from "@/components/UI/alert";
 import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
   TooltipContent,
-} from "./UI/tooltip";
+} from "@/components/UI/tooltip";
 import { toast } from "sonner";
-import { usePromociones } from "../hooks/usePromociones";
+import { usePromociones } from "@/hooks/usePromociones";
 import ProductReviews from "./ProductReviews";
 
 const useClickOutside = (ref, handler) => {

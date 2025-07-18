@@ -1,4 +1,10 @@
-import { useState, useEffect, createContext, useContext, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  useCallback,
+} from "react";
 
 const AuthContext = createContext();
 
@@ -23,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(async (email, password) => {
     try {
       const credentials = { correo: email, contrasena: password };
-      
+
       const response = await fetch(
         "http://localhost:81/api_lym/usuarios/login",
         {
@@ -34,16 +40,19 @@ export const AuthProvider = ({ children }) => {
       );
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         // Use a more reliable method to update state
         const userData = data.usuario;
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-        
+
         return { success: true, user: userData };
       }
-      return { success: false, message: data.error || "Credenciales inválidas" };
+      return {
+        success: false,
+        message: data.error || "Credenciales inválidas",
+      };
     } catch (error) {
       console.error("Login error:", error);
       return { success: false, message: "Error de conexión" };
@@ -52,27 +61,27 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(async (name, email, password) => {
     try {
-      const userData = { 
-        nombre: name, 
-        correo: email, 
-        contrasena: password 
+      const userData = {
+        nombre: name,
+        correo: email,
+        contrasena: password,
       };
-      
-      const response = await fetch(
-        "http://localhost:81/api_lym/usuarios",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        }
-      );
+
+      const response = await fetch("http://localhost:81/api_lym/usuarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         return { success: true, message: data.message };
       }
-      return { success: false, message: data.error || "Error al registrar usuario" };
+      return {
+        success: false,
+        message: data.error || "Error al registrar usuario",
+      };
     } catch (error) {
       console.error("Register error:", error);
       return { success: false, message: "Error de conexión" };
@@ -84,7 +93,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   }, []);
 
-  const isAdmin = useCallback(() => user?.rol === "admin", [user]);
+  const isAdmin = () => {
+    // Comprueba que el usuario exista y que su propiedad 'rol' sea 'admin'
+    return user && user.rol === "admin";
+  };
   const isClient = useCallback(() => user?.rol === "cliente", [user]);
   const isAuthenticated = useCallback(() => !!user, [user]);
 

@@ -10,12 +10,12 @@ import {
   Send,
   X,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./UI/card";
-import { Badge } from "./UI/badge";
-import { Button } from "./UI/button";
-import { Skeleton } from "./UI/skeleton";
-import { Separator } from "./UI/separator";
-import { useAuth } from "../hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
+import { Badge } from "@/components/UI/badge";
+import { Button } from "@/components/UI/button";
+import { Skeleton } from "@/components/UI/skeleton";
+import { Separator } from "@/components/UI/separator";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const ProductReviews = ({ productId }) => {

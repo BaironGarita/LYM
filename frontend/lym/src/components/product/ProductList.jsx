@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import CategoryFilter from "./CategoryFilter";
-import { usePromociones } from "../hooks/usePromociones";
-import { TooltipProvider } from "./UI/tooltip";
+import { usePromociones } from "@/hooks/usePromociones";
+import { TooltipProvider } from "@/components/UI/tooltip";
 
 const ProductList = ({ onAddToCart }) => {
   const [products, setProducts] = useState([]);

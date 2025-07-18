@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingCart, Heart, Star, Truck, Tag } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
-import { Button } from "./UI/button";
-import { Card, CardContent } from "./UI/card";
-import { Badge } from "./UI/badge";
-import { Skeleton } from "./UI/skeleton";
-import { Tooltip, TooltipTrigger, TooltipContent } from "./UI/tooltip";
+import { Button } from "@/components/UI/button";
+import { Card, CardContent } from "@/components/UI/card";
+import { Badge } from "@/components/UI/badge";
+import { Skeleton } from "@/components/UI/skeleton";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/UI/tooltip";
 
 export function ProductCardSkeleton() {
   return (

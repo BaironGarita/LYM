@@ -1,17 +1,17 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProductList from "./components/ProductList";
-import ProductDetail from "./components/ProductDetail";
+import ProductList from "./components/product/ProductList";
+import ProductDetail from "./components/product/ProductDetail";
 import { Navbar } from "./components/layout/Navbar";
-import UploadProductImage from "./components/UploadProductImage";
-import { useCart } from "./components/useCart";
-import { Toaster } from "@/components/UI/sonner";
+import UploadProductImage from "./components/product/UploadProductImage";
+import { Toaster } from "sonner";
+import { useCart } from "./hooks/useCart";
 import { AuthProvider } from "./hooks/useAuth";
-import { ProtectedRoute } from "./components/ProtectedRouter";
-import OffersPage from "../Pages/OffersPage.jsx";
-import OrdersPage from "../Pages/OrdersPage.jsx";
-import ResenasList from "./components/ResenasList";
-import ResenaDetail from "./components/ResenaDetail";
+import { ProtectedRoute } from "./components/auth/ProtectedRouter";
+import OffersPage from "./Pages/Products/OffersPage";
+import OrdersPage from "./Pages/Orders/OrdersPage";
+import ResenasList from "./components/reviews/ResenasList";
+import ResenaDetail from "./components/reviews/ResenaDetail";
 
 function App() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();

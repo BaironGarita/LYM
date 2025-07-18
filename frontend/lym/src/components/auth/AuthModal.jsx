@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { X, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../hooks/useAuth.jsx";
+import { useAuth } from "@/hooks/useAuth.jsx";
 
-const Button = ({ children, variant = "default", className = "", disabled, ...props }) => (
+const Button = ({
+  children,
+  variant = "default",
+  className = "",
+  disabled,
+  ...props
+}) => (
   <button
     className={`inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 ${
       variant === "outline"
@@ -16,7 +22,15 @@ const Button = ({ children, variant = "default", className = "", disabled, ...pr
   </button>
 );
 
-const Input = ({ type = "text", placeholder, value, onChange, className = "", icon: Icon, ...props }) => (
+const Input = ({
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  className = "",
+  icon: Icon,
+  ...props
+}) => (
   <div className="relative">
     {Icon && (
       <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -40,12 +54,12 @@ export function AuthModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  
+
   // Form data
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  
+
   const { login, register } = useAuth();
 
   const resetForm = () => {
@@ -113,11 +127,11 @@ export function AuthModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
@@ -212,18 +226,16 @@ export function AuthModal({ isOpen, onClose }) {
             </div>
 
             {/* Submit button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <div className="flex items-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                   {isLogin ? "Iniciando sesión..." : "Registrando..."}
                 </div>
+              ) : isLogin ? (
+                "Iniciar Sesión"
               ) : (
-                isLogin ? "Iniciar Sesión" : "Crear Cuenta"
+                "Crear Cuenta"
               )}
             </Button>
           </form>

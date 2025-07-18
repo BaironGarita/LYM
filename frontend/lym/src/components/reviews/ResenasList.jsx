@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Star, 
-  Eye, 
-  User, 
-  Calendar, 
+import {
+  Star,
+  Eye,
+  User,
+  Calendar,
   Package,
   MessageSquare,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./UI/card";
-import { Badge } from "./UI/badge";
-import { Button } from "./UI/button";
-import { Skeleton } from "./UI/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
+import { Badge } from "@/components/UI/badge";
+import { Button } from "@/components/UI/button";
+import { Skeleton } from "@/components/UI/skeleton";
 
 const ResenasList = () => {
   const [resenas, setResenas] = useState([]);
@@ -45,20 +45,20 @@ const ResenasList = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "Fecha no disponible";
-    
+
     const date = new Date(dateString);
-    
+
     // Verificar si la fecha es válida
     if (isNaN(date.getTime())) {
       return "Fecha no válida";
     }
-    
+
     return date.toLocaleDateString("es-ES", {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -182,11 +182,7 @@ const ResenasList = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
+        <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver
         </Button>
@@ -207,11 +203,7 @@ const ResenasList = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
+        <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver
         </Button>
@@ -240,7 +232,8 @@ const ResenasList = () => {
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                {resenas.length} reseña{resenas.length !== 1 ? "s" : ""} encontrada{resenas.length !== 1 ? "s" : ""}
+                {resenas.length} reseña{resenas.length !== 1 ? "s" : ""}{" "}
+                encontrada{resenas.length !== 1 ? "s" : ""}
               </p>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

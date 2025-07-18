@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./UI/select"; // Asegúrate que la ruta sea correcta
+} from "@/components/UI/select"; // Asegúrate que la ruta sea correcta
 import { List } from "lucide-react";
 
 const CategoryFilter = ({ onChange }) => {

@@ -10,6 +10,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/auth/ProtectedRouter";
 import OffersPage from "./Pages/Products/OffersPage";
 import OrdersPage from "./Pages/Orders/OrdersPage";
+import ProductsPage from "./Pages/ProductsPage"; // Cambiado de "../Pages/ProductsPage"
 import ResenasList from "./components/reviews/ResenasList";
 import ResenaDetail from "./components/reviews/ResenaDetail";
 
@@ -87,6 +88,14 @@ function App() {
               }
             />
             <Route
+              path="/admin/productos"
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <ProductsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/products"
               element={
                 <ProtectedRoute requireAdmin={true}>
@@ -102,6 +111,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/test-productos" element={<ProductsPage />} />
           </Routes>
         </main>
         <footer className="text-center p-4 mt-8 text-muted-foreground border-t">

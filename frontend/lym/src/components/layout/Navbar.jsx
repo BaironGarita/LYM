@@ -18,6 +18,8 @@ import { useState, useRef, useEffect } from "react";
 import CartDropdown from "../cart/CartDropdown.jsx";
 import { AuthModal } from "../auth/AuthModal.jsx";
 import { useAuth } from "../../hooks/useAuth.jsx";
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const NavLink = ({ href, children, isActive, ...props }) => (
   <a
@@ -203,7 +205,11 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                   variant="ghost"
                   size="sm"
                   onClick={() =>
-                    alert("Funcionalidad de favoritos en desarrollo")
+                    toast("Funcionalidad de favoritos en desarrollo", {
+                      icon: <Heart className="h-5 w-5" />,
+                      duration: 2000,
+                      position: "top-center",
+                    })
                   }
                   aria-label="Ver tus favoritos"
                 >

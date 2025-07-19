@@ -6,12 +6,13 @@ import {
   Heart,
   Settings,
   LogOut,
-  Percent, // Icono para ofertas
-  Package, // Icono para pedidos
-  ChevronDown, // Icono para dropdown
-  LayoutGrid, // Icono para Categorías
-  Tag, // Icono para Ofertas
-  Users, // Icono para Usuarios
+  Percent,
+  Package,
+  ChevronDown,
+  LayoutGrid,
+  Tag,
+  Users,
+  Star,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import CartDropdown from "../cart/CartDropdown.jsx";
@@ -49,11 +50,11 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showMantenimientosMenu, setShowMantenimientosMenu] = useState(false); // Estado para el nuevo menú
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const cartBtnRef = useRef();
   const userMenuRef = useRef();
-  const mantenimientosMenuRef = useRef(); // Ref para el nuevo menú
+  const adminMenuRef = useRef();
 
   const totalItems = cart.reduce((sum, item) => sum + (item.cantidad || 1), 0);
   const totalPrice = cart.reduce(
@@ -64,7 +65,6 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
   // Efecto para cerrar menús al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Cerrar menú de usuario
       if (
         showUserMenu &&
         userMenuRef.current &&
@@ -72,7 +72,6 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
       ) {
         setShowUserMenu(false);
       }
-      // Cerrar carrito
       if (
         showCart &&
         cartBtnRef.current &&
@@ -80,13 +79,12 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
       ) {
         setShowCart(false);
       }
-      // Cerrar menú de mantenimientos
       if (
-        showMantenimientosMenu &&
-        mantenimientosMenuRef.current &&
-        !mantenimientosMenuRef.current.contains(event.target)
+        showAdminMenu &&
+        adminMenuRef.current &&
+        !adminMenuRef.current.contains(event.target)
       ) {
-        setShowMantenimientosMenu(false);
+        setShowAdminMenu(false);
       }
     };
 
@@ -94,7 +92,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showUserMenu, showCart, showMantenimientosMenu]);
+  }, [showUserMenu, showCart, showAdminMenu]);
 
   const handleLogout = () => {
     logout();
@@ -126,10 +124,9 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
             </a>
           </div>
 
-          {/* Navegación Desktop (Fusionada) */}
+          {/* Navegación Desktop - Solo rutas funcionales */}
           <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 flex-1">
-            <NavLink href="/products">Productos</NavLink>
-            <NavLink href="/collections">Colecciones</NavLink>
+            <NavLink href="/productos">Productos</NavLink>
             <NavLink
               href="/offers"
               className="text-red-500 hover:text-red-600 font-semibold"
@@ -137,9 +134,13 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               <Percent className="h-4 w-4 inline mr-1" />
               Ofertas
             </NavLink>
-            <NavLink href="/about">Nosotros</NavLink>
-            <NavLink href="/resenas">Reseñas</NavLink>
-            <NavLink href="/contact">Contacto</NavLink>
+            <NavLink
+              href="/resenas"
+              className="text-yellow-500 hover:text-yellow-600 font-semibold"
+            >
+              <Star className="h-4 w-4 inline mr-1" />
+              Reseñas
+            </NavLink>
 
             {/* Enlaces para usuarios logueados */}
             {isAuthenticated() && !isAdmin() && (
@@ -149,22 +150,20 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               </NavLink>
             )}
 
-            {/* Menú de Mantenimiento para Admin */}
+            {/* Menú Admin */}
             {isAdmin() && (
-              <div className="relative" ref={mantenimientosMenuRef}>
+              <div className="relative" ref={adminMenuRef}>
                 <button
-                  onClick={() =>
-                    setShowMantenimientosMenu(!showMantenimientosMenu)
-                  }
+                  onClick={() => setShowAdminMenu(!showAdminMenu)}
                   className="group inline-flex items-center justify-center rounded-md text-sm font-medium text-muted-foreground hover:text-primary focus:outline-none"
                 >
-                  <span>Mantenimientos</span>
+                  <span>Admin</span>
                   <ChevronDown
                     className="relative top-[1px] ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180"
                     aria-hidden="true"
                   />
                 </button>
-                {showMantenimientosMenu && (
+                {showAdminMenu && (
                   <div className="absolute left-0 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                     <div className="py-1">
                       <a
@@ -175,39 +174,18 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <span>Panel Principal</span>
                       </a>
                       <a
-                        href="/admin/categories"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        <span>Categorías</span>
-                      </a>
-                      <a
-                        href="/admin/products"
+                        href="/admin/productos"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <Package className="mr-2 h-4 w-4" />
-                        <span>Productos</span>
+                        <span>Gestionar Productos</span>
                       </a>
                       <a
-                        href="/admin/offers"
+                        href="/admin/upload"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        <Tag className="mr-2 h-4 w-4" />
-                        <span>Ofertas</span>
-                      </a>
-                      <a
-                        href="/admin/orders"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        <span>Pedidos</span>
-                      </a>
-                      <a
-                        href="/admin/users"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>Usuarios</span>
+                        <LayoutGrid className="mr-2 h-4 w-4" />
+                        <span>Subir Producto</span>
                       </a>
                     </div>
                   </div>
@@ -219,11 +197,14 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
           {/* Acciones del usuario */}
           <div className="flex items-center space-x-3">
             {/* Botón favoritos */}
-            {isAuthenticated() && (
+            {isAuthenticated() && !isAdmin() && (
               <div className="hidden md:block">
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() =>
+                    alert("Funcionalidad de favoritos en desarrollo")
+                  }
                   aria-label="Ver tus favoritos"
                 >
                   <Heart className="h-5 w-5" />
@@ -232,7 +213,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               </div>
             )}
 
-            {/* Menú de usuario (Fusionado y mejorado) */}
+            {/* Menú de usuario */}
             <div className="hidden md:block relative" ref={userMenuRef}>
               {isAuthenticated() ? (
                 <>
@@ -264,13 +245,22 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                           Mi Perfil
                         </a>
                         {!isAdmin() && (
-                          <a
-                            href="/orders"
-                            className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
-                          >
-                            <Package className="h-4 w-4 inline mr-2" />
-                            Mis Pedidos
-                          </a>
+                          <>
+                            <a
+                              href="/orders"
+                              className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
+                            >
+                              <Package className="h-4 w-4 inline mr-2" />
+                              Mis Pedidos
+                            </a>
+                            <a
+                              href="/favorites"
+                              className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
+                            >
+                              <Heart className="h-4 w-4 inline mr-2" />
+                              Favoritos
+                            </a>
+                          </>
                         )}
                         {isAdmin() && (
                           <>
@@ -308,8 +298,8 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               )}
             </div>
 
-            {/* Carrito */}
-            {(isAuthenticated() && !isAdmin()) || !isAuthenticated() ? (
+            {/* Carrito - Solo para usuarios no admin */}
+            {!isAdmin() && (
               <div className="relative hidden md:block" ref={cartBtnRef}>
                 <Button
                   onClick={() => setShowCart((v) => !v)}
@@ -338,7 +328,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                   />
                 )}
               </div>
-            ) : null}
+            )}
 
             {/* Menú móvil (botón) */}
             <div className="md:hidden">
@@ -359,7 +349,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
         </div>
       </header>
 
-      {/* Menú móvil (contenido fusionado) */}
+      {/* Menú móvil */}
       {showMobileMenu && (
         <div className="md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-sm">
           <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background shadow-xl border-l">
@@ -380,16 +370,10 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
               <nav className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-4">
                   <a
-                    href="/products"
+                    href="/productos"
                     className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                   >
                     Productos
-                  </a>
-                  <a
-                    href="/collections"
-                    className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
-                  >
-                    Colecciones
                   </a>
                   <a
                     href="/offers"
@@ -400,11 +384,34 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                   </a>
                   <a
                     href="/resenas"
-                    className="block py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
                   >
+                    <Star className="h-5 w-5 inline mr-2" />
                     Reseñas
                   </a>
 
+                  {/* Opciones para usuarios normales */}
+                  {isAuthenticated() && !isAdmin() && (
+                    <>
+                      <hr className="my-4" />
+                      <a
+                        href="/orders"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <Package className="h-5 w-5 inline mr-2" />
+                        Mis Pedidos
+                      </a>
+                      <a
+                        href="/favorites"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <Heart className="h-5 w-5 inline mr-2" />
+                        Favoritos
+                      </a>
+                    </>
+                  )}
+
+                  {/* Opciones para admin */}
                   {isAdmin() && (
                     <>
                       <hr className="my-4" />
@@ -418,46 +425,20 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <Settings className="h-5 w-5 inline mr-2" />
                         Panel Principal
                       </a>
-                      <div className="pl-4">
-                        <div className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground">
-                          MANTENIMIENTOS
-                        </div>
-                        <a
-                          href="/admin/categories"
-                          className="flex items-center py-2 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <LayoutGrid className="h-5 w-5 inline mr-2" />
-                          Categorías
-                        </a>
-                        <a
-                          href="/admin/products"
-                          className="flex items-center py-2 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <Package className="h-5 w-5 inline mr-2" />
-                          Productos
-                        </a>
-                        <a
-                          href="/admin/offers"
-                          className="flex items-center py-2 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <Tag className="h-5 w-5 inline mr-2" />
-                          Ofertas
-                        </a>
-                        <a
-                          href="/admin/orders"
-                          className="flex items-center py-2 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <ShoppingCart className="h-5 w-5 inline mr-2" />
-                          Pedidos
-                        </a>
-                        <a
-                          href="/admin/users"
-                          className="flex items-center py-2 px-4 rounded-lg hover:bg-accent transition-colors"
-                        >
-                          <Users className="h-5 w-5 inline mr-2" />
-                          Usuarios
-                        </a>
-                      </div>
+                      <a
+                        href="/admin/productos"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <Package className="h-5 w-5 inline mr-2" />
+                        Gestionar Productos
+                      </a>
+                      <a
+                        href="/admin/upload"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <LayoutGrid className="h-5 w-5 inline mr-2" />
+                        Subir Producto
+                      </a>
                     </>
                   )}
 
@@ -472,24 +453,6 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
                         <User className="h-5 w-5 inline mr-2" />
                         Mi Perfil
                       </a>
-                      {!isAdmin() && (
-                        <>
-                          <a
-                            href="/orders"
-                            className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
-                          >
-                            <Package className="h-5 w-5 inline mr-2" />
-                            Mis Pedidos
-                          </a>
-                          <a
-                            href="/favorites"
-                            className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors"
-                          >
-                            <Heart className="h-5 w-5 inline mr-2" />
-                            Favoritos
-                          </a>
-                        </>
-                      )}
                       <button
                         onClick={handleLogout}
                         className="w-full text-left flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors text-red-600"

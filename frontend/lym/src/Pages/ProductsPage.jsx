@@ -92,25 +92,42 @@ const ProductsPage = () => {
 
   const handleSubmit = async (formData) => {
     setSubmitting(true);
+    setError(null); // ✅ Limpiar errores previos
 
     try {
-      // Validar datos antes de enviar
+      // ✅ Validar datos antes de enviar
       const errors = ProductoService.validateProductData(formData);
       if (errors.length > 0) {
         throw new Error(errors.join(", "));
       }
 
+      let result;
       if (editingProduct) {
-        await ProductoService.updateProducto(editingProduct.id, formData);
+        result = await ProductoService.updateProducto(
+          editingProduct.id,
+          formData
+        );
+        console.log("Producto actualizado:", result);
       } else {
-        await ProductoService.createProducto(formData);
+        result = await ProductoService.createProducto(formData);
+        console.log("Producto creado:", result);
       }
 
+      // ✅ Recargar productos
       await fetchProductos();
+
+      // ✅ Cerrar modal
       closeModal();
+
+      // ✅ Mostrar mensaje de éxito (si tienes toast)
+      console.log(
+        editingProduct
+          ? "Producto actualizado exitosamente"
+          : "Producto creado exitosamente"
+      );
     } catch (err) {
-      setError(err.message);
       console.error("Error submitting product:", err);
+      setError(err.message || "Error al procesar la solicitud");
     } finally {
       setSubmitting(false);
     }

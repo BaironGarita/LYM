@@ -4,7 +4,7 @@ import ProductList from "./components/product/ProductList";
 import ProductDetail from "./components/product/ProductDetail";
 import { Navbar } from "./components/layout/Navbar";
 import UploadProductImage from "./components/product/UploadProductImage";
-import { Toaster } from "sonner";
+import { Toaster } from "react-hot-toast";
 import { useCart } from "./hooks/useCart";
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/auth/ProtectedRouter";
@@ -120,7 +120,7 @@ function App() {
             reservados.
           </p>
         </footer>
-        <Toaster richColors position="top-right" />
+        <Toaster position="top-right" reverseOrder={false} />
       </Router>
     </AuthProvider>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingCart, Heart, Star, Truck, Tag } from "lucide-react";
+import toast from "react-hot-toast";
 import ImageCarousel from "./ImageCarousel";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
@@ -85,8 +86,27 @@ const ProductCard = ({ product, onAddToCart }) => {
           precioOriginal: promocionInfo.precioOriginal,
           promocionAplicada: promocionInfo.promocionAplicada,
         });
+
+        // Mostrar toast de éxito
+        toast.success(`${product.nombre} agregado al carrito`, {
+          duration: 3000,
+          position: "bottom-right",
+          style: {
+            background: "#10B981",
+            color: "#fff",
+          },
+          iconTheme: {
+            primary: "#fff",
+            secondary: "#10B981",
+          },
+        });
       } catch (error) {
         console.error("Error adding to cart:", error);
+        // Mostrar toast de error
+        toast.error("Error al agregar al carrito", {
+          duration: 3000,
+          position: "bottom-right",
+        });
       } finally {
         setIsAddingToCart(false);
       }

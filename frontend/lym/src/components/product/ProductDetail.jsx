@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
   Heart,
@@ -249,9 +250,63 @@ const ProductDetail = ({ onAddToCart }) => {
     promocionAplicada: null,
   };
 
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      y: 20,
+      scale: 0.95,
+    },
+    in: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+    },
+    out: {
+      opacity: 0,
+      y: -20,
+      scale: 1.05,
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.5,
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <motion.div
+        className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             {/* Breadcrumb skeleton */}
@@ -288,13 +343,20 @@ const ProductDetail = ({ onAddToCart }) => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
+      <motion.div
+        className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4"
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
         <Card className="max-w-lg w-full shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
           <CardContent className="p-8 text-center">
             <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -325,14 +387,19 @@ const ProductDetail = ({ onAddToCart }) => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <TooltipProvider>
-      <div
+      <motion.div
         className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
         style={{
           background:
             "linear-gradient(135deg, rgb(249 250 251) 0%, rgb(255 255 255) 100%)",
@@ -341,19 +408,29 @@ const ProductDetail = ({ onAddToCart }) => {
         }}
       >
         {/* Enhanced Breadcrumb */}
-        <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10">
+        <motion.div
+          className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+        >
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-2 hover:bg-gray-100 rounded-full px-3"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  Volver
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 hover:bg-gray-100 rounded-full px-3"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Volver
+                  </Button>
+                </motion.div>
                 <ChevronRight className="h-4 w-4" />
                 <span className="font-medium text-gray-900 truncate max-w-[200px]">
                   {product.nombre}
@@ -366,94 +443,127 @@ const ProductDetail = ({ onAddToCart }) => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <motion.div
+          className="max-w-7xl mx-auto px-4 py-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Enhanced Image Gallery */}
-            <div className="space-y-4">
-              <Card className="overflow-hidden shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-                <CardContent className="p-0">
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
-                    {isOnSale && (
-                      <div className="absolute top-6 left-6 z-10">
-                        <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                          <Tag className="h-4 w-4 mr-2" />-
-                          {getDiscountPercentage()}% OFF
-                        </Badge>
-                      </div>
-                    )}
+            <motion.div className="space-y-4" variants={itemVariants}>
+              <motion.div
+                layout
+                className="overflow-hidden shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-2xl"
+              >
+                <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
+                  {isOnSale && (
+                    <div className="absolute top-6 left-6 z-10">
+                      <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                        <Tag className="h-4 w-4 mr-2" />-
+                        {getDiscountPercentage()}% OFF
+                      </Badge>
+                    </div>
+                  )}
 
-                    {/* Badge de promoción específica */}
-                    {promocionInfo.promocionAplicada && (
-                      <div className="absolute bottom-6 left-6 z-10">
-                        <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                          <Percent className="h-4 w-4 mr-2" />
-                          {promocionInfo.promocionAplicada.nombre}
-                        </Badge>
-                      </div>
-                    )}
+                  {/* Badge de promoción específica */}
+                  {promocionInfo.promocionAplicada && (
+                    <div className="absolute bottom-6 left-6 z-10">
+                      <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                        <Percent className="h-4 w-4 mr-2" />
+                        {promocionInfo.promocionAplicada.nombre}
+                      </Badge>
+                    </div>
+                  )}
 
-                    {stockStatus && (
-                      <div className="absolute top-6 right-6 z-10">
-                        <Badge
-                          className={`${stockStatus.color} ${stockStatus.bgColor} border-0 shadow-lg`}
-                        >
-                          {stockStatus.text}
-                        </Badge>
-                      </div>
-                    )}
+                  {stockStatus && (
+                    <div className="absolute top-6 right-6 z-10">
+                      <Badge
+                        className={`${stockStatus.color} ${stockStatus.bgColor} border-0 shadow-lg`}
+                      >
+                        {stockStatus.text}
+                      </Badge>
+                    </div>
+                  )}
 
+                  <AnimatePresence mode="wait">
                     {imagenes.length > 0 ? (
-                      <ImageCarousel
+                      <motion.div
                         key={selectedImage}
-                        imagenes={imagenes}
-                        nombre={product.nombre}
-                        size="large"
-                        className="w-full h-full object-cover animate-fade-in"
-                        selectedIndex={selectedImage}
-                        onSelectImage={setSelectedImage}
-                      />
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ImageCarousel
+                          imagenes={imagenes}
+                          nombre={product.nombre}
+                          size="large"
+                          className="w-full h-full object-cover"
+                          selectedIndex={selectedImage}
+                          onSelectImage={setSelectedImage}
+                        />
+                      </motion.div>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <motion.div
+                        className="w-full h-full flex items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
                         <div className="text-center">
                           <Package className="h-24 w-24 text-gray-300 mx-auto mb-4" />
                           <p className="text-gray-500">Sin imagen disponible</p>
                         </div>
-                      </div>
+                      </motion.div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </AnimatePresence>
+                </div>
+              </motion.div>
 
               {/* Enhanced Thumbnails */}
               {imagenes.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2">
+                <motion.div
+                  className="flex gap-3 overflow-x-auto pb-2"
+                  variants={itemVariants}
+                >
                   {imagenes.map((img, index) => (
-                    <button
+                    <motion.button
                       key={img.id}
                       onClick={() => setSelectedImage(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-200 ${
                         selectedImage === index
-                          ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-105"
-                          : "hover:shadow-md hover:scale-102"
+                          ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg"
+                          : "hover:shadow-md"
                       }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      animate={{
+                        scale: selectedImage === index ? 1.05 : 1,
+                      }}
                     >
                       <img
                         src={`http://localhost:81/api_lym/${img.ruta_archivo}`}
                         alt={img.alt_text || product.nombre}
                         className="w-full h-full object-cover"
                       />
-                    </button>
+                    </motion.button>
                   ))}
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
 
             {/* Enhanced Product Information */}
-            <div className="space-y-8">
+            <motion.div className="space-y-8" variants={itemVariants}>
               {/* Header */}
-              <div className="space-y-4">
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
                 <div className="flex items-start justify-between">
                   <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
                     {product.nombre}
@@ -609,7 +719,7 @@ const ProductDetail = ({ onAddToCart }) => {
                     </Alert>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
               <Separator />
 
@@ -649,72 +759,78 @@ const ProductDetail = ({ onAddToCart }) => {
               </div>
 
               {/* Enhanced Add to Cart Button */}
-              <Card className="border-0 bg-gray-50">
-                <CardContent className="p-6">
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-medium">Cantidad:</span>
-                      <div className="flex items-center border border-gray-300 rounded-xl bg-white shadow-sm">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleQuantityChange("decrease")}
-                          disabled={quantity <= 1}
-                          className="h-10 w-10 rounded-l-xl hover:bg-gray-100"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="px-6 py-2 font-bold text-lg min-w-[4rem] text-center">
-                          {quantity}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleQuantityChange("increase")}
-                          disabled={quantity >= product.stock}
-                          className="h-10 w-10 rounded-r-xl hover:bg-gray-100"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="border-0 bg-gray-50">
+                  <CardContent className="p-6">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-medium">Cantidad:</span>
+                        <div className="flex items-center border border-gray-300 rounded-xl bg-white shadow-sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleQuantityChange("decrease")}
+                            disabled={quantity <= 1}
+                            className="h-10 w-10 rounded-l-xl hover:bg-gray-100"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="px-6 py-2 font-bold text-lg min-w-[4rem] text-center">
+                            {quantity}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleQuantityChange("increase")}
+                            disabled={quantity >= product.stock}
+                            className="h-10 w-10 rounded-r-xl hover:bg-gray-100"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
 
-                    <Button
-                      onClick={handleAddToCart}
-                      disabled={!isInStock || isAddingToCart}
-                      className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                    >
-                      {isAddingToCart ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                          Agregando...
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="h-6 w-6 mr-3" />
-                          {isInStock
-                            ? isOnSale
-                              ? `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}`
-                              : "Añadir al carrito"
-                            : "Sin stock"}
-                        </>
+                      <Button
+                        onClick={handleAddToCart}
+                        disabled={!isInStock || isAddingToCart}
+                        className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                      >
+                        {isAddingToCart ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                            Agregando...
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="h-6 w-6 mr-3" />
+                            {isInStock
+                              ? isOnSale
+                                ? `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}`
+                                : "Añadir al carrito"
+                              : "Sin stock"}
+                          </>
+                        )}
+                      </Button>
+
+                      {/* Mostrar ahorro total por cantidad */}
+                      {isOnSale && quantity > 1 && (
+                        <div className="text-center">
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            Ahorro total:{" "}
+                            {formatPrice(
+                              promocionInfo.ahorroMonetario * quantity
+                            )}
+                          </Badge>
+                        </div>
                       )}
-                    </Button>
-
-                    {/* Mostrar ahorro total por cantidad */}
-                    {isOnSale && quantity > 1 && (
-                      <div className="text-center">
-                        <Badge className="bg-green-100 text-green-800 border-green-200">
-                          Ahorro total:{" "}
-                          {formatPrice(
-                            promocionInfo.ahorroMonetario * quantity
-                          )}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
               {/* Benefits */}
               <div className="grid grid-cols-1 gap-4">
@@ -733,11 +849,17 @@ const ProductDetail = ({ onAddToCart }) => {
                   </AlertDescription>
                 </Alert>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Enhanced Product Details Tabs */}
-          <div className="mt-16">
+          <motion.div
+            className="mt-16"
+            variants={itemVariants}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          >
             <Tabs defaultValue="description" className="w-full">
               <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 rounded-xl p-1">
                 <TabsTrigger
@@ -836,9 +958,9 @@ const ProductDetail = ({ onAddToCart }) => {
                 <ProductReviews productId={product.id} />
               </TabsContent>
             </Tabs>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </TooltipProvider>
   );
 };

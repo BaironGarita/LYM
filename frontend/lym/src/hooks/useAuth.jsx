@@ -93,10 +93,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   }, []);
 
-  const isAdmin = () => {
-    // Comprueba que el usuario exista y que su propiedad 'rol' sea 'admin'
-    return user && user.rol === "admin";
-  };
+  const isAdmin = useCallback(() => {
+    return user && (user.rol === "admin" || user.rol === "administrador");
+  }, [user]);
   const isClient = useCallback(() => user?.rol === "cliente", [user]);
   const isAuthenticated = useCallback(() => !!user, [user]);
 
@@ -108,7 +107,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        isAdmin,
+        isAdmin, // ← Ya está correcto
         isClient,
         isAuthenticated,
       }}

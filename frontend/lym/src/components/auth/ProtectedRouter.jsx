@@ -2,7 +2,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
 export const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
+
+  // Debug temporal - CORREGIDO
+  console.log("ProtectedRoute Debug:", {
+    user,
+    isAdmin: isAdmin(),
+    userRol: user?.rol, // ← Cambiar de user?.is_admin a user?.rol
+    requireAdmin,
+    loading,
+  });
 
   if (loading) return <div>Cargando...</div>;
 
@@ -10,7 +19,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }) => {
     return <Navigate to="/login" />;
   }
 
-  if (requireAdmin && !user.is_admin) {
+  if (requireAdmin && !isAdmin()) {
     return <Navigate to="/" />;
   }
 

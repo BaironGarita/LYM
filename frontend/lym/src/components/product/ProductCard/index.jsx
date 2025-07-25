@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingCart, Heart, Star, Truck, Tag } from "lucide-react";
-import ImageCarousel from "./ImageCarousel";
-import { Button } from "./UI/button";
-import { Card, CardContent } from "./UI/card";
-import { Badge } from "./UI/badge";
-import { Skeleton } from "./UI/skeleton";
+import ImageCarousel from "../ImageCarousel";
+import { Button } from "@/components/UI/button";
+import { Card, CardContent } from "@/components/UI/card";
+import { Badge } from "@/components/UI/badge";
+import { Skeleton } from "@/components/UI/skeleton";
 import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
   TooltipContent,
-} from "./UI/tooltip";
+} from "@/components/UI/tooltip";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../store/cartSlice";
 import { addToWishlist } from "../../../store/fashionSlice";

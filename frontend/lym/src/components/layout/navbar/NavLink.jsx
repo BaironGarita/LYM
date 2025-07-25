@@ -1,7 +1,16 @@
-export function NavLink({ href, children, isActive, className = "", ...props }) {
-  const baseClasses = "relative text-sm font-medium transition-all duration-300 hover:text-primary group";
-  const activeClasses = isActive ? "text-primary" : "text-muted-foreground hover:text-foreground";
-  
+export function NavLink({
+  href,
+  children,
+  isActive,
+  className = "",
+  ...props
+}) {
+  const baseClasses =
+    "relative text-sm font-medium transition-all duration-300 hover:text-primary group";
+  const activeClasses = isActive
+    ? "text-primary"
+    : "text-muted-foreground hover:text-foreground";
+
   return (
     <a
       href={href}

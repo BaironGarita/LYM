@@ -1,7 +1,10 @@
 import { X, Trash2, ShoppingBag } from "lucide-react";
 
 export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
-  const totalPrice = cart.reduce((sum, item) => sum + item.precio * (item.cantidad || 1), 0);
+  const totalPrice = cart.reduce(
+    (sum, item) => sum + item.precio * (item.cantidad || 1),
+    0
+  );
 
   if (cart.length === 0) {
     return (
@@ -16,7 +19,7 @@ export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <div className="text-center py-8">
             <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">Tu carrito está vacío</p>
@@ -44,7 +47,10 @@ export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
 
         <div className="max-h-64 overflow-y-auto space-y-3">
           {cart.map((item) => (
-            <div key={item.id} className="flex items-center space-x-3 p-2 border rounded-lg">
+            <div
+              key={item.id}
+              className="flex items-center space-x-3 p-2 border rounded-lg"
+            >
               {item.imagen && (
                 <img
                   src={item.imagen}
@@ -52,14 +58,14 @@ export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
                   className="w-12 h-12 object-cover rounded"
                 />
               )}
-              
+
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm truncate">{item.nombre}</h4>
                 <p className="text-sm text-gray-500">
                   {item.cantidad || 1} x ₡{item.precio?.toLocaleString("es-CR")}
                 </p>
               </div>
-              
+
               <button
                 onClick={() => removeFromCart(item.id)}
                 className="text-red-500 hover:text-red-700 p-1"
@@ -74,7 +80,8 @@ export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
           <div className="flex justify-between items-center mb-3">
             <span className="font-semibold">Total:</span>
             <span className="font-bold text-lg">
-              ₡{totalPrice.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
+              ₡
+              {totalPrice.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
             </span>
           </div>
 
@@ -85,12 +92,12 @@ export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
             >
               Vaciar Carrito
             </button>
-            
+
             <button
               onClick={() => {
                 // Aquí iría la lógica para proceder al checkout
                 onClose();
-                window.location.href = '/checkout';
+                window.location.href = "/checkout";
               }}
               className="w-full py-2 px-4 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
             >

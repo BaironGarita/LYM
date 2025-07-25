@@ -70,6 +70,7 @@ const ProductDetail = ({ onAddToCart }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const [viewCount, setViewCount] = useState(0);
+  const [activeTab, setActiveTab] = useState("description");
   const shareMenuRef = useRef(null);
   const { calcularPrecio } = usePromociones();
 
@@ -571,11 +572,13 @@ const ProductDetail = ({ onAddToCart }) => {
                   <div className="flex items-center gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
+                        <motion.button
                           variant="ghost"
                           size="icon"
                           onClick={handleFavorite}
-                          className="h-10 w-10 rounded-full hover:bg-red-50"
+                          className="h-10 w-10 rounded-full hover:bg-red-50 flex items-center justify-center"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
                         >
                           <Heart
                             className={`h-5 w-5 transition-colors ${
@@ -584,7 +587,7 @@ const ProductDetail = ({ onAddToCart }) => {
                                 : "text-gray-400"
                             }`}
                           />
-                        </Button>
+                        </motion.button>
                       </TooltipTrigger>
                       <TooltipContent>
                         {isFavorite
@@ -608,44 +611,52 @@ const ProductDetail = ({ onAddToCart }) => {
                         <TooltipContent>Compartir producto</TooltipContent>
                       </Tooltip>
 
-                      {shareMenuOpen && (
-                        <Card
-                          ref={shareMenuRef}
-                          className="absolute right-0 top-12 w-48 shadow-xl border-0 bg-white/95 backdrop-blur-sm z-20"
-                        >
-                          <CardContent className="p-3">
-                            <div className="space-y-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleShare("facebook")}
-                                className="w-full justify-start"
-                              >
-                                <Facebook className="h-4 w-4 mr-2" />
-                                Facebook
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleShare("twitter")}
-                                className="w-full justify-start"
-                              >
-                                <Twitter className="h-4 w-4 mr-2" />
-                                Twitter
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleShare("copy")}
-                                className="w-full justify-start"
-                              >
-                                <Copy className="h-4 w-4 mr-2" />
-                                Copiar enlace
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
+                      <AnimatePresence>
+                        {shareMenuOpen && (
+                          <motion.div
+                            ref={shareMenuRef}
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="absolute right-0 top-12 w-48 z-20"
+                          >
+                            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+                              <CardContent className="p-3">
+                                <div className="space-y-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleShare("facebook")}
+                                    className="w-full justify-start"
+                                  >
+                                    <Facebook className="h-4 w-4 mr-2" />
+                                    Facebook
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleShare("twitter")}
+                                    className="w-full justify-start"
+                                  >
+                                    <Twitter className="h-4 w-4 mr-2" />
+                                    Twitter
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleShare("copy")}
+                                    className="w-full justify-start"
+                                  >
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copiar enlace
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
                 </div>
@@ -675,7 +686,11 @@ const ProductDetail = ({ onAddToCart }) => {
                 </div>
 
                 {/* Enhanced Price with Promotion */}
-                <div className="space-y-3">
+                <motion.div
+                  layout
+                  className="space-y-3"
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
                   <div className="flex items-center gap-4 flex-wrap">
                     <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                       {formatPrice(promocionInfo.precioFinal)}
@@ -718,7 +733,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       </AlertDescription>
                     </Alert>
                   )}
-                </div>
+                </motion.div>
               </motion.div>
 
               <Separator />
@@ -860,103 +875,128 @@ const ProductDetail = ({ onAddToCart }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <Tabs defaultValue="description" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 rounded-xl p-1">
-                <TabsTrigger
-                  value="description"
-                  className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                >
-                  Descripción
-                </TabsTrigger>
-                <TabsTrigger
-                  value="specifications"
-                  className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                >
-                  Especificaciones
-                </TabsTrigger>
-                <TabsTrigger
-                  value="reviews"
-                  className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                >
-                  Reseñas
-                </TabsTrigger>
+            <Tabs
+              defaultValue="description"
+              className="w-full"
+              onValueChange={setActiveTab}
+              value={activeTab}
+            >
+              <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 rounded-xl p-1 relative">
+                {["description", "specifications", "reviews"].map((tab) => (
+                  <TabsTrigger
+                    key={tab}
+                    value={tab}
+                    className="rounded-lg data-[state=active]:text-gray-900 text-gray-600 relative"
+                  >
+                    {activeTab === tab && (
+                      <motion.div
+                        layoutId="active-tab-indicator"
+                        className="absolute inset-0 bg-white shadow-sm rounded-lg z-0"
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">
+                      {
+                        {
+                          description: "Descripción",
+                          specifications: "Especificaciones",
+                          reviews: "Reseñas",
+                        }[tab]
+                      }
+                    </span>
+                  </TabsTrigger>
+                ))}
               </TabsList>
 
-              <TabsContent value="description" className="mt-8">
-                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="prose prose-gray max-w-none">
-                      <p className="text-gray-700 leading-relaxed text-lg">
-                        {product.descripcion}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <TabsContent value="description" className="mt-8">
+                    <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+                      <CardContent className="p-8">
+                        <div className="prose prose-gray max-w-none">
+                          <p className="text-gray-700 leading-relaxed text-lg">
+                            {product.descripcion}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="specifications" className="mt-8">
-                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {[
-                        {
-                          label: "Color principal",
-                          value: product.color_principal,
-                          icon: "🎨",
-                        },
-                        { label: "Género", value: product.genero, icon: "👤" },
-                        {
-                          label: "Categoría",
-                          value: product.categoria_nombre,
-                          icon: "📂",
-                        },
-                        {
-                          label: "Material",
-                          value: product.material,
-                          icon: "🧵",
-                        },
-                        {
-                          label: "Temporada",
-                          value: product.temporada,
-                          icon: "🌤️",
-                        },
-                        {
-                          label: "Peso",
-                          value: product.peso ? `${product.peso} kg` : null,
-                          icon: "⚖️",
-                        },
-                        {
-                          label: "Dimensiones",
-                          value: product.dimensiones,
-                          icon: "📏",
-                        },
-                        { label: "SKU", value: product.id, icon: "🔢" },
-                      ]
-                        .filter((item) => item.value)
-                        .map((spec, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-2xl">{spec.icon}</span>
-                              <span className="font-medium text-gray-900">
-                                {spec.label}
-                              </span>
-                            </div>
-                            <span className="text-gray-700 font-medium">
-                              {spec.value}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="specifications" className="mt-8">
+                    <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+                      <CardContent className="p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {[
+                            {
+                              label: "Color principal",
+                              value: product.color_principal,
+                              icon: "🎨",
+                            },
+                            { label: "Género", value: product.genero, icon: "👤" },
+                            {
+                              label: "Categoría",
+                              value: product.categoria_nombre,
+                              icon: "📂",
+                            },
+                            {
+                              label: "Material",
+                              value: product.material,
+                              icon: "🧵",
+                            },
+                            {
+                              label: "Temporada",
+                              value: product.temporada,
+                              icon: "🌤️",
+                            },
+                            {
+                              label: "Peso",
+                              value: product.peso ? `${product.peso} kg` : null,
+                              icon: "⚖️",
+                            },
+                            {
+                              label: "Dimensiones",
+                              value: product.dimensiones,
+                              icon: "📏",
+                            },
+                            { label: "SKU", value: product.id, icon: "🔢" },
+                          ]
+                            .filter((item) => item.value)
+                            .map((spec, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">{spec.icon}</span>
+                                  <span className="font-medium text-gray-900">
+                                    {spec.label}
+                                  </span>
+                                </div>
+                                <span className="text-gray-700 font-medium">
+                                  {spec.value}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="reviews" className="mt-8">
-                <ProductReviews productId={product.id} />
-              </TabsContent>
+                  <TabsContent value="reviews" className="mt-8">
+                    <ProductReviews productId={product.id} />
+                  </TabsContent>
+                </motion.div>
+              </AnimatePresence>
             </Tabs>
           </motion.div>
         </motion.div>

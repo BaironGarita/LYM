@@ -18,6 +18,7 @@ class ResenaModel
     {
         try {
             $sql = "SELECT r.*, 
+                           r.created_at as fecha_resena,
                            u.nombre as nombre_usuario, 
                            u.correo as email_usuario,
                            p.nombre as nombre_producto,
@@ -34,7 +35,7 @@ class ResenaModel
                 }
             }
 
-            return $this->enlace->executeSQL($sql);
+            return $this->enlace->executeSQL($sql, "asoc"); // Usar asoc para arrays
         } catch (Exception $e) {
             error_log("Error en getAllResenas: " . $e->getMessage());
             return [];
@@ -42,20 +43,53 @@ class ResenaModel
     }
 
     /**
-     * Obtener reseñas por producto ID
+     * Obtener reseñas por producto ID con validación estricta
      */
     public function getResenasByProducto($productoId)
     {
         try {
-            $sql = "SELECT r.*, 
+            $productoId = intval($productoId);
+            if ($productoId <= 0) {
+                return [];
+            }
+
+            $sql = "SELECT r.id, r.usuario_id, r.producto_id, r.valoracion, r.comentario, 
+                           r.created_at as fecha_resena,
                            u.nombre as nombre_usuario, 
                            u.correo as email_usuario
                     FROM resenas r
                     INNER JOIN usuarios u ON r.usuario_id = u.id
-                    WHERE r.producto_id = $productoId AND r.aprobado = 1
+                    WHERE r.producto_id = $productoId 
+                    AND r.aprobado = 1 
+                    AND u.nombre IS NOT NULL 
+                    AND u.nombre != '' 
+                    AND r.comentario IS NOT NULL 
+                    AND r.comentario != ''
                     ORDER BY r.created_at DESC";
 
-            return $this->enlace->executeSQL($sql);
+            $result = $this->enlace->executeSQL($sql, "asoc"); // Usar asoc para arrays
+            
+            // Verificar que result es un array antes de iterarlo
+            if (!is_array($result)) {
+                return [];
+            }
+            
+            // Filtrar resultados para asegurar datos válidos
+            $validResults = [];
+            foreach ($result as $resena) {
+                if (is_array($resena) &&
+                    isset($resena['nombre_usuario']) && 
+                    trim($resena['nombre_usuario']) !== '' &&
+                    isset($resena['comentario']) && 
+                    trim($resena['comentario']) !== '' &&
+                    isset($resena['valoracion']) && 
+                    $resena['valoracion'] >= 1 && 
+                    $resena['valoracion'] <= 5) {
+                    $validResults[] = $resena;
+                }
+            }
+            
+            return $validResults;
         } catch (Exception $e) {
             error_log("Error en getResenasByProducto: " . $e->getMessage());
             return [];
@@ -69,6 +103,7 @@ class ResenaModel
     {
         try {
             $sql = "SELECT r.*, 
+                           r.created_at as fecha_resena,
                            u.nombre as nombre_usuario, 
                            u.correo as email_usuario,
                            p.nombre as nombre_producto,
@@ -79,7 +114,7 @@ class ResenaModel
                     INNER JOIN productos p ON r.producto_id = p.id
                     WHERE r.id = $id";
 
-            $result = $this->enlace->executeSQL($sql);
+            $result = $this->enlace->executeSQL($sql, "asoc"); // Usar asoc para arrays
             return !empty($result) ? $result[0] : null;
         } catch (Exception $e) {
             error_log("Error en getResenaById: " . $e->getMessage());
@@ -179,24 +214,34 @@ class ResenaModel
     }
 
     /**
-     * Crear reseña simple (sin restricciones de compra)
+     * Crear reseña simple con validación estricta
      */
     public function createResenaSimple($usuarioId, $productoId, $valoracion, $comentario = '')
     {
         try {
+            // Validar parámetros de entrada
+            $usuarioId = intval($usuarioId);
+            $productoId = intval($productoId);
+            $valoracion = intval($valoracion);
+            $comentario = trim($comentario);
+            
+            if ($usuarioId <= 0 || $productoId <= 0 || $valoracion < 1 || $valoracion > 5 || empty($comentario)) {
+                error_log("Parámetros inválidos para createResenaSimple: usuarioId=$usuarioId, productoId=$productoId, valoracion=$valoracion, comentario='$comentario'");
+                return false;
+            }
+
             // Escapar el comentario para evitar inyección SQL
             $comentario = $this->enlace->escapeString($comentario);
             
-            // Construir la query SQL directamente
-            $sql = "INSERT INTO resenas (usuario_id, producto_id, valoracion, comentario, aprobado, created_at, updated_at) VALUES ($usuarioId, $productoId, $valoracion, '$comentario', 1, NOW(), NOW())";
+            // Construir la query SQL con validaciones adicionales
+            $sql = "INSERT INTO resenas (usuario_id, producto_id, valoracion, comentario, aprobado, created_at, updated_at) 
+                    VALUES ($usuarioId, $productoId, $valoracion, '$comentario', 1, NOW(), NOW())";
 
-            // Usar executeSQL_DML para INSERT
-            $result = $this->enlace->executeSQL_DML($sql);
+            // Usar executeSQL_DML_last para obtener el ID insertado
+            $lastId = $this->enlace->executeSQL_DML_last($sql);
             
-            if ($result > 0) {
-                // Obtener el último ID insertado
-                $lastId = $this->enlace->getLastId();
-                return $lastId ? $lastId : true;
+            if ($lastId && $lastId > 0) {
+                return intval($lastId);
             }
             
             return false;

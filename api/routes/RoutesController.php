@@ -3,24 +3,26 @@
 class RoutesController
 {
     private $controllers = [];
-    
+
     public function __construct()
     {
-        // Auto-registro de controladores disponibles
+        // --- Registro de controladores fusionado ---
         $this->controllers = [
             'productos' => 'ProductoController',
-            'products' => 'ProductoController',
+            'products' => 'ProductoController', // Alias
             'categorias' => 'CategoriaController',
             'etiquetas' => 'EtiquetaController',
             'promociones' => 'PromocionController',
             'usuarios' => 'UsuarioController',
-            'usuario' => 'UsuarioController',
+            'usuario' => 'UsuarioController', // Alias
             'direcciones' => 'DireccionController',
-            'direccion' => 'DireccionController',
+            'direccion' => 'DireccionController', // Alias
             'opciones' => 'OpcionPersonalizacionController',
             'carrito' => 'CarritoController',
-            'resenas' => 'ResenaController',
-            'resena' => 'ResenaController'
+            'resenas' => 'ResenaController', // Del primer archivo
+            'resena' => 'ResenaController', // Alias del primer archivo
+            'pedidos' => 'PedidoController', // Del segundo archivo
+            'pedido' => 'PedidoController'  // Alias del segundo archivo
         ];
     }
 
@@ -41,7 +43,7 @@ class RoutesController
             $offset = 0;
         }
 
-        // Manejar rutas especiales antes del switch
+        // Manejar rutas especiales antes del enrutamiento estándar
         if ($this->handleSpecialRoutes($resource, $segments, $offset)) {
             return;
         }
@@ -49,13 +51,13 @@ class RoutesController
         // Enrutamiento dinámico
         if (isset($this->controllers[$resource])) {
             $controllerClass = $this->controllers[$resource];
-            
-            // Casos especiales que no siguen el patrón estándar
+
+            // Caso especial para el carrito que no sigue el patrón de instancia
             if ($resource === 'carrito') {
                 $this->handleCarritoRoutes();
                 return;
             }
-            
+
             // Patrón estándar para la mayoría de controladores
             $controller = new $controllerClass();
             $this->handleStandardRoutes($controller, $resource);
@@ -66,22 +68,24 @@ class RoutesController
 
     private function handleSpecialRoutes($resource, $segments, $offset)
     {
-        // Endpoint para login de usuario
-        if ($resource === 'usuarios' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'login') {
+        // --- Lógica de rutas especiales fusionada ---
+
+        // Endpoint para login de usuario (acepta 'usuarios' y 'usuario')
+        if (($resource === 'usuarios' || $resource === 'usuario') && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'login') {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $controller = new UsuarioController();
                 $controller->login();
                 return true;
             }
         }
-        
-        // Endpoint para servir imágenes estáticas
+
+        // Endpoint para servir imágenes estáticas (del primer archivo)
         if ($resource === 'images' && isset($segments[$offset + 1])) {
             $this->serveImage($segments[$offset + 1]);
             return true;
         }
-        
-        // Endpoint para imágenes de productos
+
+        // Endpoint para imágenes de productos (lógica idéntica en ambos)
         if ($resource === 'productos' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'imagenes') {
             $controller = new ProductoController();
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -91,7 +95,7 @@ class RoutesController
             }
             return true;
         }
-        
+
         return false;
     }
 
@@ -120,38 +124,40 @@ class RoutesController
 
     private function handleGetRequest($controller, $resource)
     {
-        // Lógica específica para diferentes tipos de GET
+        // --- Lógica GET fusionada ---
         if (isset($_GET['id'])) {
             $controller->get();
         } elseif ($resource === 'productos' && isset($_GET['categoria_id'])) {
             $controller->getByCategoria();
         } elseif ($resource === 'productos' && isset($_GET['q'])) {
             $controller->buscar();
-        } elseif ($resource === 'resenas' && $this->hasIdInPath()) {
+        } elseif (($resource === 'resenas' || $resource === 'resena') && $this->hasIdInPath()) { // Lógica para reseñas por ID en URL
             $controller->get();
-        } elseif ($resource === 'resenas' && isset($_GET['producto_id'])) {
+        } elseif (($resource === 'resenas' || $resource === 'resena') && isset($_GET['producto_id'])) { // Lógica para reseñas por producto
             $controller->getByProducto();
         } else {
             $controller->index();
         }
     }
 
+    // Método auxiliar del primer archivo, necesario para `handleGetRequest`
     private function hasIdInPath()
     {
         $url = $_GET['url'] ?? '';
         $segments = explode('/', trim($url, '/'));
-        
+
         // Si hay más de un segmento y el último es numérico
         return count($segments) > 1 && is_numeric(end($segments));
     }
 
     private function handleCarritoRoutes()
     {
+        // Esta función era idéntica en ambos archivos
         require_once __DIR__ . '/../controllers/CarritoController.php';
         $method = $_SERVER['REQUEST_METHOD'];
         $usuario_id = $_GET['usuario_id'] ?? null;
         $id = $_GET['id'] ?? null;
-        
+
         if ($method === 'GET' && $usuario_id) {
             CarritoController::get($usuario_id);
         } elseif ($method === 'POST') {
@@ -164,32 +170,27 @@ class RoutesController
         }
     }
 
+    // Método para servir imágenes del primer archivo
     private function serveImage($imageName)
     {
-        // Sanitizar el nombre del archivo
         $imageName = basename($imageName);
-        
-        // Construir la ruta completa del archivo
         $imagePath = __DIR__ . '/../uploads/' . $imageName;
-        
-        // Verificar que el archivo existe
+
         if (!file_exists($imagePath)) {
             http_response_code(404);
             echo json_encode(['error' => 'Image not found']);
             return;
         }
-        
-        // Verificar que es realmente una imagen
+
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
-        
+
         if (!in_array($extension, $allowedExtensions)) {
             http_response_code(403);
             echo json_encode(['error' => 'File type not allowed']);
             return;
         }
-        
-        // Obtener el tipo MIME
+
         $mimeTypes = [
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
@@ -197,16 +198,13 @@ class RoutesController
             'gif' => 'image/gif',
             'webp' => 'image/webp'
         ];
-        
         $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
-        
-        // Establecer headers para la imagen
+
         header('Content-Type: ' . $mimeType);
         header('Content-Length: ' . filesize($imagePath));
-        header('Cache-Control: max-age=86400'); // Cache por 24 horas
+        header('Cache-Control: max-age=86400');
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', filemtime($imagePath)));
-        
-        // Servir el archivo
+
         readfile($imagePath);
         exit;
     }

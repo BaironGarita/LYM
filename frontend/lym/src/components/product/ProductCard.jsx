@@ -143,6 +143,7 @@ const ProductCard = ({ product, onAddToCart }) => {
       transition: {
         duration: 0.4,
         ease: "easeOut",
+        staggerChildren: 0.1,
       },
     },
     hover: {
@@ -229,7 +230,8 @@ const ProductCard = ({ product, onAddToCart }) => {
                     exit={{ opacity: 0, scale: 0.8 }}
                   >
                     <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg">
-                      <Tag className="h-3 w-3 mr-1" />-{promocionInfo.descuento}% OFF
+                      <Tag className="h-3 w-3 mr-1" />-{promocionInfo.descuento}
+                      % OFF
                     </Badge>
                   </motion.div>
                 )}
@@ -288,7 +290,9 @@ const ProductCard = ({ product, onAddToCart }) => {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>
-                        {isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
+                        {isFavorite
+                          ? "Quitar de favoritos"
+                          : "Añadir a favoritos"}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -556,7 +560,9 @@ const ProductCard = ({ product, onAddToCart }) => {
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         {isOnSale
-                          ? `Añadir por ${formatPrice(promocionInfo.precioFinal)}`
+                          ? `Añadir por ${formatPrice(
+                              promocionInfo.precioFinal
+                            )}`
                           : "Añadir al carrito"}
                       </motion.div>
                     )}

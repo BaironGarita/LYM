@@ -6,6 +6,7 @@ import ProductFilters from "../components/product/ProductFilters.jsx";
 import ProductTable from "../components/product/ProductTable.jsx";
 import ProductModal from "../components/product/ProductModal.jsx";
 import ProductStats from "../components/product/ProductStats.jsx";
+import toast from "react-hot-toast";
 
 const ProductsPage = () => {
   const [productos, setProductos] = useState([]);
@@ -92,42 +93,28 @@ const ProductsPage = () => {
 
   const handleSubmit = async (formData) => {
     setSubmitting(true);
-    setError(null); // ✅ Limpiar errores previos
+    setError(null);
 
     try {
-      // ✅ Validar datos antes de enviar
       const errors = ProductoService.validateProductData(formData);
       if (errors.length > 0) {
         throw new Error(errors.join(", "));
       }
 
-      let result;
       if (editingProduct) {
-        result = await ProductoService.updateProducto(
-          editingProduct.id,
-          formData
-        );
-        console.log("Producto actualizado:", result);
+        await ProductoService.updateProducto(editingProduct.id, formData);
+        toast.success("Producto actualizado exitosamente");
       } else {
-        result = await ProductoService.createProducto(formData);
-        console.log("Producto creado:", result);
+        await ProductoService.createProducto(formData);
+        toast.success("Producto creado exitosamente");
       }
 
-      // ✅ Recargar productos
       await fetchProductos();
-
-      // ✅ Cerrar modal
       closeModal();
-
-      // ✅ Mostrar mensaje de éxito (si tienes toast)
-      console.log(
-        editingProduct
-          ? "Producto actualizado exitosamente"
-          : "Producto creado exitosamente"
-      );
     } catch (err) {
       console.error("Error submitting product:", err);
       setError(err.message || "Error al procesar la solicitud");
+      toast.error(err.message || "Error al procesar la solicitud");
     } finally {
       setSubmitting(false);
     }
@@ -138,11 +125,13 @@ const ProductsPage = () => {
 
     try {
       await ProductoService.deleteProducto(deleteProductId);
+      toast.success("Producto eliminado exitosamente");
       await fetchProductos();
       setShowDeleteModal(false);
       setDeleteProductId(null);
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "Error al eliminar el producto");
       console.error("Error deleting product:", err);
     }
   };

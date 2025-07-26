@@ -19,7 +19,7 @@ function App() {
             clearCart={clearCart}
           />
 
-          <main className="container flex-1">
+          <main className="container flex-1 py-6">
             <AppRoutes
               cart={cart}
               addToCart={addToCart}

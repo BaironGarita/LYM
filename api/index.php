@@ -1,5 +1,7 @@
 <?php
+// Al inicio de tu index.php o config.php
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // --- Configuración de CORS Combinada ---

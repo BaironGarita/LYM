@@ -81,8 +81,31 @@ class ProductoController
                 return;
             }
 
-            $producto = $this->model->create($data);
-            $this->response->status(201)->toJSON($producto);
+            // Obtener y decodificar los datos del formulario
+            $data = $_POST;
+
+            // Las etiquetas vienen como un string JSON, hay que decodificarlas.
+            $etiquetas = isset($data['etiquetas']) ? json_decode($data['etiquetas'], true) : [];
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Manejar el error si el JSON es inválido
+                $this->response->status(400)->toJSON(['error' => 'Formato de etiquetas inválido.']);
+                return;
+            }
+
+            // Llama a tu modelo para crear el producto
+            // Asegúrate de que tu modelo pueda recibir el array de etiquetas y manejarlo
+            $producto_id = $this->productoModel->create($data, $etiquetas);
+
+            if ($producto_id) {
+                // Manejo de la subida de imagen DESPUÉS de crear el producto
+                if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+                    // Aquí va tu lógica para guardar la imagen y asociarla con $producto_id
+                    // ...
+                }
+                $this->response->status(201)->toJSON(['message' => 'Producto creado exitosamente', 'id' => $producto_id]);
+            } else {
+                $this->response->status(500)->toJSON(['error' => 'No se pudo crear el producto en la base de datos.']);
+            }
         } catch (Exception $e) {
             handleException($e);
         }

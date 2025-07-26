@@ -78,16 +78,17 @@ class ProductoService {
 
       // Agregar datos del formulario
       Object.keys(productData).forEach((key) => {
-        if (key === "etiquetas") {
-          formData.append(key, JSON.stringify(productData[key]));
-        } else if (key === "imagen" && productData[key]) {
-          formData.append(key, productData[key]);
-        } else if (key !== "imagen") {
-          formData.append(key, productData[key]);
+        if (productData[key] !== null) {
+          // Convierte el array de etiquetas a JSON
+          if (key === "etiquetas") {
+            formData.append(key, JSON.stringify(productData[key]));
+          } else {
+            formData.append(key, productData[key]);
+          }
         }
       });
 
-      const response = await fetch(`${this.baseUrl}/productos`, {
+      const response = await fetch(`${this.baseUrl}/productos/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -116,12 +117,13 @@ class ProductoService {
 
       // Agregar datos del formulario
       Object.keys(productData).forEach((key) => {
-        if (key === "etiquetas") {
-          formData.append(key, JSON.stringify(productData[key]));
-        } else if (key === "imagen" && productData[key]) {
-          formData.append(key, productData[key]);
-        } else if (key !== "imagen") {
-          formData.append(key, productData[key]);
+        if (productData[key] !== null) {
+          // Convierte el array de etiquetas a JSON
+          if (key === "etiquetas") {
+            formData.append(key, JSON.stringify(productData[key]));
+          } else {
+            formData.append(key, productData[key]);
+          }
         }
       });
 

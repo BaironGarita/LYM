@@ -23,7 +23,7 @@ class ResenaController
     {
         try {
             $request = new Request();
-            $limit = $request->get('limit') ? intval($request->get('limit')) : 10;
+            $limit = $request->get('limit') ? intval($request->get('limit')) : 50; // Aumentar límite por defecto
             $offset = $request->get('offset') ? intval($request->get('offset')) : 0;
 
             $resenas = $this->model->getAllResenas($limit, $offset);
@@ -269,23 +269,41 @@ class ResenaController
             $request = new Request();
             $data = $request->getJSON();
             
-            // Convertir objeto a array para facilitar el manejo
-            $data = (array) $data;
+            // Verificar que $data es un array válido
+            if (!is_array($data)) {
+                $this->response->status(400)->toJSON(['error' => 'Datos JSON inválidos']);
+                return;
+            }
 
             // Validar campos requeridos
-            $requiredFields = ['usuario_id', 'producto_id', 'valoracion'];
+            $requiredFields = ['usuario_id', 'producto_id', 'valoracion', 'comentario'];
             foreach ($requiredFields as $field) {
-                if (!isset($data[$field]) || empty($data[$field])) {
-                    $this->response->status(400)->toJSON(['error' => "El campo $field es requerido"]);
+                if (!isset($data[$field]) || 
+                    (is_string($data[$field]) && trim($data[$field]) === '') ||
+                    (is_numeric($data[$field]) && $data[$field] <= 0)) {
+                    $this->response->status(400)->toJSON(['error' => "El campo $field es requerido y debe tener un valor válido"]);
                     return;
                 }
             }
 
-            // Validar que el usuario existe y está activo
+            // Validar que el usuario exists y está activo
             $usuarioModel = new UsuarioModel();
-            $usuario = $usuarioModel->get($data['usuario_id']);
+            $usuario = $usuarioModel->get(intval($data['usuario_id']));
             if (!$usuario) {
-                $this->response->status(401)->toJSON(['error' => 'Usuario no válido o no autenticado']);
+                $this->response->status(401)->toJSON(['error' => 'Usuario no encontrado']);
+                return;
+            }
+
+            // Verificar que el usuario tiene un nombre válido
+            $usuarioNombre = '';
+            if (is_array($usuario) && isset($usuario['nombre'])) {
+                $usuarioNombre = trim($usuario['nombre']);
+            } elseif (is_object($usuario) && isset($usuario->nombre)) {
+                $usuarioNombre = trim($usuario->nombre);
+            }
+            
+            if (empty($usuarioNombre)) {
+                $this->response->status(401)->toJSON(['error' => 'Usuario sin nombre válido']);
                 return;
             }
 
@@ -296,31 +314,46 @@ class ResenaController
                 return;
             }
 
-            $comentario = isset($data['comentario']) ? trim($data['comentario']) : '';
+            $comentario = trim($data['comentario']);
             
-            // Validar que el comentario no esté vacío
-            if (empty($comentario)) {
-                $this->response->status(400)->toJSON(['error' => 'El comentario es requerido']);
+            // Validar que el comentario no esté vacío después del trim
+            if (empty($comentario) || strlen($comentario) < 3) {
+                $this->response->status(400)->toJSON(['error' => 'El comentario debe tener al menos 3 caracteres']);
                 return;
             }
             
             $result = $this->model->createResenaSimple(
-                $data['usuario_id'],
-                $data['producto_id'],
+                intval($data['usuario_id']),
+                intval($data['producto_id']),
                 $valoracion,
                 $comentario
             );
 
             if ($result) {
+                // Obtener la reseña completa que se acaba de crear
+                $nuevaResena = $this->model->getResenaById($result);
+                
+                // Validar que la reseña se creó correctamente con todos los datos
+                if (!$nuevaResena || 
+                    !isset($nuevaResena['nombre_usuario']) || 
+                    trim($nuevaResena['nombre_usuario']) === '' ||
+                    !isset($nuevaResena['comentario']) ||
+                    trim($nuevaResena['comentario']) === '') {
+                    $this->response->status(500)->toJSON(['error' => 'Error: La reseña se creó pero con datos incompletos']);
+                    return;
+                }
+                
                 $this->response->status(201)->toJSON([
                     'success' => true,
                     'message' => 'Reseña creada exitosamente',
-                    'id' => $result
+                    'id' => $result,
+                    'resena' => $nuevaResena
                 ]);
             } else {
-                $this->response->status(500)->toJSON(['error' => 'Error al crear la reseña']);
+                $this->response->status(500)->toJSON(['error' => 'Error al crear la reseña en la base de datos']);
             }
         } catch (Exception $e) {
+            error_log("Error completo en createSimple: " . $e->getMessage() . " - " . $e->getTraceAsString());
             $this->response->status(500)->toJSON(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
             handleException($e);
         }

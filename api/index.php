@@ -1,11 +1,11 @@
 <?php
-// Al inicio de tu index.php o config.php
+
+// Configuración de errores para desarrollo
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// --- Configuración de CORS Combinada ---
-// Se utiliza la lista de orígenes permitidos más flexible del primer archivo.
+// --- Configuración de CORS ---
 $allowed_origins = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -27,7 +27,7 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins)) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
-    // Se puede mantener un comodín como fallback si es necesario para otros entornos.
+    // Fallback para otros entornos si es necesario
     header("Access-Control-Allow-Origin: *");
 }
 
@@ -37,7 +37,6 @@ header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
 
 // --- Manejo de Solicitudes Preflight (OPTIONS) ---
-// Método estandarizado para responder a OPTIONS.
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(204); // No Content
     exit;
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 // Composer autoloader
 require_once 'vendor/autoload.php';
 
-/* --- Requerimientos de Clases o Librerías (Fusionados) --- */
+/* --- Requerimientos de Clases o Librerías --- */
 require_once "controllers/core/Config.php";
 require_once "controllers/core/HandleException.php";
 require_once "controllers/core/Logger.php";
@@ -54,7 +53,7 @@ require_once "controllers/core/MySqlConnect.php";
 require_once "controllers/core/Request.php";
 require_once "controllers/core/Response.php";
 
-/* --- Modelos (Fusionados) --- */
+/* --- Modelos --- */
 require_once "models/EtiquetaModel.php";
 require_once "models/ProductoModel.php";
 require_once "models/CategoriaModel.php";
@@ -62,10 +61,10 @@ require_once "models/DireccionModel.php";
 require_once "models/OpcionPersonalizacionModel.php";
 require_once "models/UsuarioModel.php";
 require_once "models/PromocionModel.php";
-require_once "models/ResenaModel.php"; // Del primer archivo
-require_once "models/PedidoModel.php";  // Del segundo archivo
+require_once "models/ResenaModel.php";
+require_once "models/PedidoModel.php";
 
-/* --- Controladores (Fusionados) --- */
+/* --- Controladores --- */
 require_once "controllers/EtiquetaController.php";
 require_once "controllers/ProductoController.php";
 require_once "controllers/CategoriaController.php";
@@ -73,10 +72,10 @@ require_once "controllers/DireccionController.php";
 require_once "controllers/OpcionPersonalizacionController.php";
 require_once "controllers/UsuarioController.php";
 require_once "controllers/PromocionController.php";
-require_once "controllers/ResenaController.php"; // Del primer archivo
-require_once "controllers/PedidoController.php";  // Del segundo archivo
+require_once "controllers/ResenaController.php";
+require_once "controllers/PedidoController.php";
 
-/* --- Alias para el enrutador (Fusionados) --- */
+/* --- Alias para el enrutador --- */
 class_alias('EtiquetaController', 'etiqueta');
 class_alias('ProductoController', 'producto');
 class_alias('CategoriaController', 'categoria');
@@ -84,10 +83,10 @@ class_alias('DireccionController', 'direccion');
 class_alias('OpcionPersonalizacionController', 'opcionpersonalizacion');
 class_alias('UsuarioController', 'usuario');
 class_alias('PromocionController', 'promocion');
-class_alias('ResenaController', 'resena'); // Del primer archivo
-class_alias('PedidoController', 'pedido');  // Del segundo archivo
+class_alias('ResenaController', 'resena');
+class_alias('PedidoController', 'pedido');
 
-/* --- Manejo de rutas de imágenes y endpoints especiales (del primer archivo) --- */
+/* --- Manejo de rutas especiales antes del enrutador --- */
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 
 // Endpoint para verificar imágenes

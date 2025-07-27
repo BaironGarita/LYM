@@ -10,7 +10,7 @@ import OffersPage from "@/Pages/Products/OffersPage";
 // --- Layout y Páginas de Administrador ---
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Dashboard } from "@/Pages/Admin/Dashboard";
-import { GestionProductos } from "@/Pages/Admin/GestionProductos"; // Tu página de gestión
+import AdminProductsPage from "@/Pages/AdminProductsPage"; // <-- CORREGIDO: Importación por defecto
 import PromotionsPage from "@/Pages/Admin/PromotionsPage";
 import ProductUploadForm from "@/Pages/Admin/ProductUploadForm";
 
@@ -55,7 +55,8 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="productos" element={<GestionProductos />} />
+        <Route path="productos" element={<AdminProductsPage />} />{" "}
+        {/* <-- CORREGIDO: Usar el componente importado */}
         <Route path="promotions" element={<PromotionsPage />} />
         <Route path="upload" element={<ProductUploadForm />} />
       </Route>

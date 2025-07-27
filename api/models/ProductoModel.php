@@ -294,29 +294,27 @@ class ProductoModel
 
     /**
      * Insertar imagen de producto en la base de datos
+     * CORREGIDO: Alineado con el script lym_2025_final_script.sql
      */
     public function addImagen($data)
     {
         try {
             $producto_id = (int)$data['producto_id'];
-            $nombre_archivo = $this->enlace->escapeString($data['nombre_archivo']);
-            $ruta_archivo = $this->enlace->escapeString($data['ruta_archivo']);
-            $alt_text = $this->enlace->escapeString($data['alt_text']);
-            $orden = (int)$data['orden'];
-            $es_principal = (int)$data['es_principal'];
+            $url_imagen = $this->enlace->escapeString($data['url_imagen']);
+            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? 'Imagen de producto');
+            $orden = (int)($data['orden'] ?? 0); // Se alinea con la columna 'orden' de tu tabla
 
-            $sql = "INSERT INTO producto_imagenes (producto_id, nombre_archivo, ruta_archivo, alt_text, orden, es_principal, created_at)
-                    VALUES ($producto_id, '$nombre_archivo', '$ruta_archivo', '$alt_text', $orden, $es_principal, NOW())";
+            // La consulta ahora coincide exactamente con las columnas de tu tabla 'producto_imagenes'
+            $sql = "INSERT INTO producto_imagenes (producto_id, url_imagen, alt_text, orden)
+                    VALUES ($producto_id, '$url_imagen', '$alt_text', $orden)";
+            
             $this->enlace->executeSQL_DML($sql);
             $id = $this->enlace->getLastId();
+            
             return [
                 'id' => $id,
                 'producto_id' => $producto_id,
-                'nombre_archivo' => $nombre_archivo,
-                'ruta_archivo' => $ruta_archivo,
-                'alt_text' => $alt_text,
-                'orden' => $orden,
-                'es_principal' => $es_principal
+                'url_imagen' => $url_imagen
             ];
         } catch (Exception $e) {
             handleException($e);

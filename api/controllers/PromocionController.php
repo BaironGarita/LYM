@@ -61,6 +61,17 @@ class PromocionController
             $request = new Request();
             $data = $request->getBody();
 
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Validar que los datos JSON se recibieron y decodificaron correctamente
+            if (is_null($data)) {
+                $this->response->status(400)->toJSON([
+                    'error' => 'No se recibieron datos o el formato JSON es inválido.',
+                    'raw_input' => file_get_contents('php://input') // Para debugging
+                ]);
+                return;
+            }
+            // --- FIN DE LA CORRECCIÓN ---
+
             // Validaciones mejoradas
             $errores = [];
             
@@ -70,6 +81,16 @@ class PromocionController
             
             if (!isset($data->tipo) || !in_array($data->tipo, ['categoria', 'producto'])) {
                 $errores[] = 'tipo válido (categoria o producto)';
+            } else {
+                // --- INICIO DE LA CORRECCIÓN ---
+                // Validar que el ID correspondiente al tipo exista
+                if ($data->tipo === 'categoria' && empty($data->categoria_id)) {
+                    $errores[] = 'categoria_id';
+                }
+                if ($data->tipo === 'producto' && empty($data->producto_id)) {
+                    $errores[] = 'producto_id';
+                }
+                // --- FIN DE LA CORRECCIÓN ---
             }
             
             if (!isset($data->porcentaje) || !is_numeric($data->porcentaje) || $data->porcentaje <= 0) {

@@ -105,19 +105,19 @@ const PromotionModal = ({
       return;
     }
     if (validate()) {
-      // --- INICIO DE LA CORRECCIÓN ---
-      const { aplica_a_id, ...restOfData } = formData; // Extraemos aplica_a_id
+      // Extraemos 'aplica_a_id' para no enviarlo directamente
+      const { aplica_a_id, ...restOfData } = formData;
 
+      // Creamos el objeto de datos final para el envío
       const submissionData = {
-        ...restOfData, // Usamos el resto de los datos
-        // Añadimos el campo correcto (categoria_id o producto_id)
+        ...restOfData,
+        // Añadimos dinámicamente 'producto_id' o 'categoria_id'
         ...(formData.tipo === "producto"
           ? { producto_id: aplica_a_id }
           : { categoria_id: aplica_a_id }),
       };
-      // --- FIN DE LA CORRECCIÓN ---
 
-      onSubmit(submissionData);
+      onSubmit(submissionData); // Enviamos el objeto corregido
     } else {
       toast.error("Por favor, corrige los errores en el formulario.");
     }

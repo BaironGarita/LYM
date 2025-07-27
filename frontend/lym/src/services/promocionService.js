@@ -1,7 +1,9 @@
 class PromocionService {
+  static API_URL = "http://localhost:81/api_lym/promociones";
+
   static async getPromociones() {
     try {
-      const response = await fetch("http://localhost:81/api_lym/promociones");
+      const response = await fetch(this.API_URL);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -29,9 +31,11 @@ class PromocionService {
   }
 
   static async createPromocion(data) {
-    const response = await fetch("http://localhost:81/api_lym/promociones", {
+    const response = await fetch(this.API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -42,14 +46,13 @@ class PromocionService {
   }
 
   static async updatePromocion(id, data) {
-    const response = await fetch(
-      `http://localhost:81/api_lym/promociones&id=${id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(this.API_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Error al actualizar la promoción");
@@ -181,6 +184,35 @@ class PromocionService {
 
     console.log("Resultado del cálculo:", resultado);
     return resultado;
+  }
+
+  // Asegúrate de que tu función para crear/actualizar se vea así:
+  static async savePromotion(promotionData) {
+    try {
+      const url = promotionData.id ? `${this.API_URL}` : this.API_URL; // El ID va en el cuerpo para PUT
+      const method = promotionData.id ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Esta cabecera es crucial para que el backend entienda que es JSON
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // --- FIN DE LA CORRECCIÓN ---
+        body: JSON.stringify(promotionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al guardar la promoción");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error en savePromotion:", error);
+      throw error;
+    }
   }
 }
 

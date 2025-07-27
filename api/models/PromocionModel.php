@@ -69,10 +69,10 @@ class PromocionModel
             $porcentaje = (float) $datos->porcentaje;
             $fecha_inicio = $this->enlace->escapeString($datos->fecha_inicio);
             $fecha_fin = $this->enlace->escapeString($datos->fecha_fin);
-            $activa = isset($datos->activa) ? (int) $datos->activa : 1;
+            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
 
-            $vSql = "INSERT INTO promociones (nombre, tipo, categoria_id, producto_id, porcentaje, fecha_inicio, fecha_fin, activa) 
-                     VALUES ('$nombre', '$tipo', $categoria_id, $producto_id, $porcentaje, '$fecha_inicio', '$fecha_fin', $activa)";
+            $vSql = "INSERT INTO promociones (nombre, tipo, categoria_id, producto_id, porcentaje, fecha_inicio, fecha_fin, activo) 
+                     VALUES ('$nombre', '$tipo', $categoria_id, $producto_id, $porcentaje, '$fecha_inicio', '$fecha_fin', $activo)";
 
             $this->enlace->executeSQL_DML($vSql);
             $id = $this->enlace->getLastId();

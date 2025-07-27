@@ -14,37 +14,12 @@ class Request
 
     public function getBody()
     {
-        if ($this->reqMethod !== 'POST') {
-            return '';
-        }
+        $input = file_get_contents('php://input');
+        
+        // CORRECCIÓN: Elimina el ", true" para que devuelva un objeto.
+        $data = json_decode($input);
 
-        $body = [];
-
-        // Obtiene los datos de $_POST
-        foreach ($_POST as $key => $value) {
-            $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
-        }
-        // Iterar sobre los archivos enviados con $_FILES
-        foreach ($_FILES as $key => $file) {
-            if (is_array($file['name'])) {
-                // Si se suben múltiples archivos
-                $fileCount = count($file['name']);
-                for ($i = 0; $i < $fileCount; $i++) {
-                    $body[$key][] = [
-                        'name' => $file['name'][$i],
-                        'type' => $file['type'][$i],
-                        'tmp_name' => $file['tmp_name'][$i],
-                        'error' => $file['error'][$i],
-                        'size' => $file['size'][$i],
-                    ];
-                }
-            } else {
-                // Para un solo archivo
-                $body[$key] = $file;
-            }
-        }
-
-        return $body;
+        return $data;
     }
 
     public function getJSON()

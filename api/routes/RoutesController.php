@@ -114,7 +114,18 @@ class RoutesController
                 $controller->update();
                 break;
             case 'DELETE':
-                $controller->delete();
+                // Capturamos el ID de la URL si existe
+                $url = $_GET['url'] ?? '';
+                $segments = explode('/', trim($url, '/'));
+                $id = null;
+
+                // Asumimos que el ID es el último segmento numérico de la URL
+                if (count($segments) > 1 && is_numeric(end($segments))) {
+                    $id = end($segments);
+                }
+
+                // Llamamos al método delete, pasándole el ID si se encontró
+                $controller->delete($id);
                 break;
             default:
                 $this->methodNotAllowed();
@@ -137,6 +148,20 @@ class RoutesController
             $controller->getByProducto();
         } else {
             $controller->index();
+        }
+    }
+
+    private function loadControllerMethod($controllerName, $methodName, ...$params)
+    {
+        $controllerFile = __DIR__ . '/../controllers/' . $controllerName . '.php';
+        if (file_exists($controllerFile)) {
+            require_once $controllerFile;
+            $controller = new $controllerName();
+            // Llamamos al método pasando los parámetros (el ID en este caso)
+            $controller->{$methodName}(...$params);
+        } else {
+            header("HTTP/1.1 404 Not Found");
+            echo json_encode(['error' => "Controlador no encontrado: $controllerName"]);
         }
     }
 

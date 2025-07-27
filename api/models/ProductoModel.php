@@ -69,18 +69,18 @@ class ProductoModel
     public function create($datos)
     {
         try {
-            $nombre = $this->enlace->escapeString($datos->nombre);
-            $descripcion = $this->enlace->escapeString($datos->descripcion ?? '');
-            $precio = (float) $datos->precio;
-            $categoria_id = (int) $datos->categoria_id;
-            $stock = (int) ($datos->stock ?? 0);
-            $sku = $this->enlace->escapeString($datos->sku ?? $this->generateSKU());
-            $peso = (float) ($datos->peso ?? 0);
-            $dimensiones = $this->enlace->escapeString($datos->dimensiones ?? '');
-            $material = $this->enlace->escapeString($datos->material ?? '');
-            $color_principal = $this->enlace->escapeString($datos->color_principal ?? '');
-            $genero = $this->enlace->escapeString($datos->genero ?? 'unisex');
-            $temporada = $this->enlace->escapeString($datos->temporada ?? '');
+            $nombre = $this->enlace->escapeString($datos['nombre']);
+            $descripcion = $this->enlace->escapeString($datos['descripcion'] ?? '');
+            $precio = (float) $datos['precio'];
+            $categoria_id = (int) $datos['categoria_id'];
+            $stock = (int) ($datos['stock'] ?? 0);
+            $sku = $this->enlace->escapeString($datos['sku'] ?? $this->generateSKU());
+            $peso = (float) ($datos['peso'] ?? 0);
+            $dimensiones = $this->enlace->escapeString($datos['dimensiones'] ?? '');
+            $material = $this->enlace->escapeString($datos['material'] ?? '');
+            $color_principal = $this->enlace->escapeString($datos['color_principal'] ?? '');
+            $genero = $this->enlace->escapeString($datos['genero'] ?? 'unisex');
+            $temporada = $this->enlace->escapeString($datos['temporada'] ?? '');
 
             $vSql = "INSERT INTO productos (
                         nombre, descripcion, precio, categoria_id, stock, sku,

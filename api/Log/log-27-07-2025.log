@@ -1,0 +1,33 @@
+[27-07-2025 00:01:49] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 159 - Message: preg_match(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
+ [27-07-2025 00:02:05] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: MySQL server has gone away
+ [27-07-2025 00:02:05] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 214 - Message: MySQL server has gone away
+ [27-07-2025 00:02:05] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 50 - Message: MySQL server has gone away
+  [27-07-2025 00:02:09] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [27-07-2025 00:02:10] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [27-07-2025 04:20:43] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:20:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:23:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:24:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:28:37] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:31:33] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:32:47] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:33:48] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 04:38:02] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 95 - Message: Unknown column 'activa' in 'field list'
+ [27-07-2025 05:33:21] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ [27-07-2025 05:33:33] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ [27-07-2025 05:34:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ [27-07-2025 05:35:56] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ [27-07-2025 05:39:13] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 74 - Message: Attempt to read property "precio" on array
+ [27-07-2025 05:54:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 05:54:38] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 05:55:50] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 05:59:26] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 05:59:32] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:01:30] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:02:45] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:05:01] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:07:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:07:35] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 158 - Message: Too few arguments to function ProductoController::delete(), 0 passed in C:\xampp\htdocs\api_lym\routes\RoutesController.php on line 117 and exactly 1 expected
+ [27-07-2025 06:09:18] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ [27-07-2025 06:09:22] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 72 - Message: Attempt to read property "nombre" on array
+ 

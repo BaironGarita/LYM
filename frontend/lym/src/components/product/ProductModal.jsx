@@ -23,9 +23,27 @@ const schema = yup.object().shape({
     .required("El stock es requerido"),
   categoria_id: yup.string().required("La categoría es requerida"),
   etiquetas: yup.array().min(1, "Selecciona al menos una etiqueta"),
+  // Nuevos campos
+  peso: yup
+    .number()
+    .typeError("El peso debe ser un número")
+    .min(0, "El peso no puede ser negativo")
+    .nullable(),
+  dimensiones: yup.string().nullable(),
+  material: yup.string().nullable(),
+  color: yup.string().nullable(),
+  genero: yup.string().nullable(),
+  temporada: yup.string().nullable(),
 });
 
-const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) => {
+const ProductModal = ({
+  show,
+  handleClose,
+  product,
+  onSave,
+  categories,
+  tags,
+}) => {
   const {
     register,
     handleSubmit,
@@ -49,6 +67,12 @@ const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) 
         stock: product.stock,
         categoria_id: product.categoria_id,
         etiquetas: product.etiquetas ? product.etiquetas.map((t) => t.id) : [],
+        peso: product.peso || "",
+        dimensiones: product.dimensiones || "",
+        material: product.material || "",
+        color: product.color || "",
+        genero: product.genero || "",
+        temporada: product.temporada || "",
       });
       setExistingImages(product.imagenes || []);
     } else {
@@ -59,6 +83,12 @@ const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) 
         stock: 0,
         categoria_id: "",
         etiquetas: [],
+        peso: "",
+        dimensiones: "",
+        material: "",
+        color: "",
+        genero: "",
+        temporada: "",
       });
       setExistingImages([]);
     }
@@ -148,7 +178,9 @@ const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) 
                     readOnly
                     value={`${parseFloat(
                       product.promedio_valoracion || 0
-                    ).toFixed(1)} / 5.0 (${product.total_resenas || 0} reseñas)`}
+                    ).toFixed(
+                      1
+                    )} / 5.0 (${product.total_resenas || 0} reseñas)`}
                     className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
                   />
                 </div>
@@ -232,6 +264,114 @@ const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) 
                   )}
                 </div>
               </div>
+              {/* Nuevos Campos */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="peso"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Peso (kg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    id="peso"
+                    {...register("peso")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  {errors.peso && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.peso.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="dimensiones"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Dimensiones/Talla
+                  </label>
+                  <input
+                    type="text"
+                    id="dimensiones"
+                    {...register("dimensiones")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="material"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Material
+                  </label>
+                  <input
+                    type="text"
+                    id="material"
+                    {...register("material")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="color"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Color Principal
+                  </label>
+                  <input
+                    type="text"
+                    id="color"
+                    {...register("color")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="genero"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Género
+                  </label>
+                  <select
+                    id="genero"
+                    {...register("genero")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Seleccione</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                    <option value="Unisex">Unisex</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="temporada"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Temporada
+                  </label>
+                  <select
+                    id="temporada"
+                    {...register("temporada")}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Seleccione</option>
+                    <option value="Verano">Verano</option>
+                    <option value="Otoño">Otoño</option>
+                    <option value="Invierno">Invierno</option>
+                    <option value="Primavera">Primavera</option>
+                    <option value="Todo el año">Todo el año</option>
+                  </select>
+                </div>
+              </div>
+              {/* Fin Nuevos Campos */}
               <div>
                 <label
                   htmlFor="categoria_id"
@@ -270,7 +410,9 @@ const ProductModal = ({ show, handleClose, product, onSave, categories, tags }) 
                       isMulti
                       options={tagOptions}
                       defaultValue={defaultTagValues}
-                      onChange={(options) => field.onChange(options.map((o) => o.value))}
+                      onChange={(options) =>
+                        field.onChange(options.map((o) => o.value))
+                      }
                       className="mt-1"
                       classNamePrefix="select"
                     />

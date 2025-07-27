@@ -62,52 +62,72 @@ class ProductoController
     public function create()
     {
         try {
-            $request = new Request();
-            $data = $request->getBody();
+            // 1. Leer los datos directamente de $_POST. Esta es la corrección clave.
+            $data = $_POST;
 
-            // Validaciones
-            if (empty($data->nombre)) {
+            // 2. Realizar las validaciones sobre el array $data
+            if (empty($data['nombre'])) {
                 $this->response->status(400)->toJSON(['error' => 'El nombre es obligatorio']);
                 return;
             }
 
-            if (empty($data->precio)) {
+            if (empty($data['precio'])) {
                 $this->response->status(400)->toJSON(['error' => 'El precio es obligatorio']);
                 return;
             }
 
-            if (empty($data->categoria_id)) {
+            if (empty($data['categoria_id'])) {
                 $this->response->status(400)->toJSON(['error' => 'La categoría es obligatoria']);
                 return;
             }
 
-            // Obtener y decodificar los datos del formulario
-            $data = $_POST;
+            // 3. El modelo ahora recibe el array de datos.
+            // Asegúrate que tu modelo espera un array ($datos['nombre']) en lugar de un objeto ($datos->nombre).
+            $producto = $this->model->create($data);
 
-            // Las etiquetas vienen como un string JSON, hay que decodificarlas.
-            $etiquetas = isset($data['etiquetas']) ? json_decode($data['etiquetas'], true) : [];
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                // Manejar el error si el JSON es inválido
-                $this->response->status(400)->toJSON(['error' => 'Formato de etiquetas inválido.']);
-                return;
-            }
-
-            // Llama a tu modelo para crear el producto
-            // Asegúrate de que tu modelo pueda recibir el array de etiquetas y manejarlo
-            $producto_id = $this->productoModel->create($data, $etiquetas);
-
-            if ($producto_id) {
-                // Manejo de la subida de imagen DESPUÉS de crear el producto
-                if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-                    // Aquí va tu lógica para guardar la imagen y asociarla con $producto_id
-                    // ...
+            if ($producto && isset($producto['id'])) {
+                // 4. Manejo de la subida de imágenes DESPUÉS de crear el producto
+                if (isset($_FILES['imagenes'])) {
+                    // Lógica para manejar múltiples imágenes
+                    $this->handleImageUpload($producto['id'], $_FILES['imagenes']);
                 }
-                $this->response->status(201)->toJSON(['message' => 'Producto creado exitosamente', 'id' => $producto_id]);
+                
+                // Devolver el producto completo recién creado
+                $productoCompleto = $this->model->get($producto['id']);
+                $this->response->status(201)->toJSON($productoCompleto);
+
             } else {
                 $this->response->status(500)->toJSON(['error' => 'No se pudo crear el producto en la base de datos.']);
             }
         } catch (Exception $e) {
             handleException($e);
+        }
+    }
+
+    private function handleImageUpload($producto_id, $files) {
+        // Reutiliza la lógica de la función addImagen que ya tienes
+        // Itera sobre el array de archivos si se suben múltiples
+        foreach ($files['name'] as $key => $name) {
+            if ($files['error'][$key] === UPLOAD_ERR_OK) {
+                $uploads_dir = __DIR__ . '/../uploads/';
+                if (!is_dir($uploads_dir)) {
+                    mkdir($uploads_dir, 0777, true);
+                }
+                $tmp_name = $files['tmp_name'][$key];
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                $nombre_archivo = uniqid('prodimg_') . '.' . $ext;
+                $ruta_archivo = $uploads_dir . $nombre_archivo;
+                $ruta_db = 'uploads/' . $nombre_archivo;
+
+                if (move_uploaded_file($tmp_name, $ruta_archivo)) {
+                    $this->model->addImagen([
+                        'producto_id' => $producto_id,
+                        'url_imagen' => $ruta_db,
+                        'alt_text' => $name,
+                        'orden' => $key
+                    ]);
+                }
+            }
         }
     }
 
@@ -135,12 +155,9 @@ class ProductoController
     /**
      * DELETE /api/productos/{id} - Eliminar producto (soft delete)
      */
-    public function delete()
+    public function delete($id)
     {
         try {
-            $request = new Request();
-            $id = $request->get('id');
-
             if (empty($id)) {
                 $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
                 return;

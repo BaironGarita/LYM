@@ -90,7 +90,7 @@ const ProductDetail = ({ onAddToCart }) => {
         const [productResponse, imagesResponse] = await Promise.all([
           fetch(`http://localhost:81/api_lym/productos?id=${id}`), // <-- CORRECCIÓN AQUÍ
           fetch(
-            `http://localhost:81/api_lym/productos/imagenes?producto_id=${id}` // <-- CORRECCIÓN AQUÍ
+            `http://localhost:81/api_lym/productos/imagenes/${id}` // <-- CORRECCIÓN AQUÍ
           ),
         ]);
 
@@ -546,7 +546,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       }}
                     >
                       <img
-                        src={`http://localhost:81/api_lym/${img.ruta_archivo}`}
+                        src={`http://localhost:81/${img.ruta_archivo}`}
                         alt={img.alt_text || product.nombre}
                         className="w-full h-full object-cover"
                       />

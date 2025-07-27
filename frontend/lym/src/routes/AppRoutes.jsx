@@ -3,9 +3,11 @@ import { useAuth } from "@/hooks/useAuth"; // Usando alias @
 
 // --- Páginas Públicas ---
 import { Home } from "@/Pages/HomePage";
-import { ProductsPage } from "@/Pages/ProductsPage"; // La que ven los clientes (exportación nombrada)
-import { ProductDetail } from "@/Pages/ProductDetailPage";
+import { ProductsPage } from "@/Pages/ProductsPage";
+import ProductDetail from "@/components/product/ProductDetail"; // <-- CORREGIR: Importar el componente correcto
 import OffersPage from "@/Pages/Products/OffersPage";
+import { ReviewsPage } from "@/Pages/ReviewsPage";
+import ResenaDetail from "@/components/reviews/ResenaDetail";
 
 // --- Layout y Páginas de Administrador ---
 import { AdminLayout } from "@/components/layout/AdminLayout";
@@ -34,13 +36,13 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         element={<ProductsPage addToCart={addToCart} />}
       />
       <Route path="/offers" element={<OffersPage />} />
+      <Route path="/resenas" element={<ReviewsPage />} />
+      <Route path="/resenas/:id" element={<ResenaDetail />} />
       <Route
-        path="/product/:id"
+        path="/producto/:id"
         element={
           <ProductDetail
-            cart={cart}
-            addToCart={addToCart}
-            removeFromCart={removeFromCart}
+            onAddToCart={addToCart} // <-- CORREGIR: Pasar la prop correcta
           />
         }
       />

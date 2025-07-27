@@ -28,6 +28,49 @@ class PromocionService {
     }
   }
 
+  static async createPromocion(data) {
+    const response = await fetch("http://localhost:81/api_lym/promociones", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al crear la promoción");
+    }
+    return await response.json();
+  }
+
+  static async updatePromocion(id, data) {
+    const response = await fetch(
+      `http://localhost:81/api_lym/promociones&id=${id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al actualizar la promoción");
+    }
+    return await response.json();
+  }
+
+  static async deletePromocion(id) {
+    const response = await fetch(
+      `http://localhost:81/api_lym/promociones&id=${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al eliminar la promoción");
+    }
+    return await response.json();
+  }
+
   static calcularPrecioConDescuento(producto, promociones) {
     if (!producto || !producto.precio) {
       return {

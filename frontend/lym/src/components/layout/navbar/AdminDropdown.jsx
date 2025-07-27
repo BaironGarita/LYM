@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
-import { ChevronDown, Settings, Package, LayoutGrid } from "lucide-react";
+import { Link } from "react-router-dom"; // <-- 1. Importa Link
+import { ChevronDown, Settings, Package, LayoutGrid, Tag } from "lucide-react";
 
 export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
   const adminLinks = [
@@ -12,6 +13,11 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
       href: "/admin/productos",
       icon: Package,
       label: "Gestionar Productos",
+    },
+    {
+      href: "/admin/promotions",
+      icon: Tag,
+      label: "Gestionar Promociones",
     },
     {
       href: "/admin/upload",
@@ -39,14 +45,14 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
         <div className="absolute left-0 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <div className="py-1">
             {adminLinks.map(({ href, icon: Icon, label }) => (
-              <a
+              <Link // <-- 2. Cambia <a> por <Link>
                 key={href}
-                href={href}
+                to={href} // <-- 3. Usa 'to' en lugar de 'href'
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <Icon className="mr-2 h-4 w-4" />
                 <span>{label}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

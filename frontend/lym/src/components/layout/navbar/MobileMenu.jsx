@@ -12,6 +12,7 @@ import {
   Users,
   BarChart3,
   ShoppingBag,
+  Tag,
 } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth.jsx";
 
@@ -168,6 +169,15 @@ export function MobileMenu({
                       className="text-green-600"
                     >
                       Gestionar Productos
+                    </NavItem>
+
+                    <NavItem
+                      href="/admin/promotions"
+                      icon={Tag}
+                      onClick={onClose}
+                      className="text-blue-600"
+                    >
+                      Gestionar Promociones
                     </NavItem>
 
                     <NavItem

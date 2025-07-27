@@ -88,9 +88,9 @@ const ProductDetail = ({ onAddToCart }) => {
     const fetchData = async () => {
       try {
         const [productResponse, imagesResponse] = await Promise.all([
-          fetch(`http://localhost:81/api_lym/productos&id=${id}`),
+          fetch(`http://localhost:81/api_lym/productos?id=${id}`), // <-- CORRECCIÓN AQUÍ
           fetch(
-            `http://localhost:81/api_lym/productos/imagenes&producto_id=${id}`
+            `http://localhost:81/api_lym/productos/imagenes?producto_id=${id}` // <-- CORRECCIÓN AQUÍ
           ),
         ]);
 
@@ -942,7 +942,11 @@ const ProductDetail = ({ onAddToCart }) => {
                               value: product.color_principal,
                               icon: "🎨",
                             },
-                            { label: "Género", value: product.genero, icon: "👤" },
+                            {
+                              label: "Género",
+                              value: product.genero,
+                              icon: "👤",
+                            },
                             {
                               label: "Categoría",
                               value: product.categoria_nombre,

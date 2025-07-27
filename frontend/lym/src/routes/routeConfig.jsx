@@ -1,10 +1,10 @@
 import ProductList from "../components/product/ProductList";
-import ProductDetail from "../components/product/ProductDetail";
+import ProductDetail from "../Pages/ProductDetailPage";
 import UploadProductImage from "../components/product/UploadProductImage";
 import { ProtectedRoute } from "../components/auth/ProtectedRouter";
 import OffersPage from "../Pages/Products/OffersPage";
 import OrdersPage from "../Pages/Orders/OrdersPage";
-import ProductsPage from "../Pages/ProductsPage";
+import ProductsPage from "../Pages/AdminProductsPage";
 import ResenasList from "../components/reviews/ResenasList";
 import ResenaDetail from "../components/reviews/ResenaDetail";
 

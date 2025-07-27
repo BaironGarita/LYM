@@ -1,6 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { AuthProvider } from "./hooks/useAuth";
 import { useCart } from "./hooks/useCart";
 import { Navbar } from "./components/layout/Navbar";

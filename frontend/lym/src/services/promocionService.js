@@ -160,6 +160,20 @@ class PromocionService {
         console.log(`Promoción por categoría aplicable: ${promo.nombre}`);
       }
 
+      // --- INICIO DE LA MODIFICACIÓN ---
+      // Promoción por temporada - comparar como strings y sin distinción de mayúsculas/minúsculas
+      if (
+        promo.tipo === "temporada" &&
+        producto.temporada &&
+        promo.valor &&
+        String(promo.valor).toLowerCase() ===
+          String(producto.temporada).toLowerCase()
+      ) {
+        aplicable = true;
+        console.log(`Promoción por temporada aplicable: ${promo.nombre}`);
+      }
+      // --- FIN DE LA MODIFICACIÓN ---
+
       // Si es aplicable y tiene mejor descuento
       if (aplicable && parseFloat(promo.porcentaje) > mejorDescuento) {
         mejorDescuento = parseFloat(promo.porcentaje);

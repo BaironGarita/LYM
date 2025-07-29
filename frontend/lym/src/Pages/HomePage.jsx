@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/UI/button";
-import ProductCard from "@/components/product/ProductCard"; // <-- Cambio aquí: sin llaves
+import ProductCard from "@/components/product/ProductCard/ProductCard";
 import { toast } from "sonner";
 import { usePromociones } from "@/hooks/usePromociones";
 

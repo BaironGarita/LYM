@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ProductCard, { ProductCardSkeleton } from "./ProductCard";
+import ProductCard, { ProductCardSkeleton } from "./ProductCard/ProductCard";
 import CategoryFilter from "./CategoryFilter";
 import { usePromociones } from "@/hooks/usePromociones";
 import { TooltipProvider } from "@/components/UI/tooltip";

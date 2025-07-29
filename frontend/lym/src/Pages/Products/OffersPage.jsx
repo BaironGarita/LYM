@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Percent, Filter, SortAsc } from "lucide-react";
 import { getOfertasActivas } from "../../data/offers";
-import ProductCard from "../../components/product/ProductCard";
+import ProductCard from "@/components/product/ProductCard/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 
 const OffersPage = () => {

@@ -51,7 +51,7 @@ class PromocionService {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, id }),
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -61,12 +61,9 @@ class PromocionService {
   }
 
   static async deletePromocion(id) {
-    const response = await fetch(
-      `http://localhost:81/api_lym/promociones&id=${id}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const response = await fetch(`${this.API_URL}?id=${id}`, {
+      method: "DELETE",
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Error al eliminar la promoción");
@@ -112,7 +109,6 @@ class PromocionService {
         const fechaInicio = new Date(promo.fecha_inicio);
         const fechaFin = new Date(promo.fecha_fin);
 
-        // Corregir: usar 'activo' en lugar de 'activa'
         const esActiva =
           promo.activa == 1 ||
           promo.activo == 1 ||
@@ -142,7 +138,7 @@ class PromocionService {
     promocionesValidas.forEach((promo) => {
       let aplicable = false;
 
-      // Promoción por producto específico - comparar como strings
+      // Promoción por producto específico
       if (
         promo.tipo === "producto" &&
         String(promo.producto_id) === String(producto.id)
@@ -151,7 +147,7 @@ class PromocionService {
         console.log(`Promoción por producto aplicable: ${promo.nombre}`);
       }
 
-      // Promoción por categoría - comparar como strings
+      // Promoción por categoría
       if (
         promo.tipo === "categoria" &&
         String(promo.categoria_id) === String(producto.categoria_id)
@@ -160,8 +156,7 @@ class PromocionService {
         console.log(`Promoción por categoría aplicable: ${promo.nombre}`);
       }
 
-      // --- INICIO DE LA MODIFICACIÓN ---
-      // Promoción por temporada - comparar como strings y sin distinción de mayúsculas/minúsculas
+      // Promoción por temporada
       if (
         promo.tipo === "temporada" &&
         producto.temporada &&
@@ -172,7 +167,6 @@ class PromocionService {
         aplicable = true;
         console.log(`Promoción por temporada aplicable: ${promo.nombre}`);
       }
-      // --- FIN DE LA MODIFICACIÓN ---
 
       // Si es aplicable y tiene mejor descuento
       if (aplicable && parseFloat(promo.porcentaje) > mejorDescuento) {
@@ -198,35 +192,6 @@ class PromocionService {
 
     console.log("Resultado del cálculo:", resultado);
     return resultado;
-  }
-
-  // Asegúrate de que tu función para crear/actualizar se vea así:
-  static async savePromotion(promotionData) {
-    try {
-      const url = promotionData.id ? `${this.API_URL}` : this.API_URL; // El ID va en el cuerpo para PUT
-      const method = promotionData.id ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Esta cabecera es crucial para que el backend entienda que es JSON
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // --- FIN DE LA CORRECCIÓN ---
-        body: JSON.stringify(promotionData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al guardar la promoción");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error en savePromotion:", error);
-      throw error;
-    }
   }
 }
 

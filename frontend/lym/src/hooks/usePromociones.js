@@ -11,15 +11,16 @@ export const usePromociones = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('Obteniendo promociones...');
+        console.log("Obteniendo promociones...");
         const data = await PromocionService.getPromociones();
-        console.log('Promociones obtenidas:', data);
+        console.log("Promociones obtenidas:", data);
         setPromociones(Array.isArray(data) ? data : []);
       } catch (err) {
-        const errorMessage = err.message || 'Error desconocido al obtener promociones';
+        const errorMessage =
+          err.message || "Error desconocido al obtener promociones";
         setError(errorMessage);
         console.error("Error en usePromociones:", err);
-        setPromociones([]); // Fallback a array vacío
+        setPromociones([]);
       } finally {
         setLoading(false);
       }
@@ -31,15 +32,18 @@ export const usePromociones = () => {
   const calcularPrecio = useCallback(
     (producto) => {
       try {
-        return PromocionService.calcularPrecioConDescuento(producto, promociones);
+        return PromocionService.calcularPrecioConDescuento(
+          producto,
+          promociones
+        );
       } catch (error) {
-        console.error('Error calculando precio:', error);
+        console.error("Error calculando precio:", error);
         return {
           precioOriginal: parseFloat(producto?.precio || 0),
           precioFinal: parseFloat(producto?.precio || 0),
           descuento: 0,
           promocionAplicada: null,
-          ahorroMonetario: 0
+          ahorroMonetario: 0,
         };
       }
     },
@@ -53,7 +57,7 @@ export const usePromociones = () => {
       const data = await PromocionService.getPromociones();
       setPromociones(Array.isArray(data) ? data : []);
     } catch (err) {
-      const errorMessage = err.message || 'Error al refrescar promociones';
+      const errorMessage = err.message || "Error al refrescar promociones";
       setError(errorMessage);
       setPromociones([]);
     } finally {

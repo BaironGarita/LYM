@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/UI/button";
 import { Star, Truck, ShoppingCart, ChevronLeft } from "lucide-react";
-import ProductoService from "@/services/productoService";
+import { usePromociones } from "@/hooks/usePromociones"; // 1. Import the hook
 import { API_BASE_URL } from "@/api/apiConfig";
 
 export const ProductDetail = ({ addToCart }) => {
@@ -11,10 +11,11 @@ export const ProductDetail = ({ addToCart }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
+  const { calcularPrecio, loading: promocionesLoading } = usePromociones(); // 2. Use the hook
 
   useEffect(() => {
     const fetchProductData = async () => {
-      if (!id) return;
+      if (!id || promocionesLoading) return; // Wait for promotions to load
       setLoading(true);
       try {
         // Hacemos ambas peticiones al mismo tiempo
@@ -36,9 +37,12 @@ export const ProductDetail = ({ addToCart }) => {
           ? productData[0]
           : productData;
 
-        // Si hay imágenes, asignamos la primera como la imagen principal del producto
-        if (productObject && imagesData && imagesData.length > 0) {
-          productObject.imagen = imagesData[0].ruta_archivo;
+        // 3. Enrich product with promotion info
+        if (productObject) {
+          productObject.promocionInfo = calcularPrecio(productObject);
+          if (imagesData && imagesData.length > 0) {
+            productObject.imagen = imagesData[0].ruta_archivo;
+          }
         }
 
         setProduct(productObject);
@@ -51,9 +55,9 @@ export const ProductDetail = ({ addToCart }) => {
     };
 
     fetchProductData();
-  }, [id]);
+  }, [id, promocionesLoading, calcularPrecio]); // 4. Add dependencies
 
-  if (loading) {
+  if (loading || promocionesLoading) {
     return (
       <div className="text-center py-20">Cargando detalles del producto...</div>
     );
@@ -119,9 +123,27 @@ export const ProductDetail = ({ addToCart }) => {
           </p>
 
           <div className="space-y-2">
-            <p className="text-4xl font-extrabold text-primary">
-              ₡{Number(product.precio).toLocaleString("es-CR")}
-            </p>
+            {/* 5. Display promotional price */}
+            {product.promocionInfo && product.promocionInfo.descuento > 0 ? (
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-extrabold text-primary">
+                  ₡
+                  {Number(product.promocionInfo.precioFinal).toLocaleString(
+                    "es-CR"
+                  )}
+                </p>
+                <p className="text-2xl font-normal text-gray-500 line-through">
+                  ₡
+                  {Number(product.promocionInfo.precioOriginal).toLocaleString(
+                    "es-CR"
+                  )}
+                </p>
+              </div>
+            ) : (
+              <p className="text-4xl font-extrabold text-primary">
+                ₡{Number(product.precio).toLocaleString("es-CR")}
+              </p>
+            )}
             <div className="flex items-center gap-2 text-green-700">
               <Truck className="h-5 w-5" />
               <span className="text-sm font-medium">
@@ -134,7 +156,7 @@ export const ProductDetail = ({ addToCart }) => {
             <Button
               size="lg"
               className="w-full py-6 text-lg"
-              onClick={() => addToCart(product)}
+              onClick={() => addToCart(product)} // This now passes the enriched product
             >
               <ShoppingCart className="h-5 w-5 mr-3" />
               Añadir al Carrito

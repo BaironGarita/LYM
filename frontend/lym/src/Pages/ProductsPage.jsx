@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
 import ProductCard from "@/components/product/ProductCard";
 import CategoryFilter from "@/components/product/CategoryFilter";
+import { usePromociones } from "@/hooks/usePromociones";
 import { toast } from "sonner";
 
 export const ProductsPage = ({ addToCart }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(""); // '' representa todas las categorías
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Integrar hook de promociones
+  const {
+    promociones,
+    calcularPrecio,
+    loading: promocionesLoading,
+  } = usePromociones();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -15,10 +23,7 @@ export const ProductsPage = ({ addToCart }) => {
         setLoading(true);
         setError(null);
 
-        // Construimos la URL base
         let url = "http://localhost:81/api_lym/productos";
-
-        // Si hay una categoría seleccionada, la añadimos como parámetro a la URL
         if (selectedCategory) {
           url += `?categoria_id=${selectedCategory}`;
         }
@@ -28,8 +33,18 @@ export const ProductsPage = ({ addToCart }) => {
           throw new Error("No se pudieron cargar los productos.");
         }
         const data = await response.json();
-        setProducts(Array.isArray(data) ? data : []);
-        if (data.length === 0) {
+
+        // Enriquecer productos con información de promociones
+        const productosConPromociones = Array.isArray(data)
+          ? data.map((producto) => ({
+              ...producto,
+              promocionInfo: calcularPrecio(producto),
+            }))
+          : [];
+
+        setProducts(productosConPromociones);
+
+        if (productosConPromociones.length === 0) {
           toast.info(
             "No se encontraron productos para la categoría seleccionada."
           );
@@ -42,8 +57,11 @@ export const ProductsPage = ({ addToCart }) => {
       }
     };
 
-    fetchProducts();
-  }, [selectedCategory]); // El efecto se ejecuta cada vez que 'selectedCategory' cambia
+    // Solo ejecutar cuando las promociones estén cargadas
+    if (!promocionesLoading) {
+      fetchProducts();
+    }
+  }, [selectedCategory, promociones, calcularPrecio, promocionesLoading]);
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -60,10 +78,12 @@ export const ProductsPage = ({ addToCart }) => {
       </header>
 
       <main>
-        {loading && <p className="text-center py-10">Cargando productos...</p>}
+        {(loading || promocionesLoading) && (
+          <p className="text-center py-10">Cargando productos...</p>
+        )}
         {error && <p className="text-center text-red-500 py-10">{error}</p>}
 
-        {!loading && !error && (
+        {!loading && !promocionesLoading && !error && (
           <>
             {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">

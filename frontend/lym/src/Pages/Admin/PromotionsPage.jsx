@@ -56,9 +56,11 @@ const PromotionsPage = () => {
   const handleSubmit = async (data) => {
     try {
       if (editingPromotion) {
+        // Usar el método correcto del servicio
         await PromocionService.updatePromocion(editingPromotion.id, data);
         toast.success("Promoción actualizada exitosamente.");
       } else {
+        // Usar el método correcto del servicio
         await PromocionService.createPromocion(data);
         toast.success("Promoción creada exitosamente.");
       }

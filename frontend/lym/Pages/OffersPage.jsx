@@ -1,51 +1,92 @@
 import { useState, useEffect } from "react";
-import { Percent, Calendar, Tag, ShoppingCart } from "lucide-react";
+import { Percent, Filter, SortAsc } from "lucide-react";
+import ProductCard from "../../components/product/ProductCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePromociones } from "@/hooks/usePromociones"; // 1. Import hook
 
 const OffersPage = () => {
-  const [ofertas, setOfertas] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [productosEnOferta, setProductosEnOferta] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filtroCategoria, setFiltroCategoria] = useState("todas");
+  const [ordenamiento, setOrdenamiento] = useState("descuento");
+  const { calcularPrecio, loading: promocionesLoading } = usePromociones(); // 2. Use hook
 
   useEffect(() => {
-    fetchOfertas();
+    const fetchProductos = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch("http://localhost:81/api_lym/productos");
+        if (!response.ok) {
+          throw new Error("Error al cargar los productos");
+        }
+        const productosData = await response.json();
+        setProductos(productosData);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProductos();
   }, []);
 
-  const fetchOfertas = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("http://localhost:81/api_lym/promociones");
+  useEffect(() => {
+    if (promocionesLoading) return; // 3. Wait for promotions to load
+    filtrarYOrdenarProductos();
+  }, [
+    productos,
+    filtroCategoria,
+    ordenamiento,
+    promocionesLoading,
+    calcularPrecio,
+  ]); // 4. Update dependencies
 
-      if (!response.ok) {
-        throw new Error("Error al cargar las ofertas");
-      }
+  // 5. REMOVE the local `calcularPromocionInfo` function.
 
-      const data = await response.json();
-      // Filtrar solo promociones activas y vigentes
-      const ofertasActivas = data.filter((promo) => {
-        const hoy = new Date();
-        const fechaInicio = new Date(promo.fecha_inicio);
-        const fechaFin = new Date(promo.fecha_fin);
-        return promo.activo && hoy >= fechaInicio && hoy <= fechaFin;
-      });
+  const filtrarYOrdenarProductos = () => {
+    // 6. Use the hook's function to enrich products and filter for those on sale
+    let productosConOferta = productos
+      .map((producto) => ({
+        ...producto,
+        promocionInfo: calcularPrecio(producto),
+      }))
+      .filter((p) => p.promocionInfo && p.promocionInfo.descuento > 0);
 
-      setOfertas(ofertasActivas);
-    } catch (err) {
-      setError(err.message);
-      console.error("Error fetching ofertas:", err);
-    } finally {
-      setLoading(false);
+    // Filtrar por categoría
+    if (filtroCategoria !== "todas") {
+      productosConOferta = productosConOferta.filter(
+        (p) => p.categoria_id === filtroCategoria
+      );
     }
-  };
 
-  const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    // Ordenar
+    productosConOferta.sort((a, b) => {
+      if (ordenamiento === "descuento") {
+        return b.promocionInfo.descuento - a.promocionInfo.descuento;
+      } else if (ordenamiento === "precio") {
+        return a.precio - b.precio;
+      }
+      return 0;
     });
+
+    setProductosEnOferta(productosConOferta);
   };
 
-  if (loading) {
+  const handleFiltroCategoria = (categoria) => {
+    setFiltroCategoria(categoria);
+    setOrdenamiento("descuento"); // Reset to default sorting on category change
+  };
+
+  const handleOrdenamiento = (tipoOrden) => {
+    setOrdenamiento(tipoOrden);
+  };
+
+  if (loading || promocionesLoading) {
+    // 7. Update loading state check
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -87,9 +128,73 @@ const OffersPage = () => {
         </div>
       </div>
 
+      {/* Filtros y ordenamiento */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-2 mb-4 md:mb-0">
+            <button
+              onClick={() => handleFiltroCategoria("todas")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                filtroCategoria === "todas"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Todas
+            </button>
+            <button
+              onClick={() => handleFiltroCategoria("ropa")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                filtroCategoria === "ropa"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Ropa
+            </button>
+            <button
+              onClick={() => handleFiltroCategoria("accesorios")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                filtroCategoria === "accesorios"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Accesorios
+            </button>
+          </div>
+
+          {/* Ordenamiento */}
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600 text-sm">Ordenar por:</span>
+            <button
+              onClick={() => handleOrdenamiento("descuento")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                ordenamiento === "descuento"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Descuento
+            </button>
+            <button
+              onClick={() => handleOrdenamiento("precio")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                ordenamiento === "precio"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Precio
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Grid de ofertas */}
       <div className="container mx-auto px-6 py-12">
-        {ofertas.length === 0 ? (
+        {productosEnOferta.length === 0 ? (
           <div className="text-center py-12">
             <Percent className="h-24 w-24 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-gray-600 mb-2">
@@ -103,7 +208,7 @@ const OffersPage = () => {
           <>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                {ofertas.length} Ofertas Activas
+                {productosEnOferta.length} Ofertas Activas
               </h2>
               <p className="text-gray-600">
                 ¡Aprovecha estos descuentos antes de que expiren!
@@ -111,104 +216,22 @@ const OffersPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {ofertas.map((oferta) => (
-                <OfertaCard key={oferta.id} oferta={oferta} />
-              ))}
+              <AnimatePresence>
+                {productosEnOferta.map((producto) => (
+                  <motion.div
+                    key={producto.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ProductCard producto={producto} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </>
         )}
-      </div>
-    </div>
-  );
-};
-
-// Componente para cada tarjeta de oferta
-const OfertaCard = ({ oferta }) => {
-  const diasRestantes = Math.ceil(
-    (new Date(oferta.fecha_fin) - new Date()) / (1000 * 60 * 60 * 24)
-  );
-
-  const handleVerOferta = () => {
-    // Redirigir según el tipo de promoción
-    if (oferta.tipo === "categoria" && oferta.categoria_id) {
-      window.location.href = `/products?categoria=${oferta.categoria_id}`;
-    } else if (oferta.tipo === "producto" && oferta.producto_id) {
-      window.location.href = `/product/${oferta.producto_id}`;
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-200">
-      {/* Badge de descuento */}
-      <div className="relative">
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-red-500 text-white px-3 py-1 rounded-full text-lg font-bold">
-            -{oferta.porcentaje}%
-          </div>
-        </div>
-
-        {/* Imagen placeholder o fondo degradado */}
-        <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-          <Percent className="h-16 w-16 text-red-400" />
-        </div>
-      </div>
-
-      <div className="p-6">
-        {/* Título de la oferta */}
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
-          {oferta.nombre}
-        </h3>
-
-        {/* Descripción */}
-        {oferta.descripcion && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-            {oferta.descripcion}
-          </p>
-        )}
-
-        {/* Tipo y categoría/producto */}
-        <div className="flex items-center gap-2 mb-3">
-          <Tag className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600 capitalize">
-            {oferta.tipo === "categoria"
-              ? `Categoría: ${oferta.categoria_nombre || "Todas"}`
-              : `Producto: ${oferta.producto_nombre || "Específico"}`}
-          </span>
-        </div>
-
-        {/* Fechas */}
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">
-            Hasta el {new Date(oferta.fecha_fin).toLocaleDateString("es-ES")}
-          </span>
-        </div>
-
-        {/* Días restantes */}
-        <div className="mb-4">
-          <span
-            className={`text-sm font-medium ${
-              diasRestantes <= 3
-                ? "text-red-600"
-                : diasRestantes <= 7
-                  ? "text-orange-600"
-                  : "text-green-600"
-            }`}
-          >
-            {diasRestantes > 0
-              ? `${diasRestantes} días restantes`
-              : "Último día"}
-          </span>
-        </div>
-
-        {/* Botón de acción */}
-        <button
-          onClick={handleVerOferta}
-          className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2"
-        >
-          <ShoppingCart className="h-4 w-4" />
-          Ver Ofertas
-        </button>
       </div>
     </div>
   );

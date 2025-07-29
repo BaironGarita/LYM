@@ -4,30 +4,53 @@ import { toast } from "sonner";
 import { Button } from "@/components/UI/button";
 import { Star, Truck, ShoppingCart, ChevronLeft } from "lucide-react";
 import ProductoService from "@/services/productoService";
+import { API_BASE_URL } from "@/api/apiConfig";
 
 export const ProductDetail = ({ addToCart }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams(); // Obtiene el ID del producto de la URL
+  const { id } = useParams();
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductData = async () => {
+      if (!id) return;
+      setLoading(true);
       try {
-        setLoading(true);
-        const data = await ProductoService.getProductoById(id);
-        setProduct(data);
+        // Hacemos ambas peticiones al mismo tiempo
+        const [productResponse, imagesResponse] = await Promise.all([
+          fetch(`http://localhost:81/api_lym/productos?id=${id}`),
+          fetch(`http://localhost:81/api_lym/productos/imagenes/${id}`),
+        ]);
+
+        if (!productResponse.ok) {
+          throw new Error(
+            `Error al cargar el producto: ${productResponse.statusText}`
+          );
+        }
+
+        const productData = await productResponse.json();
+        const imagesData = await imagesResponse.json();
+
+        const productObject = Array.isArray(productData)
+          ? productData[0]
+          : productData;
+
+        // Si hay imágenes, asignamos la primera como la imagen principal del producto
+        if (productObject && imagesData && imagesData.length > 0) {
+          productObject.imagen = imagesData[0].ruta_archivo;
+        }
+
+        setProduct(productObject);
       } catch (err) {
         setError(err.message);
-        toast.error("Error al cargar el producto.");
+        toast.error("Error al cargar los datos del producto.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchProduct();
-    }
+    fetchProductData();
   }, [id]);
 
   if (loading) {
@@ -44,6 +67,12 @@ export const ProductDetail = ({ addToCart }) => {
     return <div className="text-center py-20">Producto no encontrado.</div>;
   }
 
+  // 2. Helper para construir la URL de la imagen
+  const getImageUrl = (path) => {
+    if (!path) return ""; // O una imagen de placeholder
+    return `${API_BASE_URL}/${path.replace(/^\//, "")}`;
+  };
+
   return (
     <div>
       <Button asChild variant="outline" className="mb-6">
@@ -57,7 +86,7 @@ export const ProductDetail = ({ addToCart }) => {
         {/* Galería de Imágenes */}
         <div className="bg-gray-100 rounded-lg flex items-center justify-center p-4">
           <img
-            src={product.imagen}
+            src={getImageUrl(product.imagen)} // 3. Usar el helper
             alt={product.nombre}
             className="max-w-full max-h-[500px] object-contain"
           />

@@ -231,15 +231,29 @@ const ProductReviews = ({ productId }) => {
         }),
       });
 
+      // --- INICIO DE CAMBIOS ---
+      // Si la respuesta HTTP no es exitosa (ej. error 400, 404, 500)
+      if (!response.ok) {
+        // Intenta leer el cuerpo de la respuesta como texto para ver el error del servidor
+        const errorBody = await response.text();
+        console.error("Respuesta de error del servidor (texto):", errorBody);
+        throw new Error(
+          `Error del servidor: ${response.status} ${response.statusText}`
+        );
+      }
+      // --- FIN DE CAMBIOS ---
+
       const result = await response.json();
 
-      if (response.ok && result.success) {
+      if (result.success) {
+        // Asumiendo que tu API devuelve { success: true, ... }
         toast.success("¡Reseña enviada exitosamente!");
-
-        // Simplemente recargar la página completa para evitar errores de React
-        window.location.reload();
+        resetForm();
+        fetchResenas(); // Recargar solo las reseñas
       } else {
-        throw new Error(result.error || "Error al enviar la reseña");
+        throw new Error(
+          result.error || "La API indicó un error al enviar la reseña"
+        );
       }
     } catch (err) {
       toast.error("Error al enviar la reseña: " + err.message);

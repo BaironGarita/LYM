@@ -87,11 +87,12 @@ const ProductDetail = ({ onAddToCart }) => {
     setLoading(true);
     const fetchData = async () => {
       try {
+        // Usamos Promise.all para hacer ambas peticiones en paralelo
         const [productResponse, imagesResponse] = await Promise.all([
-          fetch(`http://localhost:81/api_lym/productos?id=${id}`), // <-- CORRECCIÓN AQUÍ
-          fetch(
-            `http://localhost:81/api_lym/productos/imagenes/${id}` // <-- CORRECCIÓN AQUÍ
-          ),
+          // URL correcta para obtener el producto por su ID
+          fetch(`http://localhost:81/api_lym/productos?id=${id}`),
+          // URL RESTful correcta para obtener las imágenes de un producto específico
+          fetch(`http://localhost:81/api_lym/productos/imagenes/${id}`),
         ]);
 
         if (!productResponse.ok) {
@@ -546,7 +547,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       }}
                     >
                       <img
-                        src={`http://localhost:81/${img.ruta_archivo}`}
+                        src={`http://localhost:81/api_lym/${img.ruta_archivo}`} // CORRECCIÓN: era "apy_lym"
                         alt={img.alt_text || product.nombre}
                         className="w-full h-full object-cover"
                       />

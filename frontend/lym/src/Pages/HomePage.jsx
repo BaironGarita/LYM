@@ -3,14 +3,18 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/UI/button";
 import ProductCard from "@/components/product/ProductCard"; // <-- Cambio aquí: sin llaves
 import { toast } from "sonner";
+import { usePromociones } from "@/hooks/usePromociones";
 
 export const Home = ({ addToCart }) => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { calcularPrecio, loading: promocionesLoading } = usePromociones();
 
   useEffect(() => {
     const fetchProducts = async () => {
+      if (promocionesLoading) return; // Esperar a que las promociones estén listas
+
       try {
         setLoading(true);
         // Hacemos un fetch a la API para obtener algunos productos para la página principal
@@ -21,7 +25,16 @@ export const Home = ({ addToCart }) => {
           throw new Error("No se pudieron cargar los productos.");
         }
         const data = await response.json();
-        setFeaturedProducts(Array.isArray(data) ? data : []);
+
+        // Enriquecer productos con información de promociones
+        const productosConPromocion = Array.isArray(data)
+          ? data.map((producto) => ({
+              ...producto,
+              promocionInfo: calcularPrecio(producto),
+            }))
+          : [];
+
+        setFeaturedProducts(productosConPromocion);
       } catch (err) {
         setError(err.message);
         toast.error("Error al cargar productos destacados.");
@@ -31,7 +44,7 @@ export const Home = ({ addToCart }) => {
     };
 
     fetchProducts();
-  }, []);
+  }, [promocionesLoading, calcularPrecio]);
 
   return (
     <div className="space-y-12">
@@ -54,10 +67,12 @@ export const Home = ({ addToCart }) => {
         <h2 className="text-3xl font-bold text-center mb-8">
           Productos Destacados
         </h2>
-        {loading && <p className="text-center">Cargando productos...</p>}
+        {(loading || promocionesLoading) && (
+          <p className="text-center">Cargando productos...</p>
+        )}
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        {!loading && !error && (
+        {!loading && !promocionesLoading && !error && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
               <ProductCard

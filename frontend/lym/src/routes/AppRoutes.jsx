@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth"; // Usando alias @
 import { Home } from "@/Pages/HomePage";
 import { ProductsPage } from "@/Pages/ProductsPage";
 import ProductList from "../components/product/ProductList";
-import ProductDetail from "../components/product/ProductDetail"; // Changed path
+import ProductDetail from "@/components/product/ProductDetail";
 import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/ReviewsPage";
 import ResenaDetail from "@/components/reviews/ResenaDetail";
@@ -41,7 +41,7 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
       <Route path="/resenas/:id" element={<ResenaDetail />} />
       <Route
         path="/producto/:id"
-        element={({ addToCart }) => <ProductDetail onAddToCart={addToCart} />}
+        element={<ProductDetail onAddToCart={addToCart} />}
       />
 
       {/* --- Rutas de Administrador Protegidas --- */}

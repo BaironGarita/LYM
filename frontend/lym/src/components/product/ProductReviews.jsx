@@ -49,7 +49,7 @@ const ProductReviews = ({ productId }) => {
   const fetchResenas = async () => {
     try {
       const response = await fetch(
-        `http://localhost:81/api_lym/resenas&producto_id=${productId}`
+        `http://localhost:81/api_lym/resenas?producto_id=${productId}`
       );
 
       if (!response.ok) {
@@ -69,7 +69,7 @@ const ProductReviews = ({ productId }) => {
   const fetchStats = async () => {
     try {
       const response = await fetch(
-        `http://localhost:81/api_lym/resenas/stats&producto_id=${productId}`
+        `http://localhost:81/api_lym/resenas/stats?producto_id=${productId}`
       );
 
       if (!response.ok) {

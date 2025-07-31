@@ -92,7 +92,9 @@ const ProductDetail = ({ onAddToCart }) => {
           // URL correcta para obtener el producto por su ID
           fetch(`http://localhost:81/api_lym/productos?id=${id}`),
           // URL RESTful correcta para obtener las imágenes de un producto específico
-          fetch(`http://localhost:81/api_lym/productos/imagenes/${id}`),
+          fetch(
+            `http://localhost:81/api_lym/productos/imagenes?producto_id=${id}`
+          ),
         ]);
 
         if (!productResponse.ok) {
@@ -558,8 +560,8 @@ const ProductDetail = ({ onAddToCart }) => {
             </motion.div>
 
             {/* Enhanced Product Information */}
-            <motion.div className="space-y-8" variants={itemVariants}>
-              {/* Header */}
+            <motion.div className="space-y-6" variants={itemVariants}>
+              {/* 1. Header: Título y Acciones secundarias (Favorito, Compartir) */}
               <motion.div
                 className="space-y-4"
                 initial={{ opacity: 0, x: 20 }}
@@ -567,10 +569,10 @@ const ProductDetail = ({ onAddToCart }) => {
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
                 <div className="flex items-start justify-between">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight pr-4">
                     {product.nombre}
                   </h1>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <motion.button
@@ -662,348 +664,300 @@ const ProductDetail = ({ onAddToCart }) => {
                   </div>
                 </div>
 
-                {/* Rating and Reviews */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i <
-                          Math.floor(
-                            getRatingValue(product.promedio_valoracion)
-                          )
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    {getRatingValue(product.promedio_valoracion) > 0
-                      ? `${getRatingValue(product.promedio_valoracion).toFixed(1)} (${product.total_resenas || 0} reseñas)`
-                      : "Sin valoraciones"}
-                  </span>
-                </div>
-
-                {/* Enhanced Price with Promotion */}
-                <motion.div
-                  layout
-                  className="space-y-3"
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                >
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                      {formatPrice(promocionInfo.precioFinal)}
+                {/* 2. Rating and Stock Status */}
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-gray-800">
+                      {getRatingValue(product.promedio_valoracion).toFixed(1)}
                     </span>
-                    {isOnSale && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl text-gray-500 line-through">
-                          {formatPrice(promocionInfo.precioOriginal)}
-                        </span>
-                      </div>
-                    )}
+                    <span className="text-gray-500">
+                      ({product.total_resenas || 0} reseñas)
+                    </span>
                   </div>
-
-                  {isOnSale && (
-                    <div className="flex flex-wrap gap-2">
-                      <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
-                        Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
-                      </Badge>
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-3 py-1">
-                        {promocionInfo.descuento}% de descuento
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Información de la promoción */}
-                  {promocionInfo.promocionAplicada && (
-                    <Alert className="border-green-200 bg-green-50">
-                      <Tag className="h-4 w-4 text-green-600" />
-                      <AlertDescription className="text-green-800">
-                        <strong>Promoción activa:</strong>{" "}
-                        {promocionInfo.promocionAplicada.nombre}
-                        {promocionInfo.promocionAplicada.fecha_fin && (
-                          <span className="block text-sm mt-1">
-                            Válida hasta:{" "}
-                            {new Date(
-                              promocionInfo.promocionAplicada.fecha_fin
-                            ).toLocaleDateString()}
-                          </span>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </motion.div>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div
+                    className={`flex items-center gap-1.5 font-medium ${stockStatus.color}`}
+                  >
+                    <Package className="h-4 w-4" />
+                    <span>{stockStatus.text}</span>
+                  </div>
+                </div>
               </motion.div>
 
-              <Separator />
+              {/* 3. Price Section */}
+              <motion.div
+                layout
+                className="p-4 bg-gray-50 rounded-xl border"
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="text-4xl font-extrabold text-gray-900">
+                    {formatPrice(promocionInfo.precioFinal)}
+                  </span>
+                  {isOnSale && (
+                    <span className="text-xl text-gray-500 line-through">
+                      {formatPrice(promocionInfo.precioOriginal)}
+                    </span>
+                  )}
+                </div>
+                {isOnSale && (
+                  <div className="mt-2">
+                    <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1 font-semibold">
+                      Ahorras {formatPrice(promocionInfo.ahorroMonetario)} (
+                      {promocionInfo.descuento}%)
+                    </Badge>
+                  </div>
+                )}
+                {promocionInfo.promocionAplicada && (
+                  <Alert className="mt-3 border-blue-200 bg-blue-50 text-blue-800">
+                    <Tag className="h-4 w-4 text-blue-600" />
+                    <AlertDescription>
+                      <strong>Promoción:</strong>{" "}
+                      {promocionInfo.promocionAplicada.nombre}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </motion.div>
 
-              {/* Quick Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Card className="border-0 bg-blue-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Package className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Stock</p>
-                        <p className={`text-sm ${stockStatus.color}`}>
-                          {stockStatus.text}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 bg-green-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <Truck className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Envío</p>
-                        <p className="text-sm text-green-600">
-                          {product.precio > 50000 ? "Gratis" : "₡2,500"}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Enhanced Add to Cart Button */}
+              {/* 4. Actions: Quantity and Add to Cart */}
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
+                className="p-6 bg-white rounded-2xl shadow-lg border"
               >
-                <Card className="border-0 bg-gray-50">
-                  <CardContent className="p-6">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-medium">Cantidad:</span>
-                        <div className="flex items-center border border-gray-300 rounded-xl bg-white shadow-sm">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleQuantityChange("decrease")}
-                            disabled={quantity <= 1}
-                            className="h-10 w-10 rounded-l-xl hover:bg-gray-100"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="px-6 py-2 font-bold text-lg min-w-[4rem] text-center">
-                            {quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleQuantityChange("increase")}
-                            disabled={quantity >= product.stock}
-                            className="h-10 w-10 rounded-r-xl hover:bg-gray-100"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-medium text-gray-800">
+                      Cantidad
+                    </span>
+                    <div className="flex items-center border border-gray-300 rounded-xl bg-white shadow-sm">
                       <Button
-                        onClick={handleAddToCart}
-                        disabled={!isInStock || isAddingToCart}
-                        className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleQuantityChange("decrease")}
+                        disabled={quantity <= 1}
+                        className="h-10 w-10 rounded-l-xl hover:bg-gray-100"
                       >
-                        {isAddingToCart ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                            Agregando...
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="h-6 w-6 mr-3" />
-                            {isInStock
-                              ? isOnSale
-                                ? `Añadir por ${formatPrice(promocionInfo.precioFinal * quantity)}`
-                                : "Añadir al carrito"
-                              : "Sin stock"}
-                          </>
-                        )}
+                        <Minus className="h-4 w-4" />
                       </Button>
+                      <span className="px-6 py-2 font-bold text-lg min-w-[4rem] text-center">
+                        {quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleQuantityChange("increase")}
+                        disabled={quantity >= product.stock || !isInStock}
+                        className="h-10 w-10 rounded-r-xl hover:bg-gray-100"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-                      {/* Mostrar ahorro total por cantidad */}
-                      {isOnSale && quantity > 1 && (
-                        <div className="text-center">
-                          <Badge className="bg-green-100 text-green-800 border-green-200">
-                            Ahorro total:{" "}
-                            {formatPrice(
-                              promocionInfo.ahorroMonetario * quantity
-                            )}
-                          </Badge>
-                        </div>
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={!isInStock || isAddingToCart}
+                    className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-blue-500/50 transition-shadow"
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                        Agregando...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="h-6 w-6 mr-3" />
+                        {isInStock ? `Añadir al carrito` : "Sin stock"}
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Mostrar precio total por cantidad */}
+                  {isInStock && (
+                    <div className="text-center text-gray-600 font-medium">
+                      <span className="font-bold text-gray-800">
+                        Total:{" "}
+                        {formatPrice(promocionInfo.precioFinal * quantity)}
+                      </span>
+                      {isOnSale && quantity > 0 && (
+                        <span className="text-green-600 ml-2">
+                          (Ahorras{" "}
+                          {formatPrice(
+                            promocionInfo.ahorroMonetario * quantity
+                          )}
+                          )
+                        </span>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               </motion.div>
 
-              {/* Benefits */}
-              <div className="grid grid-cols-1 gap-4">
-                <Alert className="border-green-200 bg-green-50">
-                  <Truck className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    <strong>Envío gratis</strong> en pedidos superiores a
-                    ₡50,000
-                  </AlertDescription>
-                </Alert>
-                <Alert className="border-blue-200 bg-blue-50">
-                  <Shield className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800">
+              {/* 5. Benefits */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm text-gray-600">
+                  <Truck className="h-5 w-5 text-green-600" />
+                  <span>
+                    Envío{" "}
+                    <strong>
+                      {product.precio > 50000
+                        ? "gratis"
+                        : `disponible por ${formatPrice(2500)}`}
+                    </strong>
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-600">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  <span>
                     <strong>Garantía de satisfacción</strong> - 30 días para
                     devoluciones
-                  </AlertDescription>
-                </Alert>
+                  </span>
+                </div>
               </div>
             </motion.div>
-          </div>
 
-          {/* Enhanced Product Details Tabs */}
-          <motion.div
-            className="mt-16"
-            variants={itemVariants}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-          >
-            <Tabs
-              defaultValue="description"
-              className="w-full"
-              onValueChange={setActiveTab}
-              value={activeTab}
+            {/* Enhanced Product Details Tabs */}
+            <motion.div
+              className="mt-16"
+              variants={itemVariants}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
             >
-              <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 rounded-xl p-1 relative">
-                {["description", "specifications", "reviews"].map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className="rounded-lg data-[state=active]:text-gray-900 text-gray-600 relative"
-                  >
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="active-tab-indicator"
-                        className="absolute inset-0 bg-white shadow-sm rounded-lg z-0"
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 25,
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10">
-                      {
+              <Tabs
+                defaultValue="description"
+                className="w-full"
+                onValueChange={setActiveTab}
+                value={activeTab}
+              >
+                <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 rounded-xl p-1 relative">
+                  {["description", "specifications", "reviews"].map((tab) => (
+                    <TabsTrigger
+                      key={tab}
+                      value={tab}
+                      className="rounded-lg data-[state=active]:text-gray-900 text-gray-600 relative"
+                    >
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="active-tab-indicator"
+                          className="absolute inset-0 bg-white shadow-sm rounded-lg z-0"
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 25,
+                          }}
+                        />
+                      )}
+                      <span className="relative z-10">
                         {
-                          description: "Descripción",
-                          specifications: "Especificaciones",
-                          reviews: "Reseñas",
-                        }[tab]
-                      }
-                    </span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+                          {
+                            description: "Descripción",
+                            specifications: "Especificaciones",
+                            reviews: "Reseñas",
+                          }[tab]
+                        }
+                      </span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                  <TabsContent value="description" className="mt-8">
-                    <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
-                      <CardContent className="p-8">
-                        <div className="prose prose-gray max-w-none">
-                          <p className="text-gray-700 leading-relaxed text-lg">
-                            {product.descripcion}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <TabsContent value="description" className="mt-8">
+                      <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+                        <CardContent className="p-8">
+                          <div className="prose prose-gray max-w-none">
+                            <p className="text-gray-700 leading-relaxed text-lg">
+                              {product.descripcion}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
 
-                  <TabsContent value="specifications" className="mt-8">
-                    <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
-                      <CardContent className="p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {[
-                            {
-                              label: "Color principal",
-                              value: product.color_principal,
-                              icon: "🎨",
-                            },
-                            {
-                              label: "Género",
-                              value: product.genero,
-                              icon: "👤",
-                            },
-                            {
-                              label: "Categoría",
-                              value: product.categoria_nombre,
-                              icon: "📂",
-                            },
-                            {
-                              label: "Material",
-                              value: product.material,
-                              icon: "🧵",
-                            },
-                            {
-                              label: "Temporada",
-                              value: product.temporada,
-                              icon: "🌤️",
-                            },
-                            {
-                              label: "Peso",
-                              value: product.peso ? `${product.peso} kg` : null,
-                              icon: "⚖️",
-                            },
-                            {
-                              label: "Dimensiones",
-                              value: product.dimensiones,
-                              icon: "📏",
-                            },
-                            { label: "SKU", value: product.id, icon: "🔢" },
-                          ]
-                            .filter((item) => item.value)
-                            .map((spec, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{spec.icon}</span>
-                                  <span className="font-medium text-gray-900">
-                                    {spec.label}
+                    <TabsContent value="specifications" className="mt-8">
+                      <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+                        <CardContent className="p-8">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {[
+                              {
+                                label: "Color principal",
+                                value: product.color_principal,
+                                icon: "🎨",
+                              },
+                              {
+                                label: "Género",
+                                value: product.genero,
+                                icon: "👤",
+                              },
+                              {
+                                label: "Categoría",
+                                value: product.categoria_nombre,
+                                icon: "📂",
+                              },
+                              {
+                                label: "Material",
+                                value: product.material,
+                                icon: "🧵",
+                              },
+                              {
+                                label: "Temporada",
+                                value: product.temporada,
+                                icon: "🌤️",
+                              },
+                              {
+                                label: "Peso",
+                                value: product.peso
+                                  ? `${product.peso} kg`
+                                  : null,
+                                icon: "⚖️",
+                              },
+                              {
+                                label: "Dimensiones",
+                                value: product.dimensiones,
+                                icon: "📏",
+                              },
+                              { label: "SKU", value: product.id, icon: "🔢" },
+                            ]
+                              .filter((item) => item.value)
+                              .map((spec, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-2xl">
+                                      {spec.icon}
+                                    </span>
+                                    <span className="font-medium text-gray-900">
+                                      {spec.label}
+                                    </span>
+                                  </div>
+                                  <span className="text-gray-700 font-medium">
+                                    {spec.value}
                                   </span>
                                 </div>
-                                <span className="text-gray-700 font-medium">
-                                  {spec.value}
-                                </span>
-                              </div>
-                            ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
+                              ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
 
-                  <TabsContent value="reviews" className="mt-8">
-                    <ProductReviews productId={product.id} />
-                  </TabsContent>
-                </motion.div>
-              </AnimatePresence>
-            </Tabs>
-          </motion.div>
+                    <TabsContent value="reviews" className="mt-8">
+                      <ProductReviews productId={product.id} />
+                    </TabsContent>
+                  </motion.div>
+                </AnimatePresence>
+              </Tabs>
+            </motion.div>
+          </div>
         </motion.div>
       </motion.div>
     </TooltipProvider>

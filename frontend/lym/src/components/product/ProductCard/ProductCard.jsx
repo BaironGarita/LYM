@@ -57,6 +57,7 @@ const ProductCard = ({ product }) => {
   };
 
   const isOnSale = promocionInfo.descuento > 0;
+  const isInStock = product.stock > 0;
 
   useEffect(() => {
     setIsLoading(true);
@@ -81,6 +82,12 @@ const ProductCard = ({ product }) => {
       currency: "CRC",
       minimumFractionDigits: 0,
     }).format(price);
+  };
+
+  const getRatingValue = (rating) => {
+    if (rating === null || rating === undefined) return 0;
+    const numRating = Number(rating);
+    return isNaN(numRating) ? 0 : numRating;
   };
 
   const handleAddToCart = () => {
@@ -117,6 +124,18 @@ const ProductCard = ({ product }) => {
                 <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg">
                   <Tag className="h-3 w-3 mr-1" />-{promocionInfo.descuento}%
                   OFF
+                </Badge>
+              </div>
+            )}
+
+            {/* Badge de Sin Stock */}
+            {!isInStock && (
+              <div className="absolute top-3 right-3 z-20">
+                <Badge
+                  variant="destructive"
+                  className="bg-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg"
+                >
+                  Sin Stock
                 </Badge>
               </div>
             )}
@@ -207,14 +226,21 @@ const ProductCard = ({ product }) => {
 
           <div className="p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm text-gray-600">4.5</span>
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <span className="text-sm font-bold text-gray-800">
+                  {getRatingValue(product.promedio_valoracion).toFixed(1)}
+                </span>
+                <span className="text-sm text-gray-500">
+                  ({product.total_resenas || 0})
+                </span>
               </div>
-              <div className="flex items-center gap-1 text-green-600">
-                <Truck className="h-4 w-4" />
-                <span className="text-xs font-medium">Envío gratis</span>
-              </div>
+              {product.precio > 50000 && (
+                <div className="flex items-center gap-1 text-green-600">
+                  <Truck className="h-4 w-4" />
+                  <span className="text-xs font-medium">Envío gratis</span>
+                </div>
+              )}
             </div>
 
             <h3
@@ -238,14 +264,14 @@ const ProductCard = ({ product }) => {
               </div>
               {isOnSale && (
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs font-semibold px-2 py-1">
                     Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
                   </Badge>
                 </div>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 pt-2">
               {product.color_principal && (
                 <Badge
                   variant="secondary"
@@ -275,7 +301,7 @@ const ProductCard = ({ product }) => {
             <Button
               className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAddToCart}
-              disabled={isAddingToCart}
+              disabled={isAddingToCart || !isInStock}
             >
               {isAddingToCart ? (
                 <>
@@ -285,15 +311,13 @@ const ProductCard = ({ product }) => {
               ) : (
                 <>
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  {isOnSale
-                    ? `Añadir por ${formatPrice(promocionInfo.precioFinal)}`
-                    : "Añadir al carrito"}
+                  {isInStock ? "Añadir al carrito" : "Sin stock"}
                 </>
               )}
             </Button>
 
-            {product.stock && product.stock < 5 && (
-              <p className="text-xs text-orange-600 font-medium text-center">
+            {isInStock && product.stock < 5 && (
+              <p className="text-xs text-orange-600 font-medium text-center pt-1">
                 ¡Solo quedan {product.stock} unidades!
               </p>
             )}

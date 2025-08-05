@@ -12,9 +12,10 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/UI/tooltip";
-import { useDispatch, useSelector } from "react-redux"; // Importar useSelector
-import { addToCart } from "../../../store/cartSlice";
-import { toggleWishlist } from "../../../store/fashionSlice"; // Cambiar a toggleWishlist
+import { useDispatch, useSelector } from "react-redux";
+import { toggleWishlist } from "../../../store/fashionSlice";
+import { toast } from "sonner"; // Importar toast
+import { useCart } from "@/hooks/useCart";
 
 export function ProductCardSkeleton() {
   return (
@@ -36,13 +37,13 @@ export function ProductCardSkeleton() {
 }
 
 const ProductCard = ({ product }) => {
-  // Quitar onAddToCart de las props
   const [imagenes, setImagenes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const placeholder = "https://via.placeholder.com/200x200?text=Sin+Imagen";
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { addToCart } = useCart();
 
   // Obtener el estado de la wishlist desde Redux
   const wishlistItems = useSelector((state) => state.fashion.wishlist.items);
@@ -54,6 +55,7 @@ const ProductCard = ({ product }) => {
     precioFinal: product.precio,
     descuento: 0,
     promocionAplicada: null,
+    ahorroMonetario: 0,
   };
 
   const isOnSale = promocionInfo.descuento > 0;
@@ -90,19 +92,33 @@ const ProductCard = ({ product }) => {
     return isNaN(numRating) ? 0 : numRating;
   };
 
-  const handleAddToCart = () => {
+  // Aplicar la misma lógica que ProductDetail.jsx
+  const handleAddToCart = async () => {
+    if (!isInStock) {
+      toast.error("Producto agotado", {
+        description: "Este producto no está disponible en este momento",
+      });
+      return;
+    }
+
     setIsAddingToCart(true);
-    // Usar dispatch para añadir al carrito
-    dispatch(
+    try {
+      // Usar la función addToCart del contexto
       addToCart({
         ...product,
-        precio: promocionInfo.precioFinal, // Asegurarse de pasar el precio correcto
-      })
-    );
-    // Simular un pequeño delay para feedback visual
-    setTimeout(() => {
+        cantidad: 1, // ProductCard siempre añade 1 unidad
+        precio: promocionInfo.precioFinal,
+        precioOriginal: promocionInfo.precioOriginal,
+        promocionAplicada: promocionInfo.promocionAplicada,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Error", {
+        description: "No se pudo agregar el producto al carrito",
+      });
+    } finally {
       setIsAddingToCart(false);
-    }, 500);
+    }
   };
 
   const handleWishlistToggle = () => {
@@ -159,12 +175,12 @@ const ProductCard = ({ product }) => {
                     className="h-10 w-10 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleWishlistToggle(); // Usar el nuevo handler
+                      handleWishlistToggle();
                     }}
                   >
                     <Heart
                       className={`h-4 w-4 transition-colors ${
-                        isWishlisted // Usar el estado de Redux
+                        isWishlisted
                           ? "fill-red-500 text-red-500"
                           : "text-gray-600 hover:text-red-500"
                       }`}

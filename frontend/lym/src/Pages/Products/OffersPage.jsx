@@ -1,99 +1,75 @@
 import { useState, useEffect } from "react";
 import { Percent, Filter, SortAsc } from "lucide-react";
-import { getOfertasActivas } from "../../data/offers";
 import ProductCard from "@/components/product/ProductCard/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePromociones } from "@/hooks/usePromociones";
+import { toast } from "sonner";
 
 const OffersPage = () => {
   const [productos, setProductos] = useState([]);
-  const [ofertas, setOfertas] = useState([]);
   const [productosEnOferta, setProductosEnOferta] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
   const [ordenamiento, setOrdenamiento] = useState("descuento");
 
+  // Usar el mismo hook que ProductsPage
+  const {
+    promociones,
+    calcularPrecio,
+    loading: promocionesLoading,
+  } = usePromociones();
+
   useEffect(() => {
-    fetchProductosYOfertas();
+    fetchProductos();
   }, []);
 
   useEffect(() => {
-    filtrarYOrdenarProductos();
-  }, [productos, ofertas, filtroCategoria, ordenamiento]);
+    // Solo procesar cuando tanto productos como promociones estén cargados
+    if (!promocionesLoading && productos.length > 0) {
+      filtrarYOrdenarProductos();
+    }
+  }, [
+    productos,
+    promociones,
+    filtroCategoria,
+    ordenamiento,
+    promocionesLoading,
+    calcularPrecio,
+  ]);
 
-  const fetchProductosYOfertas = async () => {
+  const fetchProductos = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Obtener ofertas activas del API
-      const ofertasActivas = await getOfertasActivas();
-      setOfertas(ofertasActivas);
-
-      // Obtener productos del API
       const response = await fetch("http://localhost:81/api_lym/productos");
       if (!response.ok) {
         throw new Error("Error al cargar los productos");
       }
 
       const productosData = await response.json();
-      setProductos(productosData);
+      setProductos(Array.isArray(productosData) ? productosData : []);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching data:", err);
+      toast.error("Error al cargar los productos");
     } finally {
       setLoading(false);
     }
   };
 
-  const calcularPromocionInfo = (producto, oferta) => {
-    const precioOriginal = parseFloat(producto.precio);
-    const descuento = oferta ? parseFloat(oferta.porcentaje) : 0;
-    const precioFinal = precioOriginal * (1 - descuento / 100);
-    const ahorroMonetario = precioOriginal - precioFinal;
-
-    return {
-      precioOriginal,
-      precioFinal,
-      descuento,
-      ahorroMonetario,
-      promocionAplicada: oferta,
-    };
-  };
-
   const filtrarYOrdenarProductos = () => {
-    let productosConOferta = [];
+    // Enriquecer productos con información de promociones usando el hook
+    const productosConPromociones = productos.map((producto) => ({
+      ...producto,
+      promocionInfo: calcularPrecio(producto),
+    }));
 
-    // Combinar productos con sus ofertas
-    productos.forEach((producto) => {
-      // Buscar oferta por producto específico
-      let ofertaAplicable = ofertas.find(
-        (oferta) =>
-          oferta.tipo === "producto" &&
-          parseInt(oferta.producto_id) === parseInt(producto.id)
-      );
-
-      // Si no hay oferta específica, buscar por categoría
-      if (!ofertaAplicable) {
-        ofertaAplicable = ofertas.find(
-          (oferta) =>
-            oferta.tipo === "categoria" &&
-            (parseInt(oferta.categoria_id) ===
-              parseInt(producto.categoria_id) ||
-              oferta.categoria_id === null)
-        );
-      }
-
-      // Si hay oferta aplicable, agregar el producto con información de promoción
-      if (ofertaAplicable) {
-        const promocionInfo = calcularPromocionInfo(producto, ofertaAplicable);
-
-        productosConOferta.push({
-          ...producto,
-          promocionInfo: promocionInfo,
-        });
-      }
-    });
+    // Filtrar solo productos que TIENEN descuento
+    let productosConOferta = productosConPromociones.filter(
+      (producto) => producto.promocionInfo.descuento > 0
+    );
 
     // Filtrar por categoría
     if (filtroCategoria !== "todas") {
@@ -130,28 +106,18 @@ const OffersPage = () => {
     setProductosEnOferta(productosConOferta);
   };
 
+  // Obtener categorías únicas de productos que tienen ofertas
   const categorias = [
-    ...new Set(
-      productos.map((p) => ({ id: p.categoria_id, nombre: p.categoria }))
-    ),
+    ...new Map(
+      productosEnOferta.map((p) => [
+        p.categoria_id,
+        { id: p.categoria_id, nombre: p.categoria },
+      ])
+    ).values(),
   ];
 
-  const handleAddToCart = async (producto) => {
-    try {
-      // Aquí puedes agregar la lógica para añadir al carrito
-      console.log("Producto agregado al carrito:", producto);
-
-      // Si tienes un contexto de carrito, úsalo aquí
-      // await addToCart(producto);
-
-      return Promise.resolve();
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      throw error;
-    }
-  };
-
-  if (loading) {
+  // Mostrar loading mientras carga productos O promociones
+  if (loading || promocionesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -168,7 +134,7 @@ const OffersPage = () => {
         <div className="text-center">
           <p className="text-red-500 text-lg">{error}</p>
           <button
-            onClick={fetchProductosYOfertas}
+            onClick={fetchProductos}
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
           >
             Reintentar
@@ -272,7 +238,7 @@ const OffersPage = () => {
 
             <div className="ml-auto flex items-center gap-4">
               <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                📊 {ofertas.length} ofertas activas
+                📊 {promociones.length} promociones activas
               </div>
               <div className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
                 🛍️ {productosEnOferta.length} productos
@@ -295,7 +261,9 @@ const OffersPage = () => {
                 No hay productos en oferta
               </h2>
               <p className="text-gray-500 text-lg">
-                Vuelve pronto para descubrir nuevas ofertas increíbles
+                {filtroCategoria !== "todas"
+                  ? "No hay ofertas para esta categoría. Prueba con otra categoría."
+                  : "Vuelve pronto para descubrir nuevas ofertas increíbles"}
               </p>
             </motion.div>
           ) : (
@@ -317,10 +285,7 @@ const OffersPage = () => {
                   }}
                   layout
                 >
-                  <ProductCard
-                    product={producto}
-                    onAddToCart={handleAddToCart}
-                  />
+                  <ProductCard product={producto} />
                 </motion.div>
               ))}
             </motion.div>

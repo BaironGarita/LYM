@@ -1,14 +1,16 @@
-import { useState, useRef, useEffect } from "react";
-import { Menu, ShoppingCart, X } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth.jsx";
-import { Logo } from "./navbar/Logo.jsx";
-import { DesktopNav } from "./navbar/DesktopNav.jsx";
-import { UserActions } from "./navbar/UserActions.jsx";
-import { MobileMenu } from "./navbar/MobileMenu.jsx";
-import { AuthModal } from "../auth/AuthModal.jsx";
-import { useClickOutside } from "../../hooks/useClickOutside.jsx";
+import { useState, useRef } from "react";
+import { Menu, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import { Logo } from "./navbar/Logo";
+import { DesktopNav } from "./navbar/DesktopNav";
+import { UserActions } from "./navbar/UserActions";
+import { MobileMenu } from "./navbar/MobileMenu";
+import { AuthModal } from "../auth/AuthModal";
+import { LanguageSelector } from "../LanguageSelector";
 
-export function Navbar({ cart = [], removeFromCart, clearCart }) {
+export function Navbar() {
   const [showCart, setShowCart] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -16,6 +18,7 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
 
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const { cart, removeFromCart, clearCart, state } = useCart();
 
   const cartBtnRef = useRef();
   const userMenuRef = useRef();
@@ -27,11 +30,8 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
   useClickOutside(adminMenuRef, () => setShowAdminMenu(false), showAdminMenu);
 
   const cartStats = {
-    totalItems: cart.reduce((sum, item) => sum + (item.cantidad || 1), 0),
-    totalPrice: cart.reduce(
-      (sum, item) => sum + item.precio * (item.cantidad || 1),
-      0
-    ),
+    totalItems: state.itemCount,
+    totalPrice: state.total,
   };
 
   const menuHandlers = {
@@ -46,65 +46,85 @@ export function Navbar({ cart = [], removeFromCart, clearCart }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-        <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
-          <Logo />
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm transition-all duration-300">
+        <div className="container mx-auto">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Logo />
+            </div>
 
-          <DesktopNav
-            isAuthenticated={isAuthenticated}
-            isAdmin={isAdmin}
-            showAdminMenu={showAdminMenu}
-            onToggleAdminMenu={menuHandlers.toggleAdminMenu}
-            adminMenuRef={adminMenuRef}
-          />
-
-          <div className="flex items-center space-x-3">
-            <UserActions
+            {/* Navegación Desktop */}
+            <DesktopNav
               isAuthenticated={isAuthenticated}
               isAdmin={isAdmin}
-              user={user}
-              showUserMenu={showUserMenu}
-              showCart={showCart}
-              cart={cart}
-              cartStats={cartStats}
-              removeFromCart={removeFromCart}
-              clearCart={clearCart}
-              userMenuRef={userMenuRef}
-              cartBtnRef={cartBtnRef}
-              handlers={menuHandlers}
+              showAdminMenu={showAdminMenu}
+              onToggleAdminMenu={menuHandlers.toggleAdminMenu}
+              adminMenuRef={adminMenuRef}
             />
 
-            {/* Botón menú móvil */}
-            <div className="md:hidden">
-              <button
-                onClick={menuHandlers.toggleMobileMenu}
-                className="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 hover:bg-accent hover:text-accent-foreground hover:scale-105"
-                aria-label="Abrir menú de navegación"
-                aria-expanded={showMobileMenu}
-              >
-                {showMobileMenu ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </button>
+            {/* Acciones del usuario */}
+            <div className="hidden md:flex items-center space-x-3">
+              <LanguageSelector />
+
+              <UserActions
+                isAuthenticated={isAuthenticated}
+                isAdmin={isAdmin}
+                user={user}
+                showUserMenu={showUserMenu}
+                showCart={showCart}
+                cart={cart}
+                cartStats={cartStats}
+                removeFromCart={removeFromCart}
+                clearCart={clearCart}
+                userMenuRef={userMenuRef}
+                cartBtnRef={cartBtnRef}
+                handlers={menuHandlers}
+              />
             </div>
+
+            {/* Botón menú móvil */}
+            <button
+              onClick={menuHandlers.toggleMobileMenu}
+              className="inline-flex items-center justify-center rounded-lg p-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 md:hidden"
+              aria-label="Abrir menú"
+            >
+              <div className="relative w-6 h-6">
+                <div
+                  className={`absolute inset-0 transition-all duration-300 ${
+                    showMobileMenu
+                      ? "rotate-180 opacity-0"
+                      : "rotate-0 opacity-100"
+                  }`}
+                >
+                  <Menu className="w-6 h-6" />
+                </div>
+                <div
+                  className={`absolute inset-0 transition-all duration-300 ${
+                    showMobileMenu
+                      ? "rotate-0 opacity-100"
+                      : "-rotate-180 opacity-0"
+                  }`}
+                >
+                  <X className="w-6 h-6" />
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </header>
 
+      {/* Menú móvil */}
       <MobileMenu
         isOpen={showMobileMenu}
         isAuthenticated={isAuthenticated}
         isAdmin={isAdmin}
         user={user}
         onClose={menuHandlers.closeMobileMenu}
-        onOpenAuth={() => {
-          menuHandlers.openAuthModal();
-          menuHandlers.closeMobileMenu();
-        }}
+        onOpenAuth={menuHandlers.openAuthModal}
       />
 
+      {/* Modal de autenticación */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={menuHandlers.closeAuthModal}

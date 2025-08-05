@@ -1,21 +1,23 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Package,
-  Calendar,
-  CreditCard,
+  Clock,
   Truck,
   CheckCircle,
   XCircle,
-  Clock,
+  CreditCard,
   MapPin,
+  Calendar,
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth.jsx";
+import { useAuth } from "@/hooks/useAuth";
 
 const OrdersPage = () => {
+  const { t } = useTranslation();
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -84,17 +86,19 @@ const OrdersPage = () => {
     }
   };
 
+  const getEstadoText = (estado) => {
+    return t(`orders.status.${estado}`) || estado;
+  };
+
   if (!isAuthenticated()) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-            Acceso requerido
+            {t("orders.accessRequired")}
           </h2>
-          <p className="text-gray-500">
-            Debes iniciar sesión para ver tus pedidos
-          </p>
+          <p className="text-gray-500">{t("orders.loginRequired")}</p>
         </div>
       </div>
     );
@@ -105,7 +109,7 @@ const OrdersPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando pedidos...</p>
+          <p className="mt-4 text-gray-600">{t("orders.loading")}</p>
         </div>
       </div>
     );
@@ -120,7 +124,7 @@ const OrdersPage = () => {
             onClick={fetchPedidos}
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
-            Reintentar
+            {t("orders.retry")}
           </button>
         </div>
       </div>
@@ -128,41 +132,31 @@ const OrdersPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header de la página */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="text-center">
-            <Package className="h-16 w-16 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-2">Mis Pedidos</h1>
-            <p className="text-xl opacity-90">Seguimiento de tus compras</p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-6">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
+          {t("orders.title")}
+        </h1>
 
-      {/* Lista de pedidos */}
-      <div className="container mx-auto px-6 py-12">
         {pedidos.length === 0 ? (
           <div className="text-center py-12">
-            <Package className="h-24 w-24 text-gray-300 mx-auto mb-4" />
+            <Package className="h-24 w-24 text-gray-300 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-              No tienes pedidos aún
+              {t("orders.noOrders")}
             </h2>
-            <p className="text-gray-500 mb-6">
-              ¡Explora nuestros productos y realiza tu primera compra!
-            </p>
+            <p className="text-gray-500 mb-6">{t("orders.firstPurchase")}</p>
             <a
               href="/products"
               className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
-              Ver Productos
+              {t("orders.viewProducts")}
             </a>
           </div>
         ) : (
           <>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                {pedidos.length} Pedidos
+                {pedidos.length} {t("orders.title")}
               </h2>
               <p className="text-gray-600">Historial completo de tus compras</p>
             </div>
@@ -181,7 +175,7 @@ const OrdersPage = () => {
 
 // Componente para cada tarjeta de pedido
 const PedidoCard = ({ pedido }) => {
-  const [showDetails, setShowDetails] = useState(false);
+  const { t } = useTranslation();
 
   const formatFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString("es-ES", {
@@ -227,6 +221,10 @@ const PedidoCard = ({ pedido }) => {
     }
   };
 
+  const getEstadoText = (estado) => {
+    return t(`orders.status.${estado}`) || estado;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       <div className="p-6">
@@ -236,7 +234,8 @@ const PedidoCard = ({ pedido }) => {
             <Package className="h-6 w-6 text-blue-500" />
             <div>
               <h3 className="text-lg font-semibold text-gray-800">
-                Pedido #{pedido.numero_pedido}
+                {t("orders.orderNumber")}
+                {pedido.numero_pedido}
               </h3>
               <p className="text-sm text-gray-500">
                 {formatFecha(pedido.fecha_pedido)}
@@ -246,10 +245,12 @@ const PedidoCard = ({ pedido }) => {
 
           <div className="flex items-center gap-3">
             <span
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(pedido.estado)}`}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(
+                pedido.estado
+              )}`}
             >
               {getEstadoIcon(pedido.estado)}
-              {pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
+              {getEstadoText(pedido.estado)}
             </span>
           </div>
         </div>
@@ -259,9 +260,10 @@ const PedidoCard = ({ pedido }) => {
           <div className="flex items-center gap-2">
             <CreditCard className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">
-              Total:{" "}
+              {t("orders.total")}:{" "}
               <span className="font-semibold">
-                ₡{pedido.total?.toLocaleString("es-CR") || "0"}
+                {t("common.currency")}
+                {pedido.total?.toLocaleString("es-CR") || "0"}
               </span>
             </span>
           </div>
@@ -276,7 +278,7 @@ const PedidoCard = ({ pedido }) => {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">
-              Actualizado: {formatFecha(pedido.fecha_actualizacion)}
+              {t("orders.updated")}: {formatFecha(pedido.fecha_actualizacion)}
             </span>
           </div>
         </div>
@@ -285,97 +287,20 @@ const PedidoCard = ({ pedido }) => {
         {pedido.items && pedido.items.length > 0 && (
           <div className="border-t pt-4">
             <p className="text-sm text-gray-600 mb-2">
-              {pedido.items.length} producto{pedido.items.length > 1 ? "s" : ""}
+              {pedido.items.length} {t("orders.items")}
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {pedido.items.slice(0, 3).map((item, index) => (
-                <span
-                  key={index}
-                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                >
-                  {item.nombre_producto} (x{item.cantidad})
-                </span>
+                <div key={index} className="text-sm text-gray-700">
+                  {item.nombre_producto} x {item.cantidad}
+                </div>
               ))}
               {pedido.items.length > 3 && (
-                <span className="text-xs text-gray-500">
-                  +{pedido.items.length - 3} más
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Botones de acción */}
-        <div className="flex gap-2 mt-4 pt-4 border-t">
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            {showDetails ? "Ocultar detalles" : "Ver detalles"}
-          </button>
-
-          {pedido.estado === "entregado" && (
-            <button className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-              Recomprar
-            </button>
-          )}
-        </div>
-
-        {/* Detalles expandidos */}
-        {showDetails && (
-          <div className="mt-4 pt-4 border-t bg-gray-50 -mx-6 px-6 py-4">
-            <h4 className="font-medium text-gray-800 mb-3">
-              Detalles del pedido
-            </h4>
-
-            {/* Desglose de precios */}
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal:</span>
-                <span>₡{pedido.subtotal?.toLocaleString("es-CR") || "0"}</span>
-              </div>
-              {pedido.descuento > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Descuento:</span>
-                  <span>
-                    -₡{pedido.descuento?.toLocaleString("es-CR") || "0"}
-                  </span>
+                <div className="text-sm text-gray-500">
+                  +{pedido.items.length - 3} más...
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-gray-600">Impuestos:</span>
-                <span>₡{pedido.impuestos?.toLocaleString("es-CR") || "0"}</span>
-              </div>
-              <div className="flex justify-between font-semibold border-t pt-2">
-                <span>Total:</span>
-                <span>₡{pedido.total?.toLocaleString("es-CR") || "0"}</span>
-              </div>
             </div>
-
-            {/* Lista de productos */}
-            {pedido.items && pedido.items.length > 0 && (
-              <div className="mt-4">
-                <h5 className="font-medium text-gray-800 mb-2">Productos:</h5>
-                <div className="space-y-2">
-                  {pedido.items.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center text-sm"
-                    >
-                      <span className="text-gray-700">
-                        {item.nombre_producto} x {item.cantidad}
-                      </span>
-                      <span className="font-medium">
-                        ₡
-                        {(item.precio_unitario * item.cantidad)?.toLocaleString(
-                          "es-CR"
-                        ) || "0"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>

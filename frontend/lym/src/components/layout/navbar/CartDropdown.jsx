@@ -1,8 +1,11 @@
 import { X, Trash2, ShoppingBag } from "lucide-react";
+import { useSelector } from "react-redux";
 
-export function CartDropdown({ cart, removeFromCart, clearCart, onClose }) {
+export function CartDropdown({ removeFromCart, clearCart, onClose }) {
+  // Leer el carrito desde Redux
+  const cart = useSelector((state) => state.cart.items);
   const totalPrice = cart.reduce(
-    (sum, item) => sum + item.precio * (item.cantidad || 1),
+    (sum, item) => sum + item.precio * (item.quantity || 1),
     0
   );
 

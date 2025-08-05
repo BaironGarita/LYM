@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/UI/select";
 import { toast } from "sonner";
+import { useTranslation } from 'react-i18next';
 
 const PromotionModal = ({
   show,
@@ -19,6 +20,8 @@ const PromotionModal = ({
   productos,
   categorias,
 }) => {
+  const { t } = useTranslation();
+  
   const [formData, setFormData] = useState({
     nombre: "",
     tipo: "categoria",
@@ -64,35 +67,42 @@ const PromotionModal = ({
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.nombre.trim()) newErrors.nombre = "El nombre es requerido.";
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = t('admin.promotions.validation.nameRequired');
+    }
     if (
       !formData.porcentaje ||
       isNaN(formData.porcentaje) ||
       formData.porcentaje <= 0
     ) {
-      newErrors.porcentaje = "El descuento debe ser un número positivo.";
+      newErrors.porcentaje = t('admin.promotions.validation.discountRequired');
     }
-    if (!formData.fecha_inicio)
-      newErrors.fecha_inicio = "La fecha de inicio es requerida.";
-    if (!formData.fecha_fin)
-      newErrors.fecha_fin = "La fecha de fin es requerida.";
+    if (!formData.fecha_inicio) {
+      newErrors.fecha_inicio = t('admin.promotions.validation.startDateRequired');
+    }
+    if (!formData.fecha_fin) {
+      newErrors.fecha_fin = t('admin.promotions.validation.endDateRequired');
+    }
 
     if (
       formData.fecha_inicio &&
       formData.fecha_fin &&
       new Date(formData.fecha_fin) < new Date(formData.fecha_inicio)
     ) {
-      newErrors.fecha_fin =
-        "La fecha de fin no puede ser anterior a la de inicio.";
+      newErrors.fecha_fin = t('admin.promotions.validation.endDateInvalid');
     }
     if (
       !editingPromotion &&
       new Date(formData.fecha_inicio) < new Date().setHours(0, 0, 0, 0)
     ) {
-      newErrors.fecha_inicio = "La fecha de inicio no puede ser en el pasado.";
+      newErrors.fecha_inicio = t('admin.promotions.validation.startDatePast');
     }
-    if (!formData.aplica_a_id)
-      newErrors.aplica_a_id = `Debe seleccionar un ${formData.tipo}.`;
+    if (!formData.aplica_a_id) {
+      const validationKey = formData.tipo === 'categoria' 
+        ? 'categoryRequired' 
+        : 'productRequired';
+      newErrors.aplica_a_id = t(`admin.promotions.validation.${validationKey}`);
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -101,25 +111,22 @@ const PromotionModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isPastPromotion) {
-      toast.error("No se pueden modificar promociones pasadas.");
+      toast.error(t('admin.promotions.messages.cannotModifyPast'));
       return;
     }
     if (validate()) {
-      // Extraemos 'aplica_a_id' para no enviarlo directamente
       const { aplica_a_id, ...restOfData } = formData;
 
-      // Creamos el objeto de datos final para el envío
       const submissionData = {
         ...restOfData,
-        // Añadimos dinámicamente 'producto_id' o 'categoria_id'
         ...(formData.tipo === "producto"
           ? { producto_id: aplica_a_id }
           : { categoria_id: aplica_a_id }),
       };
 
-      onSubmit(submissionData); // Enviamos el objeto corregido
+      onSubmit(submissionData);
     } else {
-      toast.error("Por favor, corrige los errores en el formulario.");
+      toast.error(t('admin.promotions.messages.formErrors'));
     }
   };
 
@@ -132,16 +139,16 @@ const PromotionModal = ({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full">
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <h2 className="text-2xl font-bold text-gray-800">
-            {editingPromotion ? "Editar" : "Crear"} Promoción
+            {editingPromotion ? t('admin.promotions.edit') : t('admin.promotions.create')}
           </h2>
           {isPastPromotion && (
             <div className="p-3 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-md text-sm">
-              Esta promoción ya no puede ser modificada.
+              {t('admin.promotions.messages.cannotModifyPast')}
             </div>
           )}
 
           <div>
-            <Label htmlFor="nombre">Nombre de la Promoción</Label>
+            <Label htmlFor="nombre">{t('admin.promotions.name')}</Label>
             <Input
               id="nombre"
               value={formData.nombre}
@@ -157,7 +164,7 @@ const PromotionModal = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label>Tipo de Promoción</Label>
+              <Label>{t('admin.promotions.type')}</Label>
               <Select
                 value={formData.tipo}
                 onValueChange={handleTypeChange}
@@ -167,13 +174,13 @@ const PromotionModal = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="categoria">Categoría</SelectItem>
-                  <SelectItem value="producto">Producto</SelectItem>
+                  <SelectItem value="categoria">{t('admin.promotions.category')}</SelectItem>
+                  <SelectItem value="producto">{t('admin.promotions.product')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="aplica_a_id">Aplica a</Label>
+              <Label htmlFor="aplica_a_id">{t('admin.promotions.appliesTo')}</Label>
               <Select
                 value={formData.aplica_a_id}
                 onValueChange={(value) =>
@@ -182,7 +189,13 @@ const PromotionModal = ({
                 disabled={isPastPromotion}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={`Seleccionar ${formData.tipo}`} />
+                  <SelectValue 
+                    placeholder={
+                      formData.tipo === 'categoria' 
+                        ? t('admin.promotions.selectCategory')
+                        : t('admin.promotions.selectProduct')
+                    } 
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {(formData.tipo === "categoria" ? categorias : productos).map(
@@ -203,7 +216,7 @@ const PromotionModal = ({
           </div>
 
           <div>
-            <Label htmlFor="porcentaje">Porcentaje de Descuento (%)</Label>
+            <Label htmlFor="porcentaje">{t('admin.promotions.discountPercentage')}</Label>
             <Input
               id="porcentaje"
               type="number"
@@ -220,7 +233,7 @@ const PromotionModal = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="fecha_inicio">Fecha de Inicio</Label>
+              <Label htmlFor="fecha_inicio">{t('admin.promotions.startDate')}</Label>
               <Input
                 id="fecha_inicio"
                 type="date"
@@ -237,7 +250,7 @@ const PromotionModal = ({
               )}
             </div>
             <div>
-              <Label htmlFor="fecha_fin">Fecha de Fin</Label>
+              <Label htmlFor="fecha_fin">{t('admin.promotions.endDate')}</Label>
               <Input
                 id="fecha_fin"
                 type="date"
@@ -255,10 +268,10 @@ const PromotionModal = ({
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isPastPromotion}>
-              {editingPromotion ? "Guardar Cambios" : "Crear Promoción"}
+              {editingPromotion ? t('admin.promotions.saveChanges') : t('admin.promotions.create')}
             </Button>
           </div>
         </form>

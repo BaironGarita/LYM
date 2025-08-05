@@ -1,0 +1,15 @@
+export const common = {
+  loading: "Cargando...",
+  error: "Error",
+  success: "Éxito",
+  back: "Volver",
+  close: "Cerrar",
+  confirm: "Confirmar",
+  yes: "Sí",
+  no: "No",
+  currency: "₡",
+  save: "Guardar",
+  cancel: "Cancelar",
+  edit: "Editar",
+  delete: "Eliminar",
+};

@@ -16,6 +16,7 @@ import {
   Edit,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.jsx";
+import { useI18n } from "../../hooks/useI18n.js";
 
 const AdminOrdersPage = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -25,6 +26,7 @@ const AdminOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [dateFilter, setDateFilter] = useState("todos");
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const { t, getCurrentLanguage } = useI18n();
 
   useEffect(() => {
     if (isAuthenticated() && isAdmin()) {
@@ -36,7 +38,7 @@ const AdminOrdersPage = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:81/api_lym/admin/pedidos`, // Endpoint para admin
+        `http://localhost:81/api_lym/admin/pedidos`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -46,7 +48,7 @@ const AdminOrdersPage = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Error al cargar los pedidos");
+        throw new Error(t("orders.error"));
       }
 
       const data = await response.json();
@@ -109,11 +111,9 @@ const AdminOrdersPage = () => {
         <div className="text-center">
           <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-            Acceso denegado
+            {t("orders.accessDenied")}
           </h2>
-          <p className="text-gray-500">
-            Solo los administradores pueden acceder a esta sección
-          </p>
+          <p className="text-gray-500">{t("orders.adminOnly")}</p>
         </div>
       </div>
     );
@@ -124,7 +124,7 @@ const AdminOrdersPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando pedidos...</p>
+          <p className="mt-4 text-gray-600">{t("orders.loading")}</p>
         </div>
       </div>
     );
@@ -139,7 +139,7 @@ const AdminOrdersPage = () => {
             onClick={fetchAllPedidos}
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
-            Reintentar
+            {t("orders.retry")}
           </button>
         </div>
       </div>
@@ -153,19 +153,19 @@ const AdminOrdersPage = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Gestión de Pedidos</h1>
-              <p className="text-xl opacity-90">Panel de administración</p>
+              <h1 className="text-3xl font-bold mb-2">{t("orders.title")}</h1>
+              <p className="text-xl opacity-90">{t("orders.subtitle")}</p>
             </div>
             <div className="flex gap-3 mt-4 lg:mt-0">
               <button className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2">
                 <Download className="h-4 w-4" />
-                Exportar
+                {t("orders.export")}
               </button>
               <button
                 onClick={fetchAllPedidos}
                 className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                Actualizar
+                {t("orders.update")}
               </button>
             </div>
           </div>
@@ -175,23 +175,39 @@ const AdminOrdersPage = () => {
       {/* Estadísticas */}
       <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          <StatsCard title="Total" value={stats.total} color="blue" />
           <StatsCard
-            title="Pendientes"
+            title={t("orders.stats.total")}
+            value={stats.total}
+            color="blue"
+          />
+          <StatsCard
+            title={t("orders.stats.pending")}
             value={stats.pendientes}
             color="yellow"
           />
-          <StatsCard title="Procesando" value={stats.procesando} color="blue" />
-          <StatsCard title="Enviados" value={stats.enviados} color="purple" />
           <StatsCard
-            title="Entregados"
+            title={t("orders.stats.processing")}
+            value={stats.procesando}
+            color="blue"
+          />
+          <StatsCard
+            title={t("orders.stats.shipped")}
+            value={stats.enviados}
+            color="purple"
+          />
+          <StatsCard
+            title={t("orders.stats.delivered")}
             value={stats.entregados}
             color="green"
           />
-          <StatsCard title="Cancelados" value={stats.cancelados} color="red" />
           <StatsCard
-            title="Ventas Total"
-            value={`₡${stats.totalVentas.toLocaleString("es-CR")}`}
+            title={t("orders.stats.cancelled")}
+            value={stats.cancelados}
+            color="red"
+          />
+          <StatsCard
+            title={t("orders.stats.totalSales")}
+            value={`${t("common.currency")}${stats.totalVentas.toLocaleString(getCurrentLanguage() === "es" ? "es-CR" : "en-US")}`}
             color="green"
             isMonetary={true}
           />
@@ -202,13 +218,13 @@ const AdminOrdersPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Buscar
+                {t("orders.filters.search")}
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Número, cliente, email..."
+                  placeholder={t("orders.filters.searchPlaceholder")}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -218,35 +234,41 @@ const AdminOrdersPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estado
+                {t("orders.filters.status")}
               </label>
               <select
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="todos">Todos los estados</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="procesando">Procesando</option>
-                <option value="enviado">Enviado</option>
-                <option value="entregado">Entregado</option>
-                <option value="cancelado">Cancelado</option>
+                <option value="todos">{t("orders.filters.allStatuses")}</option>
+                <option value="pendiente">{t("orders.status.pending")}</option>
+                <option value="procesando">
+                  {t("orders.status.processing")}
+                </option>
+                <option value="enviado">{t("orders.status.shipped")}</option>
+                <option value="entregado">
+                  {t("orders.status.delivered")}
+                </option>
+                <option value="cancelado">
+                  {t("orders.status.cancelled")}
+                </option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha
+                {t("orders.filters.date")}
               </label>
               <select
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               >
-                <option value="todos">Todas las fechas</option>
-                <option value="hoy">Hoy</option>
-                <option value="semana">Última semana</option>
-                <option value="mes">Último mes</option>
+                <option value="todos">{t("orders.filters.allDates")}</option>
+                <option value="hoy">{t("orders.filters.today")}</option>
+                <option value="semana">{t("orders.filters.lastWeek")}</option>
+                <option value="mes">{t("orders.filters.lastMonth")}</option>
               </select>
             </div>
 
@@ -259,7 +281,7 @@ const AdminOrdersPage = () => {
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Limpiar filtros
+                {t("orders.filters.clearFilters")}
               </button>
             </div>
           </div>
@@ -269,7 +291,7 @@ const AdminOrdersPage = () => {
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-semibold">
-              Pedidos ({filteredPedidos.length})
+              {t("orders.ordersCount")} ({filteredPedidos.length})
             </h2>
           </div>
 
@@ -277,11 +299,9 @@ const AdminOrdersPage = () => {
             <div className="text-center py-12">
               <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-600 mb-2">
-                No hay pedidos
+                {t("orders.noOrders")}
               </h3>
-              <p className="text-gray-500">
-                No se encontraron pedidos con los filtros aplicados
-              </p>
+              <p className="text-gray-500">{t("orders.noOrdersMessage")}</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -321,9 +341,11 @@ const StatsCard = ({ title, value, color, isMonetary = false }) => {
 // Componente para cada tarjeta de pedido en admin
 const AdminPedidoCard = ({ pedido }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const { t, getCurrentLanguage } = useI18n();
 
   const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
+    const locale = getCurrentLanguage() === "es" ? "es-ES" : "en-US";
+    return new Date(fecha).toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -366,6 +388,10 @@ const AdminPedidoCard = ({ pedido }) => {
     }
   };
 
+  const getEstadoTexto = (estado) => {
+    return t(`orders.status.${estado}`);
+  };
+
   return (
     <div className="p-6 hover:bg-gray-50 transition-colors">
       {/* Header del pedido */}
@@ -374,7 +400,8 @@ const AdminPedidoCard = ({ pedido }) => {
           <Package className="h-5 w-5 text-blue-500" />
           <div>
             <h3 className="font-semibold text-gray-800">
-              #{pedido.numero_pedido}
+              {t("orders.orderNumber")}
+              {pedido.numero_pedido}
             </h3>
             <p className="text-sm text-gray-500">
               {formatFecha(pedido.fecha_pedido)}
@@ -391,10 +418,13 @@ const AdminPedidoCard = ({ pedido }) => {
             className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(pedido.estado)}`}
           >
             {getEstadoIcon(pedido.estado)}
-            {pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
+            {getEstadoTexto(pedido.estado)}
           </span>
           <span className="text-lg font-bold text-gray-800">
-            ₡{pedido.total?.toLocaleString("es-CR") || "0"}
+            {t("common.currency")}
+            {pedido.total?.toLocaleString(
+              getCurrentLanguage() === "es" ? "es-CR" : "en-US"
+            ) || "0"}
           </span>
         </div>
       </div>
@@ -407,11 +437,13 @@ const AdminPedidoCard = ({ pedido }) => {
         </div>
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4" />
-          <span>{pedido.direccion_envio || "Dirección N/A"}</span>
+          <span>{pedido.direccion_envio || `${t("orders.address")} N/A`}</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Actualizado: {formatFecha(pedido.fecha_actualizacion)}</span>
+          <span>
+            {t("orders.updated")}: {formatFecha(pedido.fecha_actualizacion)}
+          </span>
         </div>
       </div>
 
@@ -422,11 +454,11 @@ const AdminPedidoCard = ({ pedido }) => {
           className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center gap-1"
         >
           <Eye className="h-4 w-4" />
-          {showDetails ? "Ocultar" : "Ver detalles"}
+          {showDetails ? t("orders.hideDetails") : t("orders.viewDetails")}
         </button>
         <button className="px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1">
           <Edit className="h-4 w-4" />
-          Editar estado
+          {t("orders.editStatus")}
         </button>
       </div>
 
@@ -434,22 +466,24 @@ const AdminPedidoCard = ({ pedido }) => {
       {showDetails && (
         <div className="mt-4 pt-4 border-t bg-gray-50 -mx-6 px-6 py-4">
           <h4 className="font-medium text-gray-800 mb-3">
-            Detalles del pedido
+            {t("orders.orderDetails")}
           </h4>
 
           {/* Productos si están disponibles */}
           {pedido.items && pedido.items.length > 0 && (
             <div className="space-y-2">
-              <h5 className="font-medium text-gray-700">Productos:</h5>
+              <h5 className="font-medium text-gray-700">
+                {t("orders.products")}:
+              </h5>
               {pedido.items.map((item, index) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>
                     {item.nombre_producto} x {item.cantidad}
                   </span>
                   <span>
-                    ₡
+                    {t("common.currency")}
                     {(item.precio_unitario * item.cantidad)?.toLocaleString(
-                      "es-CR"
+                      getCurrentLanguage() === "es" ? "es-CR" : "en-US"
                     ) || "0"}
                   </span>
                 </div>

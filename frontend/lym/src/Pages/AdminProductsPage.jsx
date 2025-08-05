@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { Package, Plus, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import ProductoService from "@/services/productoService";
-import ProductFilters from "@/components/product/ProductFilters";
-import ProductTable from "@/components/product/ProductTable";
-import ProductModal from "@/components/product/ProductModal";
-import ProductStats from "@/components/product/ProductStats";
-import { Button } from "@/components/UI/button";
+import { useAuth } from "../hooks/useAuth.jsx";
+import { useI18n } from "../hooks/useI18n.js";
+import ProductoService from "../services/productoService";
+import ProductFilters from "../components/product/ProductFilters";
+import ProductTable from "../components/product/ProductTable";
+import ProductModal from "../components/product/ProductModal";
+import ProductStats from "../components/product/ProductStats";
+import { Button } from "../components/UI/button";
 
 const AdminProductsPage = () => {
+  const { t } = useI18n();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [etiquetas, setEtiquetas] = useState([]);
@@ -38,7 +40,7 @@ const AdminProductsPage = () => {
       setCategorias(Array.isArray(categoriasRes) ? categoriasRes : []);
       setEtiquetas(Array.isArray(etiquetasRes) ? etiquetasRes : []);
     } catch (err) {
-      const errorMessage = "Error al cargar los datos. " + err.message;
+      const errorMessage = t("products.errors.loadData") + " " + err.message;
       setError(errorMessage);
       toast.error(errorMessage);
       console.error("Fetch data error:", err);
@@ -74,21 +76,21 @@ const AdminProductsPage = () => {
   const handleSubmit = async (formData) => {
     setSubmitting(true);
     const toastId = toast.loading(
-      editingProduct ? "Actualizando producto..." : "Creando producto..."
+      editingProduct ? t("products.updating") : t("products.creating")
     );
 
     try {
       if (editingProduct) {
         await ProductoService.updateProducto(editingProduct.id, formData);
-        toast.success("Producto actualizado exitosamente", { id: toastId });
+        toast.success(t("products.success.updated"), { id: toastId });
       } else {
         await ProductoService.createProducto(formData);
-        toast.success("Producto creado exitosamente", { id: toastId });
+        toast.success(t("products.success.created"), { id: toastId });
       }
       await fetchData();
       closeModal();
     } catch (err) {
-      toast.error(err.message || "Error al procesar la solicitud", {
+      toast.error(err.message || t("products.errors.process"), {
         id: toastId,
       });
       console.error("Error submitting product:", err);
@@ -99,15 +101,15 @@ const AdminProductsPage = () => {
 
   const handleDelete = async () => {
     if (!deleteProductId) return;
-    const toastId = toast.loading("Eliminando producto...");
+    const toastId = toast.loading(t("products.deleting"));
     try {
       await ProductoService.deleteProducto(deleteProductId);
-      toast.success("Producto eliminado exitosamente", { id: toastId });
+      toast.success(t("products.success.deleted"), { id: toastId });
       await fetchData();
       setShowDeleteModal(false);
       setDeleteProductId(null);
     } catch (err) {
-      toast.error(err.message || "Error al eliminar el producto", {
+      toast.error(err.message || t("products.errors.delete"), {
         id: toastId,
       });
       console.error("Error deleting product:", err);
@@ -133,15 +135,15 @@ const AdminProductsPage = () => {
     return (
       <div className="p-8 text-center">
         <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold">Acceso Requerido</h2>
-        <p className="text-gray-600">
-          Debes iniciar sesión para gestionar los productos.
-        </p>
+        <h2 className="text-xl font-semibold">
+          {t("products.accessRequired")}
+        </h2>
+        <p className="text-gray-600">{t("products.loginRequired")}</p>
       </div>
     );
   }
 
-  if (loading) return <div className="p-8">Cargando productos...</div>;
+  if (loading) return <div className="p-8">{t("products.loading")}</div>;
   if (error && !productos.length)
     return <div className="p-8 text-red-500">{error}</div>;
 
@@ -151,15 +153,13 @@ const AdminProductsPage = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Package className="h-8 w-8 text-blue-600" />
-            Gestión de Productos
+            {t("products.title")}
           </h1>
-          <p className="mt-2 text-gray-600">
-            Administra el catálogo de productos de tu tienda.
-          </p>
+          <p className="mt-2 text-gray-600">{t("products.subtitle")}</p>
         </div>
         <Button onClick={() => openModal()} className="gap-2">
           <Plus className="h-5 w-5" />
-          Nuevo Producto
+          {t("products.newProduct")}
         </Button>
       </div>
 
@@ -188,10 +188,10 @@ const AdminProductsPage = () => {
 
       <ProductModal
         show={showModal}
-        handleClose={closeModal} // CORREGIDO: de onClose a handleClose
-        onSave={handleSubmit} // CORREGIDO: de onSubmit a onSave
+        handleClose={closeModal}
+        onSave={handleSubmit}
         product={editingProduct}
-        categories={categorias} // CORREGIDO: de categorias a categories
+        categories={categorias}
         tags={etiquetas}
         submitting={submitting}
       />
@@ -204,21 +204,20 @@ const AdminProductsPage = () => {
                 <AlertCircle className="h-6 w-6 text-red-600" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Confirmar eliminación
+                {t("products.confirmDelete")}
               </h3>
               <p className="text-gray-600 mb-6">
-                ¿Estás seguro de que quieres eliminar este producto? Esta acción
-                no se puede deshacer.
+                {t("products.deleteMessage")}
               </p>
               <div className="flex justify-center space-x-4">
                 <Button
                   variant="outline"
                   onClick={() => setShowDeleteModal(false)}
                 >
-                  Cancelar
+                  {t("products.cancel")}
                 </Button>
                 <Button variant="destructive" onClick={handleDelete}>
-                  Eliminar
+                  {t("products.delete")}
                 </Button>
               </div>
             </div>

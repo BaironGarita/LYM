@@ -1,13 +1,16 @@
-import { createContext, useContext, useState } from "react";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-// Configuración de i18next
+/**
+ * Configuración de traducciones para la aplicación
+ * Estructura: idioma -> namespace -> clave -> texto
+ */
 const resources = {
+  // Traducciones en español
   es: {
     translation: {
-      // Navegación
+      // Navegación principal
       nav: {
         home: "Inicio",
         products: "Productos",
@@ -21,7 +24,7 @@ const resources = {
         admin: "Administración",
       },
 
-      // Productos
+      // Sección de productos
       products: {
         title: "Productos",
         search: "Buscar productos...",
@@ -38,7 +41,7 @@ const resources = {
         totalProducts: "Total Productos",
       },
 
-      // Pedidos
+      // Sección de pedidos
       orders: {
         title: "Mis Pedidos",
         orderNumber: "Pedido #",
@@ -65,7 +68,7 @@ const resources = {
         retry: "Reintentar",
       },
 
-      // Ofertas
+      // Sección de ofertas
       offers: {
         title: "Ofertas Especiales",
         subtitle: "Descubre las mejores promociones en moda",
@@ -80,7 +83,7 @@ const resources = {
         error: "Error al cargar ofertas",
       },
 
-      // Formularios
+      // Formularios generales
       forms: {
         name: "Nombre",
         email: "Email",
@@ -94,7 +97,7 @@ const resources = {
         required: "Este campo es requerido",
       },
 
-      // Estados generales
+      // Elementos comunes de la interfaz
       common: {
         loading: "Cargando...",
         error: "Error",
@@ -104,10 +107,10 @@ const resources = {
         confirm: "Confirmar",
         yes: "Sí",
         no: "No",
-        currency: "₡",
+        currency: "₡", // Símbolo de moneda para Costa Rica
       },
 
-      // Admin
+      // Panel de administración
       admin: {
         dashboard: "Panel de Control",
         management: "Gestión de la tienda",
@@ -117,6 +120,8 @@ const resources = {
       },
     },
   },
+
+  // Traducciones en inglés
   en: {
     translation: {
       // Navigation
@@ -133,7 +138,7 @@ const resources = {
         admin: "Administration",
       },
 
-      // Products
+      // Products section
       products: {
         title: "Products",
         search: "Search products...",
@@ -150,7 +155,7 @@ const resources = {
         totalProducts: "Total Products",
       },
 
-      // Orders
+      // Orders section
       orders: {
         title: "My Orders",
         orderNumber: "Order #",
@@ -176,7 +181,7 @@ const resources = {
         retry: "Retry",
       },
 
-      // Offers
+      // Offers section
       offers: {
         title: "Special Offers",
         subtitle: "Discover the best fashion promotions",
@@ -191,7 +196,7 @@ const resources = {
         error: "Error loading offers",
       },
 
-      // Forms
+      // General forms
       forms: {
         name: "Name",
         email: "Email",
@@ -205,7 +210,7 @@ const resources = {
         required: "This field is required",
       },
 
-      // Common states
+      // Common interface elements
       common: {
         loading: "Loading...",
         error: "Error",
@@ -215,10 +220,10 @@ const resources = {
         confirm: "Confirm",
         yes: "Yes",
         no: "No",
-        currency: "$",
+        currency: "$", // USD currency symbol
       },
 
-      // Admin
+      // Administration panel
       admin: {
         dashboard: "Dashboard",
         management: "Store Management",
@@ -230,65 +235,22 @@ const resources = {
   },
 };
 
+/**
+ * Inicialización de i18next
+ * - LanguageDetector: Detecta automáticamente el idioma del navegador
+ * - initReactI18next: Plugin para integración con React
+ */
 i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
+  .use(LanguageDetector) // Detecta el idioma del navegador automáticamente
+  .use(initReactI18next) // Conecta i18next con React
   .init({
-    resources,
-    fallbackLng: "es",
-    debug: false,
+    resources, // Objeto con todas las traducciones
+    fallbackLng: "es", // Idioma por defecto si no se detecta uno
+    debug: false, // Cambiar a true para ver logs de debugging
     interpolation: {
-      escapeValue: false,
+      escapeValue: false, // React ya escapa los valores por defecto
     },
   });
 
-// Context del carrito (mantener la funcionalidad existente)
-const CartContext = createContext();
-
-export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  const addToCart = (product) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...prevItems, { ...product, quantity: 1 }];
-      }
-    });
-  };
-
-  const removeFromCart = (productId) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => item.id !== productId)
-    );
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  return (
-    <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
-};
-
-export const useCart = () => {
-  return useContext(CartContext);
-};
-
+// Exportar la instancia configurada de i18n
 export default i18n;

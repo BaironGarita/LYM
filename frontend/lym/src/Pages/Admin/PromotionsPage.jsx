@@ -5,8 +5,10 @@ import PromocionService from "@/services/promocionService";
 import PromotionsTable from "@/components/admin/PromotionsTable";
 import PromotionModal from "@/components/admin/PromotionModal";
 import { Button } from "@/components/UI/button";
+import { useI18n } from "@/hooks/useI18n.js";
 
 const PromotionsPage = () => {
+  const { t } = useI18n();
   const [promotions, setPromotions] = useState([]);
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -32,8 +34,9 @@ const PromotionsPage = () => {
       setProductos(Array.isArray(prodRes) ? prodRes : []);
       setCategorias(Array.isArray(catRes) ? catRes : []);
     } catch (err) {
-      setError("Error al cargar los datos. " + err.message);
-      toast.error("Error al cargar los datos.");
+      const errorMessage = t("common.error") + ": " + err.message;
+      setError(errorMessage);
+      toast.error(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -56,13 +59,11 @@ const PromotionsPage = () => {
   const handleSubmit = async (data) => {
     try {
       if (editingPromotion) {
-        // Usar el método correcto del servicio
         await PromocionService.updatePromocion(editingPromotion.id, data);
-        toast.success("Promoción actualizada exitosamente.");
+        toast.success(t("admin.promotions.messages.updateSuccess"));
       } else {
-        // Usar el método correcto del servicio
         await PromocionService.createPromocion(data);
-        toast.success("Promoción creada exitosamente.");
+        toast.success(t("admin.promotions.messages.createSuccess"));
       }
       fetchData();
       closeModal();
@@ -72,12 +73,10 @@ const PromotionsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres eliminar esta promoción?")
-    ) {
+    if (window.confirm(t("admin.promotions.messages.deleteConfirm"))) {
       try {
         await PromocionService.deletePromocion(id);
-        toast.success("Promoción eliminada.");
+        toast.success(t("admin.promotions.messages.deleteSuccess"));
         fetchData();
       } catch (err) {
         toast.error(err.message);
@@ -85,7 +84,7 @@ const PromotionsPage = () => {
     }
   };
 
-  if (loading) return <div className="p-8">Cargando...</div>;
+  if (loading) return <div className="p-8">{t("common.loading")}</div>;
   if (error) return <div className="p-8 text-red-500">{error}</div>;
 
   return (
@@ -94,15 +93,16 @@ const PromotionsPage = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Tag className="h-8 w-8 text-blue-600" />
-            Gestión de Promociones
+            {t("admin.promotions.title")}
           </h1>
           <p className="mt-2 text-gray-600">
-            Crea, edita y administra las ofertas de tu tienda.
+            {t("admin.promotions.subtitle") ||
+              "Crea, edita y administra las ofertas de tu tienda."}
           </p>
         </div>
         <Button onClick={() => openModal()} className="gap-2">
           <Plus className="h-5 w-5" />
-          Nueva Promoción
+          {t("admin.promotions.create")}
         </Button>
       </div>
 

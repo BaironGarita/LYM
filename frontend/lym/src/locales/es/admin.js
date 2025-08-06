@@ -1,6 +1,7 @@
 export const admin = {
   promotions: {
     title: "Gestión de Promociones",
+    subtitle: "Crea, edita y administra las ofertas de tu tienda",
     create: "Crear Promoción",
     edit: "Editar Promoción",
     delete: "Eliminar Promoción",
@@ -21,6 +22,8 @@ export const admin = {
     save: "Guardar",
     saveChanges: "Guardar Cambios",
     cancel: "Cancelar",
+    categoria: "Categoría",
+    producto: "Producto",
 
     // Estados
     active: "Activa",

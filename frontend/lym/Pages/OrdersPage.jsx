@@ -9,7 +9,7 @@ import {
   Clock,
   MapPin,
 } from "lucide-react";
-import { useAuth } from "../src/hooks/useAuth.jsx";
+import { useAuth } from "@/shared/hooks/useAuth.jsx";
 
 const OrdersPage = () => {
   const [pedidos, setPedidos] = useState([]);

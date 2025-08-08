@@ -16,7 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth.jsx";
+import { useAuth } from "@/shared/hooks/useAuth.jsx";
 
 export function MobileMenu({
   isOpen,

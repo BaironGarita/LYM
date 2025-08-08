@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ProductCard from "@/components/product/ProductCard/ProductCard";
 import CategoryFilter from "@/components/product/CategoryFilter";
-import { usePromociones } from "@/hooks/usePromociones";
+import { usePromociones } from "@/shared/hooks/usePromociones";
 import { toast } from "sonner";
 
 export const ProductsPage = ({ addToCart }) => {

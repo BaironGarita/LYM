@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useI18n } from "../../hooks/useI18n.js";
+import { useI18n } from "@/shared/hooks/useI18n.js";
 
 const ProductFilters = ({ 
   searchTerm, 

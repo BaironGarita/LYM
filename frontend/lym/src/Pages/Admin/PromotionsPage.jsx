@@ -5,7 +5,7 @@ import PromocionService from "@/services/promocionService";
 import PromotionsTable from "@/components/admin/PromotionsTable";
 import PromotionModal from "@/components/admin/PromotionModal";
 import { Button } from "@/components/UI/button";
-import { useI18n } from "@/hooks/useI18n.js";
+import { useI18n } from "@/shared/hooks/useI18n.js";
 
 const PromotionsPage = () => {
   const { t } = useI18n();

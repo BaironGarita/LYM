@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth"; // Usando alias @
+import { useAuth } from "@/shared/hooks/useAuth"; // Usando alias @
 
 // --- Páginas Públicas ---
 import { Home } from "@/Pages/HomePage";

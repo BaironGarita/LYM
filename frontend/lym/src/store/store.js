@@ -8,3 +8,5 @@ export const store = configureStore({
     fashion: fashionReducer,
   },
 });
+
+export default store;

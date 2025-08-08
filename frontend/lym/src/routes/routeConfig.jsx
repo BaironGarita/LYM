@@ -1,12 +1,12 @@
-import ProductList from "../components/product/ProductList";
+import ProductList from "../features/product-management/ProductList";
 import ProductDetail from "../Pages/ProductDetailPage";
-import UploadProductImage from "../components/product/UploadProductImage";
-import { ProtectedRoute } from "../components/auth/ProtectedRouter";
+import UploadProductImage from "../features/product-management/UploadProductImage";
+import { ProtectedRoute } from "../features/auth/ProtectedRouter";
 import OffersPage from "../Pages/Products/OffersPage";
 import OrdersPage from "../Pages/Orders/OrdersPage";
-import ProductsPage from "../Pages/AdminProductsPage";
-import ResenasList from "../components/reviews/ResenasList";
-import ResenaDetail from "../components/reviews/ResenaDetail";
+import ProductsPage from "../Pages/Admin/AdminProductsPage";
+import ResenasList from "../features/reviews/ResenasList";
+import ResenaDetail from "../features/reviews/ResenaDetail";
 
 // Rutas públicas
 export const publicRoutes = [

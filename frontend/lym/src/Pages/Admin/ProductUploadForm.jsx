@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Button } from "@/components/UI/button";
-import { Input } from "@/components/UI/input";
-import { Label } from "@/components/UI/label";
-import { Textarea } from "@/components/UI/textarea";
+import { Button } from "@/shared/components/UI/button";
+import { Input } from "@/shared/components/UI/input";
+import { Label } from "@/shared/components/UI/label";
+import { Textarea } from "@/shared/components/UI/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/UI/select";
+} from "@/shared/components/UI/select";
 import { Upload, Save } from "lucide-react";
-import ProductoService from "@/services/productoService";
+import ProductoService from "@/shared/api/productoService";
 
 const ProductUploadForm = () => {
   const [formData, setFormData] = useState({

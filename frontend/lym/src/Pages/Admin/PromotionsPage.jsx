@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Plus, Tag } from "lucide-react";
 import { toast } from "sonner";
-import PromocionService from "@/services/promocionService";
-import PromotionsTable from "@/components/admin/PromotionsTable";
-import PromotionModal from "@/components/admin/PromotionModal";
-import { Button } from "@/components/UI/button";
-import { useI18n } from "@/hooks/useI18n.js";
+import PromocionService from "@/features/promotions/promocionService";
+import PromotionsTable from "@/features/product-management/PromotionsTable";
+import PromotionModal from "@/features/promotions/PromotionModal";
+import { Button } from "@/shared/components/UI/button";
+import { useI18n } from "@/shared/hooks/useI18n.js";
 
 const PromotionsPage = () => {
   const { t } = useI18n();

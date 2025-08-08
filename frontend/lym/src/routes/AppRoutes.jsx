@@ -1,19 +1,19 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth"; // Usando alias @
+import { useAuth } from "@/shared/hooks/useAuth"; // Usando alias @
 
 // --- Páginas Públicas ---
 import { Home } from "@/Pages/HomePage";
-import { ProductsPage } from "@/Pages/ProductsPage";
-import ProductList from "../components/product/ProductList";
-import ProductDetail from "@/components/product/ProductDetail";
+import { ProductsPage } from "@/Pages/Products/ProductsPage";
+import ProductList from "../features/product-management/ProductList";
+import ProductDetail from "@/features/product-management/ProductDetail";
 import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/ReviewsPage";
-import ResenaDetail from "@/components/reviews/ResenaDetail";
+import ResenaDetail from "@/features/reviews/ResenaDetail";
 
 // --- Layout y Páginas de Administrador ---
-import { AdminLayout } from "@/components/layout/AdminLayout";
+import { AdminLayout } from "@/shared/components/layout/AdminLayout";
 import { Dashboard } from "@/Pages/Admin/Dashboard";
-import AdminProductsPage from "@/Pages/AdminProductsPage"; // <-- CORREGIDO: Importación por defecto
+import AdminProductsPage from "@/Pages/Admin/AdminProductsPage"; // <-- CORREGIDO: Importación por defecto
 import PromotionsPage from "@/Pages/Admin/PromotionsPage";
 import ProductUploadForm from "@/Pages/Admin/ProductUploadForm";
 

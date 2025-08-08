@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/UI/button";
-import ProductCard from "@/components/product/ProductCard/ProductCard";
+import { Button } from "@/shared/components/UI/button";
+import ProductCard from "@/features/product-management/ProductCard";
 import { toast } from "sonner";
-import { usePromociones } from "@/hooks/usePromociones";
+import { usePromociones } from "@/features/promotions/usePromociones";
 
 export const Home = ({ addToCart }) => {
   const [featuredProducts, setFeaturedProducts] = useState([]);

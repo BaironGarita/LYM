@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
-import ProductoService from "@/services/productoService";
+import ProductoService from "@/shared/api/productoService";
 
 // --- Thunks asíncronos para interactuar con la API ---
 

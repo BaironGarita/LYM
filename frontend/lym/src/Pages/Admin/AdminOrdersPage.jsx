@@ -15,8 +15,8 @@ import {
   Eye,
   Edit,
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth.jsx";
-import { useI18n } from "../../hooks/useI18n.js";
+import { useAuth } from "../../shared/hooks/useAuth.jsx";
+import { useI18n } from "../../shared/hooks/useI18n.js";
 
 const AdminOrdersPage = () => {
   const [pedidos, setPedidos] = useState([]);

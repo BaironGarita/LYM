@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Globe, ChevronDown, Check } from "lucide-react";
 
 export const LanguageSelector = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
   const dropdownRef = useRef(null);
@@ -28,28 +28,16 @@ export const LanguageSelector = () => {
     languages.find((lang) => lang.code === currentCode) || languages[0];
 
   const changeLanguage = async (langCode) => {
-    if (langCode === i18n.language) {
+    const current = i18n.resolvedLanguage || i18n.language;
+    if (langCode === current) {
       setIsOpen(false);
       return;
     }
 
     try {
       setIsChanging(true);
-
-      // Cambiar el idioma
       await i18n.changeLanguage(langCode);
-
-      // Guardar en localStorage para persistencia
-      localStorage.setItem("i18nextLng", langCode);
-
-      // Opcional: También puedes disparar un evento personalizado
-      window.dispatchEvent(
-        new CustomEvent("languageChanged", {
-          detail: { language: langCode },
-        })
-      );
-
-      console.log(`Idioma cambiado a: ${langCode}`);
+      // No es necesario setItem ni eventos personalizados; el detector persiste en localStorage
     } catch (error) {
       console.error("Error al cambiar idioma:", error);
     } finally {
@@ -117,7 +105,8 @@ export const LanguageSelector = () => {
           </div>
 
           {languages.map((lang) => {
-            const isActive = i18n.language === lang.code;
+            const activeCode = i18n.resolvedLanguage || i18n.language;
+            const isActive = activeCode?.startsWith(lang.code);
 
             return (
               <button

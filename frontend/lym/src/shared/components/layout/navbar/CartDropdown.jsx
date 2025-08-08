@@ -1,7 +1,9 @@
 import { X, Trash2, ShoppingBag } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export function CartDropdown({ removeFromCart, clearCart, onClose }) {
+  const { t } = useI18n();
   // Leer el carrito desde Redux
   const cart = useSelector((state) => state.cart.items);
   const totalPrice = cart.reduce(
@@ -14,7 +16,7 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
       <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Carrito de Compras</h3>
+            <h3 className="text-lg font-semibold">{t("navbar.cart.shoppingCart")}</h3>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
@@ -25,9 +27,9 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
 
           <div className="text-center py-8">
             <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Tu carrito está vacío</p>
+            <p className="text-gray-500">{t("navbar.cart.empty")}</p>
             <p className="text-sm text-gray-400 mt-1">
-              Agrega algunos productos para empezar
+              {t("navbar.cart.addProducts")}
             </p>
           </div>
         </div>
@@ -39,7 +41,7 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
     <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Carrito de Compras</h3>
+          <h3 className="text-lg font-semibold">{t("navbar.cart.shoppingCart")}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -81,7 +83,7 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
 
         <div className="mt-4 pt-4 border-t">
           <div className="flex justify-between items-center mb-3">
-            <span className="font-semibold">Total:</span>
+            <span className="font-semibold">{t("navbar.cart.total")}</span>
             <span className="font-bold text-lg">
               ₡
               {totalPrice.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
@@ -93,7 +95,7 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
               onClick={clearCart}
               className="w-full py-2 px-4 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
-              Vaciar Carrito
+              {t("navbar.cart.clearCart")}
             </button>
 
             <button
@@ -104,7 +106,7 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
               }}
               className="w-full py-2 px-4 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
             >
-              Proceder al Pago
+              {t("navbar.cart.checkout")}
             </button>
           </div>
         </div>

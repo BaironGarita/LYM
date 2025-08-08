@@ -1,8 +1,11 @@
+import { admin } from "./admin";
 import { common } from "./common";
 import { navigation } from "./navigation";
-import { products } from "./products";
+import { navbar } from "./navbar";
 import { orders } from "./orders";
-import { admin } from "./admin";
+import { productModal } from "./productModal";
+import { products } from "./products";
+import { productTable } from "./productTable";
 
 export const es = {
   translation: {
@@ -11,11 +14,14 @@ export const es = {
 
     // Navegación
     nav: navigation,
+    navbar,
 
     // Módulos específicos
     products,
     orders,
     admin,
+    productModal,
+    productTable,
 
     // Páginas específicas
     pages: {

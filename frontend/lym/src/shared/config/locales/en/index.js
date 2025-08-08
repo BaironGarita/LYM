@@ -1,15 +1,21 @@
+import { admin } from "./admin";
 import { common } from "./common";
 import { navigation } from "./navigation";
-import { products } from "./products";
+import { navbar } from "./navbar";
 import { orders } from "./orders";
-import { admin } from "./admin";
+import { productModal } from "./productModal";
+import { products } from "./products";
+import { productTable } from "./productTable";
 
 export const en = {
   translation: {
-    common,
-    nav: navigation,
-    products,
-    orders,
     admin,
+    common,
+    navigation,
+    navbar,
+    orders,
+    productModal,
+    products,
+    productTable,
   },
 };

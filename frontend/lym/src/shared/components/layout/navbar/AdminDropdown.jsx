@@ -1,28 +1,30 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom"; // <-- 1. Importa Link
 import { ChevronDown, Settings, Package, LayoutGrid, Tag } from "lucide-react";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
+  const { t } = useI18n();
   const adminLinks = [
     {
       href: "/admin/dashboard",
       icon: Settings,
-      label: "Panel Principal",
+      label: t("navbar.admin.dashboard"),
     },
     {
       href: "/admin/productos",
       icon: Package,
-      label: "Gestionar Productos",
+      label: t("navbar.admin.manageProducts"),
     },
     {
       href: "/admin/promotions",
       icon: Tag,
-      label: "Gestionar Promociones",
+      label: t("navbar.admin.managePromotions"),
     },
     {
       href: "/admin/upload",
       icon: LayoutGrid,
-      label: "Subir Producto",
+      label: t("navbar.admin.uploadProduct"),
     },
   ];
 
@@ -32,7 +34,7 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
         onClick={onToggle}
         className="group inline-flex items-center justify-center rounded-md text-sm font-medium text-muted-foreground hover:text-primary focus:outline-none"
       >
-        <span>Admin</span>
+        <span>{t("navbar.menu.admin")}</span>
         <ChevronDown
           className={`relative top-[1px] ml-1 h-4 w-4 transition duration-200 ${
             isOpen ? "rotate-180" : ""

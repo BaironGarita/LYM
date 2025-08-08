@@ -1,6 +1,8 @@
 import { ShoppingCart } from "lucide-react";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export function Logo() {
+  const { t } = useI18n();
   return (
     <div className="mr-4 flex items-center md:mr-8 pl-2">
       <a href="/" className="flex items-center space-x-3 group">
@@ -15,7 +17,7 @@ export function Logo() {
             Look Your Mood
           </span>
           <span className="text-xs text-muted-foreground hidden sm:block">
-            Encuentra tu estilo
+            {t("navbar.logo.slogan")}
           </span>
         </div>
       </a>

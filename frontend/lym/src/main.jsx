@@ -2,13 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "@/App.jsx";
 
-// i18n (una sola instancia)
-import i18n from "@/shared/config/i18n/index.js";
+// Importa la configuración correcta de i18n
+import i18n from "@/shared/config/i18n";
 import { I18nextProvider } from "react-i18next";
 
-// Redux
 import { Provider } from "react-redux";
-import store from "@/store/store.js"; // ajusta a ./store/index.js si tu store se exporta allí
+import store from "@/store/store.js";
 
 import "./index.css";
 

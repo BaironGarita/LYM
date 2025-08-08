@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth.jsx";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export function MobileMenu({
   isOpen,
@@ -26,6 +27,7 @@ export function MobileMenu({
   onClose,
   onOpenAuth,
 }) {
+  const { t } = useI18n();
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -61,7 +63,7 @@ export function MobileMenu({
                 <span className="font-bold text-lg text-gray-900">
                   Look Your Mood
                 </span>
-                <p className="text-xs text-gray-500">Encuentra tu estilo</p>
+                <p className="text-xs text-gray-500">{t("navbar.logo.slogan")}</p>
               </div>
             </div>
             <button
@@ -90,7 +92,7 @@ export function MobileMenu({
                         isAdmin() ? "bg-red-500" : "bg-green-500"
                       }`}
                     ></span>
-                    {isAdmin() ? "Administrador" : "Cliente"}
+                    {isAdmin() ? t("navbar.user.administrator") : t("navbar.user.client")}
                   </p>
                 </div>
               </div>

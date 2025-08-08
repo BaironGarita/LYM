@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useCart } from "@/features/cart/useCart";
 import { useClickOutside } from "@/shared/hooks/useClickOutside";
+import { useI18n } from "@/shared/hooks/useI18n";
 import { Logo } from "./navbar/Logo";
 import { DesktopNav } from "./navbar/DesktopNav";
 import { UserActions } from "./navbar/UserActions";
@@ -11,6 +12,7 @@ import { AuthModal } from "../../../features/auth/AuthModal";
 import { LanguageSelector } from "../LanguageSelector";
 
 export function Navbar() {
+  const { t } = useI18n();
   const [showCart, setShowCart] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -87,7 +89,7 @@ export function Navbar() {
             <button
               onClick={menuHandlers.toggleMobileMenu}
               className="inline-flex items-center justify-center rounded-lg p-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 md:hidden"
-              aria-label="Abrir menú"
+              aria-label={t("navbar.menu.openMenu")}
             >
               <div className="relative w-6 h-6">
                 <div

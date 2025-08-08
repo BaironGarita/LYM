@@ -3,38 +3,9 @@ import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { X } from "lucide-react"; // Usaremos el ícono X para los botones de cierre
+import { X } from "lucide-react";
 import productoService from "../../shared/api/productoService";
-
-// El esquema de validación no cambia
-const schema = yup.object().shape({
-  nombre: yup.string().required("El nombre es requerido"),
-  descripcion: yup.string().required("La descripción es requerida"),
-  precio: yup
-    .number()
-    .typeError("El precio debe ser un número")
-    .positive("El precio debe ser positivo")
-    .required("El precio es requerido"),
-  stock: yup
-    .number()
-    .typeError("El stock debe ser un número")
-    .integer("El stock debe ser un entero")
-    .min(0, "El stock no puede ser negativo")
-    .required("El stock es requerido"),
-  categoria_id: yup.string().required("La categoría es requerida"),
-  etiquetas: yup.array().min(1, "Selecciona al menos una etiqueta"),
-  // Nuevos campos
-  peso: yup
-    .number()
-    .typeError("El peso debe ser un número")
-    .min(0, "El peso no puede ser negativo")
-    .nullable(),
-  dimensiones: yup.string().nullable(),
-  material: yup.string().nullable(),
-  color: yup.string().nullable(),
-  genero: yup.string().nullable(),
-  temporada: yup.string().nullable(),
-});
+import { useI18n } from "../../shared/hooks/useI18n.js";
 
 const ProductModal = ({
   show,
@@ -44,6 +15,41 @@ const ProductModal = ({
   categories,
   tags,
 }) => {
+  const { t } = useI18n();
+
+  // El esquema de validación ahora usa la función `t` para los mensajes.
+  const schema = yup.object().shape({
+    nombre: yup.string().required(t("productModal.validation.nameRequired")),
+    descripcion: yup
+      .string()
+      .required(t("productModal.validation.descriptionRequired")),
+    precio: yup
+      .number()
+      .typeError(t("productModal.validation.priceNumber"))
+      .positive(t("productModal.validation.pricePositive"))
+      .required(t("productModal.validation.priceRequired")),
+    stock: yup
+      .number()
+      .typeError(t("productModal.validation.stockNumber"))
+      .integer(t("productModal.validation.stockInteger"))
+      .min(0, t("productModal.validation.stockMin"))
+      .required(t("productModal.validation.stockRequired")),
+    categoria_id: yup
+      .string()
+      .required(t("productModal.validation.categoryRequired")),
+    etiquetas: yup.array().min(1, t("productModal.validation.tagsMin")),
+    peso: yup
+      .number()
+      .typeError(t("productModal.validation.weightNumber"))
+      .min(0, t("productModal.validation.weightMin"))
+      .nullable(),
+    dimensiones: yup.string().nullable(),
+    material: yup.string().nullable(),
+    color: yup.string().nullable(),
+    genero: yup.string().nullable(),
+    temporada: yup.string().nullable(),
+  });
+
   const {
     register,
     handleSubmit,
@@ -106,13 +112,13 @@ const ProductModal = ({
 
   const handleDeleteExistingImage = async (imageId, e) => {
     e.preventDefault();
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta imagen?")) {
+    if (window.confirm(t("productModal.confirmDeleteImage"))) {
       try {
         await productoService.deleteProductImage(imageId);
         setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
       } catch (error) {
         console.error("Error al eliminar la imagen:", error);
-        alert("No se pudo eliminar la imagen.");
+        alert(t("productModal.errorDeleteImage"));
       }
     }
   };
@@ -150,7 +156,9 @@ const ProductModal = ({
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-2xl font-semibold text-gray-800">
-            {product ? "Editar Producto" : "Crear Producto"}
+            {product
+              ? t("productModal.editTitle")
+              : t("productModal.createTitle")}
           </h3>
           <button
             onClick={handleClose}
@@ -171,16 +179,16 @@ const ProductModal = ({
               {product && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Promedio Valoraciones
+                    {t("productModal.averageRating")}
                   </label>
                   <input
                     type="text"
                     readOnly
                     value={`${parseFloat(
                       product.promedio_valoracion || 0
-                    ).toFixed(
-                      1
-                    )} / 5.0 (${product.total_resenas || 0} reseñas)`}
+                    ).toFixed(1)} / 5.0 (${
+                      product.total_resenas || 0
+                    } ${t("productModal.reviews")})`}
                     className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
                   />
                 </div>
@@ -190,7 +198,7 @@ const ProductModal = ({
                   htmlFor="nombre"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Nombre
+                  {t("productModal.name")}
                 </label>
                 <input
                   type="text"
@@ -209,7 +217,7 @@ const ProductModal = ({
                   htmlFor="descripcion"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Descripción
+                  {t("productModal.description")}
                 </label>
                 <textarea
                   id="descripcion"
@@ -229,7 +237,7 @@ const ProductModal = ({
                     htmlFor="precio"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Precio
+                    {t("productModal.price")}
                   </label>
                   <input
                     type="number"
@@ -249,7 +257,7 @@ const ProductModal = ({
                     htmlFor="stock"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Stock
+                    {t("productModal.stock")}
                   </label>
                   <input
                     type="number"
@@ -271,7 +279,7 @@ const ProductModal = ({
                     htmlFor="peso"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Peso (kg)
+                    {t("productModal.weight")} (kg)
                   </label>
                   <input
                     type="number"
@@ -291,7 +299,7 @@ const ProductModal = ({
                     htmlFor="dimensiones"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Dimensiones/Talla
+                    {t("productModal.dimensions")}
                   </label>
                   <input
                     type="text"
@@ -307,7 +315,7 @@ const ProductModal = ({
                     htmlFor="material"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Material
+                    {t("productModal.material")}
                   </label>
                   <input
                     type="text"
@@ -321,7 +329,7 @@ const ProductModal = ({
                     htmlFor="color"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Color Principal
+                    {t("productModal.color")}
                   </label>
                   <input
                     type="text"
@@ -337,17 +345,23 @@ const ProductModal = ({
                     htmlFor="genero"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Género
+                    {t("productModal.gender")}
                   </label>
                   <select
                     id="genero"
                     {...register("genero")}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   >
-                    <option value="">Seleccione</option>
-                    <option value="Hombre">Hombre</option>
-                    <option value="Mujer">Mujer</option>
-                    <option value="Unisex">Unisex</option>
+                    <option value="">{t("productModal.select")}</option>
+                    <option value="Hombre">
+                      {t("productModal.genderMale")}
+                    </option>
+                    <option value="Mujer">
+                      {t("productModal.genderFemale")}
+                    </option>
+                    <option value="Unisex">
+                      {t("productModal.genderUnisex")}
+                    </option>
                   </select>
                 </div>
                 <div>
@@ -355,19 +369,29 @@ const ProductModal = ({
                     htmlFor="temporada"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Temporada
+                    {t("productModal.season")}
                   </label>
                   <select
                     id="temporada"
                     {...register("temporada")}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   >
-                    <option value="">Seleccione</option>
-                    <option value="Verano">Verano</option>
-                    <option value="Otoño">Otoño</option>
-                    <option value="Invierno">Invierno</option>
-                    <option value="Primavera">Primavera</option>
-                    <option value="Todo el año">Todo el año</option>
+                    <option value="">{t("productModal.select")}</option>
+                    <option value="Verano">
+                      {t("productModal.seasonSummer")}
+                    </option>
+                    <option value="Otoño">
+                      {t("productModal.seasonAutumn")}
+                    </option>
+                    <option value="Invierno">
+                      {t("productModal.seasonWinter")}
+                    </option>
+                    <option value="Primavera">
+                      {t("productModal.seasonSpring")}
+                    </option>
+                    <option value="Todo el año">
+                      {t("productModal.seasonAllYear")}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -377,14 +401,14 @@ const ProductModal = ({
                   htmlFor="categoria_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Categoría
+                  {t("productModal.category")}
                 </label>
                 <select
                   id="categoria_id"
                   {...register("categoria_id")}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 >
-                  <option value="">Selecciona una categoría</option>
+                  <option value="">{t("productModal.selectCategory")}</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.nombre}
@@ -399,7 +423,7 @@ const ProductModal = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Etiquetas
+                  {t("productModal.tags")}
                 </label>
                 <Controller
                   name="etiquetas"
@@ -430,7 +454,7 @@ const ProductModal = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Imágenes del Producto
+                  {t("productModal.productImages")}
                 </label>
                 <div className="mt-1 p-2 border-2 border-dashed border-gray-300 rounded-md">
                   <input
@@ -447,7 +471,7 @@ const ProductModal = ({
                   <div key={image.id} className="relative group">
                     <img
                       src={`${process.env.REACT_APP_API_URL}${image.url_imagen}`}
-                      alt="Imagen existente"
+                      alt={t("productModal.existingImageAlt")}
                       className="w-full h-28 object-cover rounded-md"
                     />
                     <button
@@ -462,11 +486,11 @@ const ProductModal = ({
                   <div key={index} className="relative">
                     <img
                       src={src}
-                      alt="Previsualización"
+                      alt={t("productModal.previewImageAlt")}
                       className="w-full h-28 object-cover rounded-md"
                     />
                     <span className="absolute top-1 left-1 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                      Nueva
+                      {t("productModal.newTag")}
                     </span>
                   </div>
                 ))}
@@ -481,13 +505,13 @@ const ProductModal = ({
               onClick={handleClose}
               className="px-6 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
             >
-              Cancelar
+              {t("productModal.cancel")}
             </button>
             <button
               type="submit"
               className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors"
             >
-              Guardar Producto
+              {t("productModal.save")}
             </button>
           </div>
         </form>

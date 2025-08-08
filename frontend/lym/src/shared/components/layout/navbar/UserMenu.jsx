@@ -1,6 +1,8 @@
 import { forwardRef } from "react";
 import { User, LogOut, Settings, Package } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth.jsx";
+import { useI18n } from "@/shared/hooks/useI18n";
+import { Link } from "react-router-dom";
 
 export const UserMenu = forwardRef(
   (
@@ -14,6 +16,7 @@ export const UserMenu = forwardRef(
     },
     ref
   ) => {
+    const { t } = useI18n();
     const { logout } = useAuth();
 
     const handleLogout = () => {
@@ -29,7 +32,7 @@ export const UserMenu = forwardRef(
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
           >
             <User className="h-4 w-4 mr-2" />
-            Iniciar Sesión
+            {t("navbar.menu.login")}
           </button>
         </div>
       );
@@ -50,22 +53,22 @@ export const UserMenu = forwardRef(
         {showUserMenu && (
           <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
             <div className="py-1">
-              <a
-                href="/profile"
+              <Link
+                to="/profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <Settings className="mr-3 h-4 w-4" />
-                Mi Perfil
-              </a>
+                {t("navbar.menu.profile")}
+              </Link>
 
               {!isAdmin() && (
-                <a
-                  href="/orders"
+                <Link
+                  to="/orders"
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <Package className="mr-3 h-4 w-4" />
-                  Mis Pedidos
-                </a>
+                  {t("navbar.menu.myOrders")}
+                </Link>
               )}
 
               <hr className="my-1" />
@@ -75,7 +78,7 @@ export const UserMenu = forwardRef(
                 className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
               >
                 <LogOut className="mr-3 h-4 w-4" />
-                Cerrar Sesión
+                {t("navbar.menu.logout")}
               </button>
             </div>
           </div>

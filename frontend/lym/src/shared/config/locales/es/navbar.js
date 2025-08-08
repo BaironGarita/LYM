@@ -22,13 +22,15 @@ export const navbar = {
     orders: "Pedidos",
     users: "Usuarios",
     analytics: "Estadísticas",
-    panel: "Panel de Administración"
+    panel: "Panel de Administración",
+    storeManagement: "Gestión de la tienda"
   },
   user: {
     favorites: "Favoritos",
     administrator: "Administrador",
     client: "Cliente",
-    accessAccount: "Accede a tu cuenta"
+    accessAccount: "Accede a tu cuenta",
+    favoritesInDevelopment: "Funcionalidad de favoritos en desarrollo"
   },
   cart: {
     title: "Carrito",
@@ -41,6 +43,7 @@ export const navbar = {
   },
   mobile: {
     selectLanguage: "Seleccionar idioma",
-    welcome: "Bienvenido"
+    welcome: "Bienvenido",
+    new: "¡Nuevo!"
   }
 };

@@ -22,13 +22,15 @@ export const navbar = {
     orders: "Orders",
     users: "Users",
     analytics: "Analytics",
-    panel: "Administration Panel"
+    panel: "Administration Panel",
+    storeManagement: "Store Management"
   },
   user: {
     favorites: "Favorites",
     administrator: "Administrator",
     client: "Client",
-    accessAccount: "Access your account"
+    accessAccount: "Access your account",
+    favoritesInDevelopment: "Favorites functionality in development"
   },
   cart: {
     title: "Cart",
@@ -41,6 +43,7 @@ export const navbar = {
   },
   mobile: {
     selectLanguage: "Select language",
-    welcome: "Welcome"
+    welcome: "Welcome",
+    new: "New!"
   }
 };

@@ -1,14 +1,16 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { LayoutDashboard, Package, Tag, Upload } from "lucide-react";
-
-const adminNavLinks = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/productos", label: "Productos", icon: Package, end: false },
-  { to: "/admin/promotions", label: "Promociones", icon: Tag, end: false },
-  { to: "/admin/upload", label: "Subir Producto", icon: Upload, end: false },
-];
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export const AdminLayout = () => {
+  const { t } = useI18n();
+  
+  const adminNavLinks = [
+    { to: "/admin", label: t("navbar.admin.dashboard"), icon: LayoutDashboard, end: true },
+    { to: "/admin/productos", label: t("navbar.menu.products"), icon: Package, end: false },
+    { to: "/admin/promotions", label: t("navbar.admin.managePromotions"), icon: Tag, end: false },
+    { to: "/admin/upload", label: t("navbar.admin.uploadProduct"), icon: Upload, end: false },
+  ];
   const getLinkClass = ({ isActive }) => {
     const baseClasses =
       "flex items-center w-full p-3 rounded-lg text-left text-sm font-medium transition-colors";
@@ -22,8 +24,8 @@ export const AdminLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 bg-gray-800 text-white flex flex-col p-4">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-white">Panel de Admin</h2>
-          <p className="text-xs text-gray-400">Gestión de la tienda</p>
+          <h2 className="text-xl font-bold text-white">{t("navbar.admin.panel")}</h2>
+          <p className="text-xs text-gray-400">{t("navbar.admin.storeManagement", "Gestión de la tienda")}</p>
         </div>
         <nav>
           <ul className="space-y-2">

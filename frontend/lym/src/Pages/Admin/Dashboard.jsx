@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { DollarSign, Package, Tag, Users } from "lucide-react";
+import { DollarSign, Package, Tag, Users, Upload } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 // Un componente reutilizable para las tarjetas de estadísticas
 const StatCard = ({ icon: Icon, title, value, description, color }) => (
@@ -18,15 +19,16 @@ const StatCard = ({ icon: Icon, title, value, description, color }) => (
 
 export const Dashboard = () => {
   const { user } = useAuth();
+  const { t } = useI18n();
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-800">
-          Bienvenido de nuevo, {user?.nombre || "Admin"}!
+          {t("admin.dashboard.welcomeBack", "Bienvenido de nuevo")}, {user?.nombre || "Admin"}!
         </h1>
         <p className="mt-2 text-gray-600">
-          Aquí tienes un resumen de la actividad de tu tienda.
+          {t("admin.dashboard.summary", "Aquí tienes un resumen de la actividad de tu tienda.")}
         </p>
       </div>
 
@@ -34,30 +36,30 @@ export const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={DollarSign}
-          title="Ventas Totales"
+          title={t("admin.dashboard.stats.totalSales", "Ventas Totales")}
           value="S/15,231.89"
-          description="+20.1% desde el mes pasado"
+          description={t("admin.dashboard.stats.salesIncrease", "+20.1% desde el mes pasado")}
           color="bg-green-500"
         />
         <StatCard
           icon={Package}
-          title="Total Productos"
+          title={t("admin.dashboard.stats.totalProducts", "Total Productos")}
           value="235"
-          description="Actualmente en stock"
+          description={t("admin.dashboard.stats.inStock", "Actualmente en stock")}
           color="bg-blue-500"
         />
         <StatCard
           icon={Tag}
-          title="Promociones Activas"
+          title={t("admin.dashboard.stats.activePromotions", "Promociones Activas")}
           value="5"
-          description="Ofertas vigentes"
+          description={t("admin.dashboard.stats.currentOffers", "Ofertas vigentes")}
           color="bg-orange-500"
         />
         <StatCard
           icon={Users}
-          title="Nuevos Clientes"
+          title={t("admin.dashboard.stats.newCustomers", "Nuevos Clientes")}
           value="12"
-          description="Este mes"
+          description={t("admin.dashboard.stats.thisMonth", "Este mes")}
           color="bg-purple-500"
         />
       </div>
@@ -65,7 +67,7 @@ export const Dashboard = () => {
       {/* Acciones Rápidas */}
       <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Acciones Rápidas
+          {t("admin.dashboard.quickActions", "Acciones Rápidas")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link
@@ -73,21 +75,21 @@ export const Dashboard = () => {
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Package className="mx-auto h-8 w-8 text-blue-600 mb-2" />
-            <p className="font-semibold text-gray-700">Gestionar Productos</p>
+            <p className="font-semibold text-gray-700">{t("navbar.admin.manageProducts", "Gestionar Productos")}</p>
           </Link>
           <Link
             to="/admin/promotions"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Tag className="mx-auto h-8 w-8 text-orange-600 mb-2" />
-            <p className="font-semibold text-gray-700">Ver Promociones</p>
+            <p className="font-semibold text-gray-700">{t("admin.dashboard.actions.viewPromotions", "Ver Promociones")}</p>
           </Link>
           <Link
             to="/admin/upload"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Upload className="mx-auto h-8 w-8 text-green-600 mb-2" />
-            <p className="font-semibold text-gray-700">Subir Nuevo Producto</p>
+            <p className="font-semibold text-gray-700">{t("admin.dashboard.actions.uploadNewProduct", "Subir Nuevo Producto")}</p>
           </Link>
         </div>
       </div>

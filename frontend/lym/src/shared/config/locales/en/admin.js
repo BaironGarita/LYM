@@ -1,4 +1,23 @@
 export const admin = {
+  dashboard: {
+    welcomeBack: "Welcome back",
+    summary: "Here's a summary of your store's activity.",
+    quickActions: "Quick Actions",
+    stats: {
+      totalSales: "Total Sales",
+      salesIncrease: "+20.1% from last month",
+      totalProducts: "Total Products",
+      inStock: "Currently in stock",
+      activePromotions: "Active Promotions",
+      currentOffers: "Current offers",
+      newCustomers: "New Customers",
+      thisMonth: "This month"
+    },
+    actions: {
+      viewPromotions: "View Promotions",
+      uploadNewProduct: "Upload New Product"
+    }
+  },
   promotions: {
     title: "Promotions Management",
     create: "Create Promotion",

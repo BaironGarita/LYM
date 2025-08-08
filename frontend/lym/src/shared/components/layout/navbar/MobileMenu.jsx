@@ -105,8 +105,8 @@ export function MobileMenu({
                   <User className="h-6 w-6 text-gray-500" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="font-semibold text-gray-900">Iniciar Sesión</p>
-                  <p className="text-sm text-gray-500">Accede a tu cuenta</p>
+                  <p className="font-semibold text-gray-900">{t("navbar.menu.login")}</p>
+                  <p className="text-sm text-gray-500">{t("navbar.user.accessAccount")}</p>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
@@ -118,7 +118,7 @@ export function MobileMenu({
             {/* Enlaces principales */}
             <div className="space-y-1">
               <NavItem href="/productos" icon={ShoppingBag} onClick={onClose}>
-                Productos
+                {t("navbar.menu.products")}
               </NavItem>
 
               <NavItem
@@ -126,9 +126,9 @@ export function MobileMenu({
                 icon={Percent}
                 onClick={onClose}
                 className="text-red-600 bg-red-50 hover:bg-red-100"
-                badge="¡Nuevo!"
+                badge={t("navbar.mobile.new", "¡Nuevo!")}
               >
-                Ofertas Especiales
+                {t("navbar.menu.offers")}
               </NavItem>
 
               <NavItem
@@ -137,7 +137,7 @@ export function MobileMenu({
                 onClick={onClose}
                 className="text-yellow-600 bg-yellow-50 hover:bg-yellow-100"
               >
-                Reseñas
+                {t("navbar.menu.reviews")}
               </NavItem>
             </div>
 
@@ -149,17 +149,17 @@ export function MobileMenu({
               <>
                 <div className="space-y-1">
                   <NavItem href="/profile" icon={Settings} onClick={onClose}>
-                    Mi Perfil
+                    {t("navbar.menu.profile")}
                   </NavItem>
 
                   {!isAdmin() && (
                     <>
                       <NavItem href="/orders" icon={Package} onClick={onClose}>
-                        Mis Pedidos
+                        {t("navbar.menu.myOrders")}
                       </NavItem>
 
                       <NavItem href="/favorites" icon={Heart} onClick={onClose}>
-                        Favoritos
+                        {t("navbar.user.favorites")}
                       </NavItem>
                     </>
                   )}
@@ -171,7 +171,7 @@ export function MobileMenu({
                     <div className="border-t my-6"></div>
                     <div className="mb-3">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider px-3">
-                        Panel de Administración
+                        {t("navbar.admin.panel")}
                       </p>
                     </div>
 
@@ -182,7 +182,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-blue-600 bg-blue-50 hover:bg-blue-100"
                       >
-                        Panel Principal
+                        {t("navbar.admin.dashboard")}
                       </NavItem>
 
                       <NavItem
@@ -191,7 +191,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-green-600 bg-green-50 hover:bg-green-100"
                       >
-                        Gestionar Productos
+                        {t("navbar.admin.manageProducts")}
                       </NavItem>
 
                       <NavItem
@@ -200,7 +200,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-purple-600 bg-purple-50 hover:bg-purple-100"
                       >
-                        Promociones
+                        {t("navbar.admin.managePromotions")}
                       </NavItem>
 
                       <NavItem
@@ -209,7 +209,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100"
                       >
-                        Subir Producto
+                        {t("navbar.admin.uploadProduct")}
                       </NavItem>
 
                       <NavItem
@@ -218,7 +218,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-orange-600 bg-orange-50 hover:bg-orange-100"
                       >
-                        Pedidos
+                        {t("navbar.admin.orders")}
                       </NavItem>
 
                       <NavItem
@@ -227,7 +227,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-pink-600 bg-pink-50 hover:bg-pink-100"
                       >
-                        Usuarios
+                        {t("navbar.admin.users")}
                       </NavItem>
 
                       <NavItem
@@ -236,7 +236,7 @@ export function MobileMenu({
                         onClick={onClose}
                         className="text-cyan-600 bg-cyan-50 hover:bg-cyan-100"
                       >
-                        Estadísticas
+                        {t("navbar.admin.analytics")}
                       </NavItem>
                     </div>
                   </>
@@ -253,7 +253,7 @@ export function MobileMenu({
                 className="flex items-center justify-center space-x-3 w-full p-4 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 font-medium"
               >
                 <LogOut className="h-5 w-5" />
-                <span>Cerrar Sesión</span>
+                <span>{t("navbar.menu.logout")}</span>
               </button>
             </div>
           )}

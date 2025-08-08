@@ -2,6 +2,7 @@ import { Heart, User, ShoppingCart } from "lucide-react";
 import { UserMenu } from "./UserMenu.jsx";
 import { CartDropdown } from "./CartDropdown.jsx";
 import toast from "react-hot-toast";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export function UserActions({
   isAuthenticated,
@@ -17,6 +18,7 @@ export function UserActions({
   cartBtnRef,
   handlers,
 }) {
+  const { t } = useI18n();
   return (
     <>
       {/* Botón favoritos */}
@@ -25,16 +27,16 @@ export function UserActions({
           <button
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
             onClick={() =>
-              toast("Funcionalidad de favoritos en desarrollo", {
+              toast(t("navbar.user.favoritesInDevelopment", "Funcionalidad de favoritos en desarrollo"), {
                 icon: <Heart className="h-5 w-5" />,
                 duration: 2000,
                 position: "top-center",
               })
             }
-            aria-label="Ver tus favoritos"
+            aria-label={t("navbar.user.favorites")}
           >
             <Heart className="h-5 w-5" />
-            <span className="sr-only">Favoritos</span>
+            <span className="sr-only">{t("navbar.user.favorites")}</span>
           </button>
         </div>
       )}
@@ -57,7 +59,7 @@ export function UserActions({
           className="relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
         >
           <ShoppingCart className="h-5 w-5 mr-2" />
-          <span className="hidden sm:inline">Carrito</span>
+          <span className="hidden sm:inline">{t("navbar.cart.title")}</span>
           {cartStats.totalItems > 0 && (
             <span className="absolute -top-2 -right-2 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
               {cartStats.totalItems}

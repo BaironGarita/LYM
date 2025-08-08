@@ -1,4 +1,23 @@
 export const admin = {
+  dashboard: {
+    welcomeBack: "Bienvenido de nuevo",
+    summary: "Aquí tienes un resumen de la actividad de tu tienda.",
+    quickActions: "Acciones Rápidas",
+    stats: {
+      totalSales: "Ventas Totales",
+      salesIncrease: "+20.1% desde el mes pasado",
+      totalProducts: "Total Productos",
+      inStock: "Actualmente en stock",
+      activePromotions: "Promociones Activas",
+      currentOffers: "Ofertas vigentes",
+      newCustomers: "Nuevos Clientes",
+      thisMonth: "Este mes"
+    },
+    actions: {
+      viewPromotions: "Ver Promociones",
+      uploadNewProduct: "Subir Nuevo Producto"
+    }
+  },
   promotions: {
     title: "Gestión de Promociones",
     subtitle: "Crea, edita y administra las ofertas de tu tienda",

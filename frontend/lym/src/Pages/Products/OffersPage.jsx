@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Percent, Filter, SortAsc } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePromociones } from "@/shared/hooks/usePromociones";
+import { usePromociones } from "@/hooks/usePromociones";
 import { toast } from "sonner";
 
 const OffersPage = () => {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { DollarSign, Package, Tag, Users } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 // Un componente reutilizable para las tarjetas de estadísticas
 const StatCard = ({ icon: Icon, title, value, description, color }) => (

@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { User, LogOut, Settings, Package } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth.jsx";
+import { useAuth } from "../../../hooks/useAuth.jsx";
 
 export const UserMenu = forwardRef(
   (

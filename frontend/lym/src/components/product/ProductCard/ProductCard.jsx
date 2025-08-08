@@ -15,7 +15,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist } from "../../../store/fashionSlice";
 import { toast } from "sonner"; // Importar toast
-import { useCart } from "@/shared/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 
 export function ProductCardSkeleton() {
   return (

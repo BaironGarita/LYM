@@ -38,7 +38,7 @@ import {
   TooltipContent,
 } from "@/components/UI/tooltip";
 import { toast } from "sonner";
-import { usePromociones } from "@/shared/hooks/usePromociones";
+import { usePromociones } from "@/hooks/usePromociones";
 import ProductReviews from "./ProductReviews";
 
 const useClickOutside = (ref, handler) => {

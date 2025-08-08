@@ -1,31 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+
+// Importa la instancia única de i18n (ajusta la ruta si es necesario)
+import i18n from "./i18n/index.js";
+import { I18nextProvider } from "react-i18next";
+
 import "./index.css";
-import "./i18n";
+
 import { Provider } from "react-redux";
 import { store } from "./store/store.js";
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import { es } from "./shared/Locales/es/index.js";
-
-i18n.use(initReactI18next).init({
-  resources: {
-    es,
-  },
-  lng: "es",
-  fallbackLng: "es",
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
-export default i18n;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Provider store={store}>
+    <I18nextProvider i18n={i18n}>
       <App />
-    </Provider>
+    </I18nextProvider>
   </React.StrictMode>
 );

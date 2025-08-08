@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth.jsx";
+import { useAuth } from "@/hooks/useAuth.jsx";
 
 const Button = ({
   children,

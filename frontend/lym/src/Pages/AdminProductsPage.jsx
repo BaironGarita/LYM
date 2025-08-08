@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Package, Plus, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/shared/hooks/useAuth.jsx";
-import { useI18n } from "@/shared/hooks/useI18n.js";
+import { useAuth } from "../hooks/useAuth.jsx";
+import { useI18n } from "../hooks/useI18n.js";
 import ProductoService from "../services/productoService";
 import ProductFilters from "../components/product/ProductFilters";
 import ProductTable from "../components/product/ProductTable";
@@ -11,7 +11,7 @@ import ProductStats from "../components/product/ProductStats";
 import { Button } from "../components/UI/button";
 
 const AdminProductsPage = () => {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [etiquetas, setEtiquetas] = useState([]);
@@ -148,7 +148,7 @@ const AdminProductsPage = () => {
     return <div className="p-8 text-red-500">{error}</div>;
 
   return (
-    <div key={language} className="p-4 md:p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">

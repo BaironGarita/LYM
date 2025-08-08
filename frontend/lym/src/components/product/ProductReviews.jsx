@@ -15,7 +15,7 @@ import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Skeleton } from "@/components/UI/skeleton";
 import { Separator } from "@/components/UI/separator";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const ProductReviews = ({ productId }) => {

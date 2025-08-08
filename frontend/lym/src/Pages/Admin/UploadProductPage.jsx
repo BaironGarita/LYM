@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Upload, Package, DollarSign, Hash, Tag, FileText } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 // El componente InputField se mueve aquí, fuera de UploadProductPage.
 const InputField = ({

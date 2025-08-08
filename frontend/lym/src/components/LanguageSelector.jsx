@@ -23,7 +23,8 @@ export const LanguageSelector = () => {
     },
   ];
 
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
+  const currentCode = i18n.resolvedLanguage || i18n.language || 'es';
+  const currentLanguage = languages.find((lang) => lang.code === currentCode) || languages[0];
 
   const changeLanguage = async (langCode) => {
     if (langCode === i18n.language) {

@@ -1,14 +1,14 @@
 import { useState, useRef } from "react";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth";
-import { useCart } from "@/shared/hooks/useCart";
-import { useClickOutside } from "@/shared/hooks/useClickOutside";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { useClickOutside } from "@/hooks/useClickOutside";
 import { Logo } from "./navbar/Logo";
 import { DesktopNav } from "./navbar/DesktopNav";
 import { UserActions } from "./navbar/UserActions";
 import { MobileMenu } from "./navbar/MobileMenu";
 import { AuthModal } from "../auth/AuthModal";
-import { LanguageSelector } from "../common/LanguageSelector";
+import { LanguageSelector } from "../LanguageSelector";
 
 export function Navbar() {
   const [showCart, setShowCart] = useState(false);

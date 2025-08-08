@@ -10,7 +10,7 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 const OrdersPage = () => {
   const { t } = useTranslation();

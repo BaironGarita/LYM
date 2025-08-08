@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/UI/button";
 import ProductCard from "@/components/product/ProductCard/ProductCard";
 import { toast } from "sonner";
-import { usePromociones } from "@/shared/hooks/usePromociones";
+import { usePromociones } from "@/hooks/usePromociones";
 
 export const Home = ({ addToCart }) => {
   const [featuredProducts, setFeaturedProducts] = useState([]);

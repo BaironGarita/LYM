@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import PromocionService from "@/services/promocionService";
+import PromocionService from "../services/promocionService";
 
 export const usePromociones = () => {
   const [promociones, setPromociones] = useState([]);

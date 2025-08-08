@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 export function AdminRoute({ children }) {
   const { user, isAuthenticated, isAdmin, isLoading } = useAuth();

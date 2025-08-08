@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Star, User, Calendar, MessageSquare, Send } from "lucide-react";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const StarRating = ({ rating, onRatingChange, readonly = false }) => {

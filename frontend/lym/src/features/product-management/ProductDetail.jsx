@@ -50,6 +50,7 @@ import {
 import { toast } from "sonner";
 import { usePromociones } from "@/features/promotions/usePromociones.js";
 import ProductReviews from "./ProductReviews";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -83,6 +84,7 @@ const ProductDetail = ({ onAddToCart }) => {
   const [activeTab, setActiveTab] = useState("description");
   const shareMenuRef = useRef(null);
   const { calcularPrecio } = usePromociones();
+  const { t } = useI18n();
 
   useClickOutside(shareMenuRef, () => setShareMenuOpen(false));
 
@@ -377,18 +379,17 @@ const ProductDetail = ({ onAddToCart }) => {
               <AlertCircle className="h-12 w-12 text-red-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Producto no encontrado
+              {t("productDetail.productNotFound")}
             </h2>
             <p className="text-gray-600 mb-8 leading-relaxed">
-              Lo sentimos, el producto que buscas no existe o ha sido eliminado
-              de nuestro catálogo.
+              {t("productDetail.productNotFoundDescription")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => navigate("/")}
                 className="flex-1 h-12 text-lg font-medium bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
               >
-                Explorar productos
+                {t("productDetail.exploreProducts")}
               </Button>
               <Button
                 variant="outline"
@@ -396,7 +397,7 @@ const ProductDetail = ({ onAddToCart }) => {
                 className="flex-1 h-12 text-lg font-medium"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Volver atrás
+                {t("productDetail.goBack")}
               </Button>
             </div>
           </CardContent>
@@ -442,7 +443,7 @@ const ProductDetail = ({ onAddToCart }) => {
                     className="flex items-center gap-2 hover:bg-gray-100 rounded-full px-3"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    Volver
+                    {t("productDetail.back")}
                   </Button>
                 </motion.div>
                 <ChevronRight className="h-4 w-4" />
@@ -773,12 +774,12 @@ const ProductDetail = ({ onAddToCart }) => {
                     {isAddingToCart ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        Agregando...
+                        {t("productCard.adding")}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="h-6 w-6 mr-3" />
-                        {isInStock ? `Añadir al carrito` : "Sin stock"}
+                        {isInStock ? t("productCard.addToCart") : t("productCard.outOfStockShort")}
                       </>
                     )}
                   </Button>
@@ -792,7 +793,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       </span>
                       {isOnSale && quantity > 0 && (
                         <span className="text-green-600 ml-2">
-                          (Ahorras{" "}
+                          ({t("productDetail.youSave")}{" "}
                           {formatPrice(
                             promocionInfo.ahorroMonetario * quantity
                           )}
@@ -809,19 +810,18 @@ const ProductDetail = ({ onAddToCart }) => {
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Truck className="h-5 w-5 text-green-600" />
                   <span>
-                    Envío{" "}
+                    {t("productDetail.shipping")}{" "}
                     <strong>
                       {product.precio > 50000
-                        ? "gratis"
-                        : `disponible por ${formatPrice(2500)}`}
+                        ? t("productDetail.free")
+                        : t("productDetail.availableFor", { price: formatPrice(2500) })}
                     </strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Shield className="h-5 w-5 text-blue-600" />
                   <span>
-                    <strong>Garantía de satisfacción</strong> - 30 días para
-                    devoluciones
+                    <strong>{t("productDetail.satisfactionGuarantee")}</strong> - {t("productDetail.daysForReturns", { days: 30 })}
                   </span>
                 </div>
               </div>
@@ -860,11 +860,10 @@ const ProductDetail = ({ onAddToCart }) => {
                         />
                       )}
                       <span className="relative z-10">
-                        {
-                          {
-                            description: "Descripción",
-                            specifications: "Especificaciones",
-                            reviews: "Reseñas",
+                        {{
+                            description: t("productDetail.tabs.description"),
+                            specifications: t("productDetail.tabs.specifications"),
+                            reviews: t("productDetail.tabs.reviews"),
                           }[tab]
                         }
                       </span>
@@ -898,43 +897,43 @@ const ProductDetail = ({ onAddToCart }) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {[
                               {
-                                label: "Color principal",
+                                label: t("productDetail.specs.mainColor"),
                                 value: product.color_principal,
                                 icon: "🎨",
                               },
                               {
-                                label: "Género",
+                                label: t("productDetail.specs.gender"),
                                 value: product.genero,
                                 icon: "👤",
                               },
                               {
-                                label: "Categoría",
+                                label: t("productDetail.specs.category"),
                                 value: product.categoria_nombre,
                                 icon: "📂",
                               },
                               {
-                                label: "Material",
+                                label: t("productDetail.specs.material"),
                                 value: product.material,
                                 icon: "🧵",
                               },
                               {
-                                label: "Temporada",
+                                label: t("productDetail.specs.season"),
                                 value: product.temporada,
                                 icon: "🌤️",
                               },
                               {
-                                label: "Peso",
+                                label: t("productDetail.specs.weight"),
                                 value: product.peso
                                   ? `${product.peso} kg`
                                   : null,
                                 icon: "⚖️",
                               },
                               {
-                                label: "Dimensiones",
+                                label: t("productDetail.specs.dimensions"),
                                 value: product.dimensiones,
                                 icon: "📏",
                               },
-                              { label: "SKU", value: product.id, icon: "🔢" },
+                              { label: t("productDetail.specs.sku"), value: product.id, icon: "🔢" },
                             ]
                               .filter((item) => item.value)
                               .map((spec, index) => (

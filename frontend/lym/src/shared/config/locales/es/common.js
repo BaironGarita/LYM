@@ -12,4 +12,5 @@ export const common = {
   cancel: "Cancelar",
   edit: "Editar",
   delete: "Eliminar",
+  locale: "es-ES",
 };

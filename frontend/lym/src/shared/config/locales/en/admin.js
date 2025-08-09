@@ -1,8 +1,33 @@
 export const admin = {
+  uploadProduct: {
+    title: "Upload New Product",
+    subtitle: "Complete the form to add a new item to the inventory.",
+    fields: {
+      name: "Product Name",
+      description: "Product Description",
+      price: "Price",
+      stock: "Stock",
+      categoryId: "Category ID",
+      imageUrl: "Image URL"
+    },
+    uploading: "Uploading...",
+    addButton: "Add Product",
+    success: "Product uploaded successfully!",
+    errors: {
+      upload: "Error uploading product."
+    }
+  },
   dashboard: {
+    title: "Admin Dashboard",
+    welcome: "Welcome back",
     welcomeBack: "Welcome back",
     summary: "Here's a summary of your store's activity.",
-    quickActions: "Quick Actions",
+    quickActions: {
+      title: "Quick Actions",
+      manageProducts: "Manage Products",
+      viewPromotions: "View Promotions",
+      uploadProduct: "Upload New Product"
+    },
     stats: {
       totalSales: "Total Sales",
       salesIncrease: "+20.1% from last month",
@@ -17,6 +42,9 @@ export const admin = {
       viewPromotions: "View Promotions",
       uploadNewProduct: "Upload New Product"
     }
+  },
+  products: {
+    error: "Error loading data"
   },
   promotions: {
     title: "Promotions Management",

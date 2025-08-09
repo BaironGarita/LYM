@@ -24,11 +24,11 @@ export const Dashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">
-          {t("admin.dashboard.welcomeBack", "Bienvenido de nuevo")}, {user?.nombre || "Admin"}!
+        <h1 className="text-3xl font-bold tracking-tight">
+          {t("admin.dashboard.title", "Panel de Administración")}
         </h1>
-        <p className="mt-2 text-gray-600">
-          {t("admin.dashboard.summary", "Aquí tienes un resumen de la actividad de tu tienda.")}
+        <p className="text-muted-foreground">
+          {t("admin.dashboard.welcome", "Bienvenido de nuevo")}, {user?.nombre}. {t("admin.dashboard.summary", "Aquí tienes un resumen de la actividad de tu tienda.")}
         </p>
       </div>
 
@@ -66,30 +66,28 @@ export const Dashboard = () => {
 
       {/* Acciones Rápidas */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          {t("admin.dashboard.quickActions", "Acciones Rápidas")}
-        </h2>
+        <h2 className="text-xl font-bold">{t("admin.dashboard.quickActions.title", "Acciones Rápidas")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link
             to="/admin/productos"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Package className="mx-auto h-8 w-8 text-blue-600 mb-2" />
-            <p className="font-semibold text-gray-700">{t("navbar.admin.manageProducts", "Gestionar Productos")}</p>
+            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.manageProducts", "Gestionar Productos")}</h3>
           </Link>
           <Link
             to="/admin/promotions"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Tag className="mx-auto h-8 w-8 text-orange-600 mb-2" />
-            <p className="font-semibold text-gray-700">{t("admin.dashboard.actions.viewPromotions", "Ver Promociones")}</p>
+            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.viewPromotions", "Ver Promociones")}</h3>
           </Link>
           <Link
             to="/admin/upload"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Upload className="mx-auto h-8 w-8 text-green-600 mb-2" />
-            <p className="font-semibold text-gray-700">{t("admin.dashboard.actions.uploadNewProduct", "Subir Nuevo Producto")}</p>
+            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.uploadProduct", "Subir Nuevo Producto")}</h3>
           </Link>
         </div>
       </div>

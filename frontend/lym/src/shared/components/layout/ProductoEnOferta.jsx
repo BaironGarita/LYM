@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Percent, ShoppingCart, Heart } from "lucide-react";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const ProductoEnOferta = ({ producto, oferta }) => {
   const [enFavoritos, setEnFavoritos] = useState(false);
+  const { t } = useI18n();
 
   const precioOriginal = producto.precio;
   const precioConDescuento = precioOriginal * (1 - oferta.porcentaje / 100);
@@ -14,7 +16,7 @@ const ProductoEnOferta = ({ producto, oferta }) => {
 
   const handleAddToCart = () => {
     // Lógica para agregar al carrito
-    console.log("Agregando al carrito:", producto.id);
+    console.log(t("productoEnOferta.addingToCart"), producto.id);
   };
 
   const toggleFavorito = () => {
@@ -27,7 +29,7 @@ const ProductoEnOferta = ({ producto, oferta }) => {
       <div className="relative">
         <div className="absolute top-3 left-3 z-10">
           <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-            -{oferta.porcentaje}%
+            {t("productoEnOferta.discount", { percentage: oferta.porcentaje })}
           </div>
         </div>
 
@@ -76,7 +78,7 @@ const ProductoEnOferta = ({ producto, oferta }) => {
             </span>
           </div>
           <p className="text-sm text-green-600 font-medium">
-            Ahorras ${ahorro.toFixed(2)}
+            {t("productoEnOferta.youSave", { amount: ahorro.toFixed(2) })}
           </p>
         </div>
 
@@ -92,8 +94,8 @@ const ProductoEnOferta = ({ producto, oferta }) => {
             }`}
           >
             {diasRestantes > 0
-              ? `${diasRestantes} días restantes`
-              : "¡Último día!"}
+              ? t("productoEnOferta.daysLeft", { days: diasRestantes })
+              : t("productoEnOferta.lastDay")}
           </span>
         </div>
 
@@ -103,7 +105,7 @@ const ProductoEnOferta = ({ producto, oferta }) => {
           className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2 font-medium"
         >
           <ShoppingCart className="h-4 w-4" />
-          Agregar al Carrito
+          {t("productoEnOferta.addToCart")}
         </button>
       </div>
     </div>

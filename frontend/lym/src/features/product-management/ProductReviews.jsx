@@ -22,8 +22,10 @@ import { Skeleton } from "@/shared/components/UI/skeleton";
 import { Separator } from "@/shared/components/UI/separator";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { toast } from "sonner";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const ProductReviews = ({ productId }) => {
+  const { t } = useI18n();
   const [resenas, setResenas] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ const ProductReviews = ({ productId }) => {
       );
 
       if (!response.ok) {
-        throw new Error("Error al cargar las reseñas");
+        throw new Error(t("productReviews.errors.loadReviews"));
       }
 
       const data = await response.json();
@@ -78,7 +80,7 @@ const ProductReviews = ({ productId }) => {
       );
 
       if (!response.ok) {
-        throw new Error("Error al cargar estadísticas");
+        throw new Error(t("productReviews.errors.loadStats"));
       }
 
       const data = await response.json();
@@ -92,13 +94,13 @@ const ProductReviews = ({ productId }) => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "Fecha no disponible";
+    if (!dateString) return t("productReviews.date.unavailable");
 
     const date = new Date(dateString);
 
     // Verificar si la fecha es válida
     if (isNaN(date.getTime())) {
-      return "Fecha no válida";
+      return t("productReviews.date.invalid");
     }
 
     return date.toLocaleDateString("es-ES", {
@@ -156,8 +158,8 @@ const ProductReviews = ({ productId }) => {
 
         <div className="flex justify-between items-center">
           <Badge variant="outline" className="text-xs">
-            Compra verificada
-          </Badge>
+              {t("productReviews.messages.verifiedPurchase")}
+            </Badge>
           <Button
             variant="ghost"
             size="sm"
@@ -165,7 +167,7 @@ const ProductReviews = ({ productId }) => {
             className="text-blue-600 hover:text-blue-800"
           >
             <ExternalLink className="h-4 w-4 mr-1" />
-            Ver detalle
+            {t("productReviews.actions.viewDetail")}
           </Button>
         </div>
       </CardContent>
@@ -186,11 +188,12 @@ const ProductReviews = ({ productId }) => {
               <span className="text-2xl font-bold text-gray-900">
                 {parseFloat(stats.promedio_valoracion).toFixed(1)}
               </span>
-              <span className="text-gray-600">de 5</span>
+              <span className="text-gray-600">{t("productReviews.rating.outOf")}</span>
             </div>
             <p className="text-gray-600">
-              Basado en {stats.total_resenas} reseña
-              {stats.total_resenas !== 1 ? "s" : ""}
+              {t("productReviews.rating.basedOn")} {stats.total_resenas} {stats.total_resenas !== 1 
+                ? t("productReviews.rating.reviews") 
+                : t("productReviews.rating.review")}
             </p>
           </div>
           <Button
@@ -199,7 +202,7 @@ const ProductReviews = ({ productId }) => {
             className="flex items-center gap-2"
           >
             <MessageSquare className="h-4 w-4" />
-            Ver todas las reseñas
+            {t("productReviews.actions.viewAllReviews")}
           </Button>
         </div>
       </div>
@@ -211,12 +214,12 @@ const ProductReviews = ({ productId }) => {
 
     // Verificar que el usuario esté autenticado
     if (!isAuthenticated() || !user?.id) {
-      toast.error("Debes iniciar sesión para escribir una reseña");
+      toast.error(t("productReviews.messages.loginRequired"));
       return;
     }
 
     if (!formData.comentario.trim()) {
-      toast.error("Por favor escribe un comentario");
+      toast.error(t("productReviews.messages.commentRequired"));
       return;
     }
 
@@ -252,16 +255,16 @@ const ProductReviews = ({ productId }) => {
 
       if (result.success) {
         // Asumiendo que tu API devuelve { success: true, ... }
-        toast.success("¡Reseña enviada exitosamente!");
+        toast.success(t("productReviews.messages.reviewSubmitted"));
         resetForm();
         fetchResenas(); // Recargar solo las reseñas
       } else {
         throw new Error(
-          result.error || "La API indicó un error al enviar la reseña"
+          result.error || t("productReviews.errors.submitReviewApi")
         );
       }
     } catch (err) {
-      toast.error("Error al enviar la reseña: " + err.message);
+      toast.error(t("productReviews.errors.submitReviewGeneric") + err.message);
       console.error("Error submitting review:", err);
       setSubmitting(false);
     }
@@ -316,7 +319,7 @@ const ProductReviews = ({ productId }) => {
           <MessageSquare className="h-12 w-12 mx-auto" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Error al cargar las reseñas
+          {t("productReviews.errors.loadReviews")}
         </h3>
         <p className="text-gray-600 mb-4">{error}</p>
         <Button
@@ -325,7 +328,7 @@ const ProductReviews = ({ productId }) => {
             fetchStats();
           }}
         >
-          Intentar de nuevo
+          {t("productReviews.actions.tryAgain")}
         </Button>
       </Card>
     );
@@ -339,10 +342,10 @@ const ProductReviews = ({ productId }) => {
             <Star className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Aún no hay reseñas
+            {t("productReviews.messages.noReviews")}
           </h3>
           <p className="text-gray-600 mb-6">
-            Sé el primero en compartir tu experiencia con este producto
+            {t("productReviews.messages.beFirst")}
           </p>
 
           {isAuthenticated() ? (
@@ -352,16 +355,16 @@ const ProductReviews = ({ productId }) => {
                 onClick={() => setShowForm(true)}
               >
                 <Plus className="h-4 w-4" />
-                Crear reseña
+                {t("productReviews.actions.createReview")}
               </Button>
             )
           ) : (
             <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-gray-600 mb-2">
-                ¿Tienes experiencia con este producto?
+                {t("productReviews.messages.haveExperience")}
               </p>
               <p className="text-sm text-blue-600 font-medium">
-                Inicia sesión para escribir tu primera reseña
+                {t("productReviews.messages.loginToWrite")}
               </p>
             </div>
           )}
@@ -384,8 +387,7 @@ const ProductReviews = ({ productId }) => {
         {showForm && !isAuthenticated() && (
           <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800 text-center">
-              <span className="font-medium">¡Ups!</span> Necesitas iniciar
-              sesión para escribir una reseña.
+              {t("productReviews.messages.loginRequiredAlert")}
             </p>
             <div className="flex justify-center mt-4">
               <Button
@@ -393,7 +395,7 @@ const ProductReviews = ({ productId }) => {
                 onClick={() => setShowForm(false)}
                 className="text-yellow-700 border-yellow-300"
               >
-                Cerrar
+                {t("productReviews.actions.close")}
               </Button>
             </div>
           </div>
@@ -409,7 +411,7 @@ const ProductReviews = ({ productId }) => {
       {/* Botón para escribir reseña */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">
-          Reseñas de clientes
+          {t("productReviews.form.title")}
         </h3>
 
         {isAuthenticated() ? (
@@ -419,15 +421,14 @@ const ProductReviews = ({ productId }) => {
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              Crear reseña
+              {t("productReviews.actions.createReview")}
             </Button>
           )
         ) : (
           <div className="flex items-center gap-2 text-sm text-gray-500 bg-blue-50 px-3 py-2 rounded-md">
             <User className="h-4 w-4" />
             <span>
-              <span className="text-blue-600 font-medium">Inicia sesión</span>{" "}
-              para escribir una reseña
+              <span className="text-blue-600 font-medium">{t("productReviews.messages.loginRequired2")}</span>
             </span>
           </div>
         )}
@@ -450,8 +451,7 @@ const ProductReviews = ({ productId }) => {
       {showForm && !isAuthenticated() && (
         <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-yellow-800 text-center">
-            <span className="font-medium">¡Ups!</span> Necesitas iniciar sesión
-            para escribir una reseña.
+            {t("productReviews.messages.loginRequiredAlert")}
           </p>
           <div className="flex justify-center mt-4">
             <Button
@@ -459,7 +459,7 @@ const ProductReviews = ({ productId }) => {
               onClick={() => setShowForm(false)}
               className="text-yellow-700 border-yellow-300"
             >
-              Cerrar
+              {t("productReviews.actions.close")}
             </Button>
           </div>
         </div>
@@ -479,7 +479,7 @@ const ProductReviews = ({ productId }) => {
             className="flex items-center gap-2 mx-auto"
           >
             <MessageSquare className="h-4 w-4" />
-            Ver todas las {resenas.length} reseñas
+            {t("productReviews.actions.viewAllReviewsCount", { count: resenas.length })}
           </Button>
         </div>
       )}
@@ -500,7 +500,7 @@ const ResenaForm = ({
     <CardHeader className="pb-4">
       <div className="flex items-center justify-between">
         <CardTitle className="text-lg font-semibold text-gray-900">
-          Escribir una reseña
+          {t("productReviews.actions.writeReview")}
         </CardTitle>
         <Button
           variant="ghost"
@@ -517,7 +517,7 @@ const ResenaForm = ({
         {/* Rating selector */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Calificación
+            {t("productReviews.form.rating")}
           </label>
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }, (_, index) => (
@@ -545,18 +545,18 @@ const ResenaForm = ({
         {/* Comment field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Comentario
+            {t("productReviews.form.comment")}
           </label>
           <textarea
             value={formData.comentario}
             onChange={handleComentarioChange}
-            placeholder="Comparte tu experiencia con este producto..."
+            placeholder={t("productReviews.form.placeholder")}
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             maxLength={500}
           />
           <div className="text-right text-xs text-gray-500 mt-1">
-            {formData.comentario.length}/500 caracteres
+            {t("productReviews.form.charCount", { count: formData.comentario.length })}
           </div>
         </div>
 
@@ -570,12 +570,12 @@ const ResenaForm = ({
             {submitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Enviando...
+                {t("productReviews.actions.sending")}
               </>
             ) : (
               <>
                 <Send className="h-4 w-4" />
-                Enviar reseña
+                {t("productReviews.actions.sendReview")}
               </>
             )}
           </Button>
@@ -585,7 +585,7 @@ const ResenaForm = ({
             onClick={resetForm}
             disabled={submitting}
           >
-            Cancelar
+            {t("productReviews.actions.cancel")}
           </Button>
         </div>
       </form>

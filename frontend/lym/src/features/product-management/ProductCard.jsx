@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist } from "@/store/fashionSlice"; // Ajusta la ruta según tu estructura de carpetas
 import { toast } from "sonner"; // Importar toast
 import { useCart } from "@/features/cart/useCart";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export function ProductCardSkeleton() {
   return (
@@ -37,6 +38,7 @@ export function ProductCardSkeleton() {
 }
 
 const ProductCard = ({ product }) => {
+  const { t } = useI18n();
   const [imagenes, setImagenes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -95,8 +97,8 @@ const ProductCard = ({ product }) => {
   // Aplicar la misma lógica que ProductDetail.jsx
   const handleAddToCart = async () => {
     if (!isInStock) {
-      toast.error("Producto agotado", {
-        description: "Este producto no está disponible en este momento",
+      toast.error(t("productCard.product.outOfStock"), {
+        description: t("productCard.product.unavailable"),
       });
       return;
     }
@@ -113,8 +115,8 @@ const ProductCard = ({ product }) => {
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Error", {
-        description: "No se pudo agregar el producto al carrito",
+      toast.error(t("productCard.errors.addToCart"), {
+        description: t("productCard.errors.addToCartDescription"),
       });
     } finally {
       setIsAddingToCart(false);
@@ -138,8 +140,8 @@ const ProductCard = ({ product }) => {
             {isOnSale && (
               <div className="absolute top-3 left-3 z-20">
                 <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg">
-                  <Tag className="h-3 w-3 mr-1" />-{promocionInfo.descuento}%
-                  OFF
+                  <Tag className="h-3 w-3 mr-1" />-{promocionInfo.descuento}%{" "}
+                  {t("productCard.badges.off")}
                 </Badge>
               </div>
             )}
@@ -151,7 +153,7 @@ const ProductCard = ({ product }) => {
                   variant="destructive"
                   className="bg-red-600 text-white font-bold px-3 py-1 text-xs shadow-lg"
                 >
-                  Sin Stock
+                  {t("productCard.product.outOfStock")}
                 </Badge>
               </div>
             )}
@@ -190,8 +192,8 @@ const ProductCard = ({ product }) => {
                 <TooltipContent>
                   <p>
                     {isWishlisted
-                      ? "Quitar de la lista de deseos"
-                      : "Añadir a la lista de deseos"}
+                      ? t("productCard.actions.removeFromWishlist")
+                      : t("productCard.actions.addToWishlist")}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -210,7 +212,7 @@ const ProductCard = ({ product }) => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Ver detalles</p>
+                  <p>{t("productCard.actions.viewDetails")}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -231,7 +233,7 @@ const ProductCard = ({ product }) => {
               ) : (
                 <img
                   src={placeholder}
-                  alt="Sin imagen"
+                  alt={t("productCard.product.unavailable")}
                   className="w-full h-full object-contain rounded-lg opacity-60 group-hover:opacity-80 transition-opacity"
                 />
               )}
@@ -254,7 +256,9 @@ const ProductCard = ({ product }) => {
               {product.precio > 50000 && (
                 <div className="flex items-center gap-1 text-green-600">
                   <Truck className="h-4 w-4" />
-                  <span className="text-xs font-medium">Envío gratis</span>
+                  <span className="text-xs font-medium">
+                    {t("productCard.product.freeShipping")}
+                  </span>
                 </div>
               )}
             </div>
@@ -281,7 +285,9 @@ const ProductCard = ({ product }) => {
               {isOnSale && (
                 <div className="flex items-center gap-2">
                   <Badge className="bg-green-100 text-green-800 border-green-200 text-xs font-semibold px-2 py-1">
-                    Ahorras {formatPrice(promocionInfo.ahorroMonetario)}
+                    {t("productCard.product.save", {
+                      amount: formatPrice(promocionInfo.ahorroMonetario),
+                    })}
                   </Badge>
                 </div>
               )}
@@ -322,19 +328,21 @@ const ProductCard = ({ product }) => {
               {isAddingToCart ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Agregando...
+                  {t("productCard.actions.adding")}
                 </>
               ) : (
                 <>
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  {isInStock ? "Añadir al carrito" : "Sin stock"}
+                  {isInStock
+                    ? t("productCard.actions.addToCart")
+                    : t("productCard.actions.outOfStock")}
                 </>
               )}
             </Button>
 
             {isInStock && product.stock < 5 && (
               <p className="text-xs text-orange-600 font-medium text-center pt-1">
-                ¡Solo quedan {product.stock} unidades!
+                {t("productCard.product.lowStock", { count: product.stock })}
               </p>
             )}
           </div>

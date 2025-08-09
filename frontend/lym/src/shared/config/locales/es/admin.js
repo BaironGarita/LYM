@@ -1,8 +1,33 @@
 export const admin = {
+  uploadProduct: {
+    title: "Subir Nuevo Producto",
+    subtitle: "Completa el formulario para agregar un nuevo artículo al inventario.",
+    fields: {
+      name: "Nombre del Producto",
+      description: "Descripción del Producto",
+      price: "Precio",
+      stock: "Stock",
+      categoryId: "ID de Categoría",
+      imageUrl: "URL de la Imagen"
+    },
+    uploading: "Subiendo...",
+    addButton: "Agregar Producto",
+    success: "¡Producto subido exitosamente!",
+    errors: {
+      upload: "Error al subir el producto."
+    }
+  },
   dashboard: {
+    title: "Panel de Administración",
+    welcome: "Bienvenido de nuevo",
     welcomeBack: "Bienvenido de nuevo",
     summary: "Aquí tienes un resumen de la actividad de tu tienda.",
-    quickActions: "Acciones Rápidas",
+    quickActions: {
+      title: "Acciones Rápidas",
+      manageProducts: "Gestionar Productos",
+      viewPromotions: "Ver Promociones",
+      uploadProduct: "Subir Nuevo Producto"
+    },
     stats: {
       totalSales: "Ventas Totales",
       salesIncrease: "+20.1% desde el mes pasado",
@@ -17,6 +42,9 @@ export const admin = {
       viewPromotions: "Ver Promociones",
       uploadNewProduct: "Subir Nuevo Producto"
     }
+  },
+  products: {
+    error: "Error al cargar los datos"
   },
   promotions: {
     title: "Gestión de Promociones",

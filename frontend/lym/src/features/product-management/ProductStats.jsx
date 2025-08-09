@@ -7,8 +7,10 @@ import {
   BarChart3,
 } from "lucide-react";
 import ProductoService from "../../shared/api/productoService";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const ProductStats = () => {
+  const { t } = useI18n();
   const [stats, setStats] = useState({
     totalProductos: 0,
     stockBajo: 0,
@@ -97,7 +99,7 @@ const ProductStats = () => {
             <Package className="h-8 w-8 text-blue-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">Total Productos</p>
+            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.totalProducts")}</p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.totalProductos}
             </p>
@@ -113,7 +115,7 @@ const ProductStats = () => {
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-500">
-              Valor Inventario
+              {t("productStats.stats.inventoryValue")}
             </p>
             <p className="text-2xl font-semibold text-gray-900">
               {formatCurrency(stats.valorInventario)}
@@ -129,7 +131,7 @@ const ProductStats = () => {
             <AlertTriangle className="h-8 w-8 text-yellow-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">Stock Bajo</p>
+            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.lowStock")}</p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.stockBajo}
             </p>
@@ -144,7 +146,7 @@ const ProductStats = () => {
             <TrendingUp className="h-8 w-8 text-red-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">Sin Stock</p>
+            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.outOfStock")}</p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.sinStock}
             </p>
@@ -161,7 +163,7 @@ const ProductStats = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">
-                Categoría Popular
+                {t("productStats.stats.popularCategory")}
               </p>
               <p className="text-xl font-semibold text-gray-900">
                 {stats.categoriaPopular}

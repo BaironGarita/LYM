@@ -96,8 +96,7 @@ const PromotionsPage = () => {
             {t("admin.promotions.title")}
           </h1>
           <p className="mt-2 text-gray-600">
-            {t("admin.promotions.subtitle") ||
-              "Crea, edita y administra las ofertas de tu tienda."}
+            {t("admin.promotions.subtitle", "Crea, edita y administra las ofertas de tu tienda.")}
           </p>
         </div>
         <Button onClick={() => openModal()} className="gap-2">

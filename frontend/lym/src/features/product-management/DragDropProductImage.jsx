@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const DragDropProductImage = ({ productoId, onUpload }) => {
+  const { t } = useI18n();
   const dropRef = useRef();
   const [dragActive, setDragActive] = useState(false);
   const [mensaje, setMensaje] = useState("");
@@ -31,10 +33,10 @@ const DragDropProductImage = ({ productoId, onUpload }) => {
       } catch {}
     }
     if (success) {
-      setMensaje(`Se subieron ${success} imagen(es)`);
+      setMensaje(t("dragDropProductImage.success", { success }));
       if (onUpload) onUpload();
     } else {
-      setMensaje("Error al subir las imágenes");
+      setMensaje(t("dragDropProductImage.error"));
     }
     setTimeout(() => setMensaje(""), 2000);
   };
@@ -55,7 +57,7 @@ const DragDropProductImage = ({ productoId, onUpload }) => {
       style={{ minHeight: 80 }}
     >
       <div className="text-sm text-gray-600">
-        Arrastra y suelta una o varias imágenes aquí para subirlas
+        {t("dragDropProductImage.dragAndDrop")}
       </div>
       {mensaje && <div className="mt-2 text-blue-600">{mensaje}</div>}
     </div>

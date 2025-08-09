@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Upload, Package, DollarSign, Hash, Tag, FileText } from "lucide-react";
 import { useAuth } from "../../shared/hooks/useAuth";
+import { useI18n } from "../../shared/hooks/useI18n";
 
 // El componente InputField se mueve aquí, fuera de UploadProductPage.
 const InputField = ({
@@ -30,6 +31,7 @@ const InputField = ({
 );
 
 export function UploadProductPage() {
+  const { t } = useI18n();
   const { user } = useAuth(); // Obtenemos el objeto 'user' completo
   const [product, setProduct] = useState({
     nombre: "",
@@ -75,10 +77,10 @@ export function UploadProductPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Error al subir el producto.");
+        throw new Error(errorData.message || t("admin.uploadProduct.errors.upload", "Error al subir el producto."));
       }
 
-      setSuccess("¡Producto subido exitosamente!");
+      setSuccess(t("admin.uploadProduct.success", "¡Producto subido exitosamente!"));
       setProduct({
         nombre: "",
         descripcion: "",
@@ -102,11 +104,11 @@ export function UploadProductPage() {
         <div className="flex items-center space-x-3">
           <Upload className="h-8 w-8 text-purple-600" />
           <h1 className="text-3xl font-bold tracking-tight">
-            Subir Nuevo Producto
+            {t("admin.uploadProduct.title", "Subir Nuevo Producto")}
           </h1>
         </div>
         <p className="text-muted-foreground">
-          Completa el formulario para agregar un nuevo artículo al inventario.
+          {t("admin.uploadProduct.subtitle", "Completa el formulario para agregar un nuevo artículo al inventario.")}
         </p>
       </div>
 
@@ -115,7 +117,7 @@ export function UploadProductPage() {
           id="nombre"
           name="nombre"
           type="text"
-          placeholder="Nombre del Producto"
+          placeholder={t("admin.uploadProduct.fields.name", "Nombre del Producto")}
           value={product.nombre}
           onChange={handleChange}
           icon={Package}
@@ -130,7 +132,7 @@ export function UploadProductPage() {
             name="descripcion"
             value={product.descripcion}
             onChange={handleChange}
-            placeholder="Descripción del Producto"
+            placeholder={t("admin.uploadProduct.fields.description", "Descripción del Producto")}
             rows={4}
             className="block w-full rounded-md border-gray-300 pl-10 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             required
@@ -142,7 +144,7 @@ export function UploadProductPage() {
             id="precio"
             name="precio"
             type="number"
-            placeholder="Precio"
+            placeholder={t("admin.uploadProduct.fields.price", "Precio")}
             value={product.precio}
             onChange={handleChange}
             icon={DollarSign}
@@ -151,7 +153,7 @@ export function UploadProductPage() {
             id="stock"
             name="stock"
             type="number"
-            placeholder="Stock"
+            placeholder={t("admin.uploadProduct.fields.stock", "Stock")}
             value={product.stock}
             onChange={handleChange}
             icon={Hash}
@@ -162,7 +164,7 @@ export function UploadProductPage() {
           id="categoria_id"
           name="categoria_id"
           type="number"
-          placeholder="ID de Categoría"
+          placeholder={t("admin.uploadProduct.fields.categoryId", "ID de Categoría")}
           value={product.categoria_id}
           onChange={handleChange}
           icon={Tag}
@@ -171,7 +173,7 @@ export function UploadProductPage() {
           id="imagen_url"
           name="imagen_url"
           type="text"
-          placeholder="URL de la Imagen"
+          placeholder={t("admin.uploadProduct.fields.imageUrl", "URL de la Imagen")}
           value={product.imagen_url}
           onChange={handleChange}
           icon={Upload}
@@ -183,7 +185,7 @@ export function UploadProductPage() {
             disabled={isLoading}
             className="flex w-full justify-center rounded-md border border-transparent bg-purple-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
           >
-            {isLoading ? "Subiendo..." : "Agregar Producto"}
+            {isLoading ? t("admin.uploadProduct.uploading", "Subiendo...") : t("admin.uploadProduct.addButton", "Agregar Producto")}
           </button>
         </div>
 

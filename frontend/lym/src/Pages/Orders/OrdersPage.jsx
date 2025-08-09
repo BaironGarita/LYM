@@ -39,7 +39,7 @@ const OrdersPage = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Error al cargar los pedidos");
+        throw new Error(t("orders.errorLoading"));
       }
 
       const data = await response.json();
@@ -158,7 +158,7 @@ const OrdersPage = () => {
               <h2 className="text-3xl font-bold text-gray-800 mb-2">
                 {pedidos.length} {t("orders.title")}
               </h2>
-              <p className="text-gray-600">Historial completo de tus compras</p>
+              <p className="text-gray-600">{t("orders.completeHistory")}</p>
             </div>
 
             <div className="space-y-6">
@@ -178,7 +178,7 @@ const PedidoCard = ({ pedido }) => {
   const { t } = useTranslation();
 
   const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
+    return new Date(fecha).toLocaleDateString(t("common.locale"), {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -271,7 +271,7 @@ const PedidoCard = ({ pedido }) => {
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">
-              {pedido.direccion_envio || "Dirección no disponible"}
+              {pedido.direccion_envio || t("orders.addressNotAvailable")}
             </span>
           </div>
 
@@ -297,7 +297,7 @@ const PedidoCard = ({ pedido }) => {
               ))}
               {pedido.items.length > 3 && (
                 <div className="text-sm text-gray-500">
-                  +{pedido.items.length - 3} más...
+                  +{pedido.items.length - 3} {t("orders.more")}
                 </div>
               )}
             </div>

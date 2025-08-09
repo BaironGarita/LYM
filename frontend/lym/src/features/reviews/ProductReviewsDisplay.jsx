@@ -9,8 +9,10 @@ import {
 import { Badge } from "@/shared/components/UI/badge";
 import { Separator } from "@/shared/components/UI/separator";
 import { StarRating } from "./CreateReviewForm";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const ProductReviewsDisplay = ({ productId }) => {
+  const { t } = useI18n();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
@@ -126,7 +128,7 @@ const ProductReviewsDisplay = ({ productId }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) {
-      return "Fecha no disponible";
+      return t("productReviews.date.unavailable");
     }
 
     try {
@@ -152,7 +154,7 @@ const ProductReviewsDisplay = ({ productId }) => {
 
       // Verificar si la fecha es válida
       if (isNaN(date.getTime())) {
-        return "Fecha no válida";
+        return t("productReviews.date.invalid");
       }
 
       return date.toLocaleDateString("es-ES", {
@@ -161,7 +163,7 @@ const ProductReviewsDisplay = ({ productId }) => {
         day: "numeric",
       });
     } catch (error) {
-      return "Fecha no disponible";
+      return t("productReviews.date.unavailable");
     }
   };
 
@@ -204,7 +206,7 @@ const ProductReviewsDisplay = ({ productId }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5" />
-            Valoraciones de clientes
+            {t("productReviews.form.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -216,8 +218,8 @@ const ProductReviewsDisplay = ({ productId }) => {
               </div>
               <StarRating rating={Math.round(averageRating)} readonly />
               <p className="text-sm text-gray-600 mt-2">
-                Basado en {totalReviews}{" "}
-                {totalReviews === 1 ? "reseña" : "reseñas"}
+                {t("productReviews.rating.basedOn")} {totalReviews}{" "}
+                {totalReviews === 1 ? t("productReviews.rating.review") : t("productReviews.rating.reviews")}
               </p>
             </div>
 
@@ -249,7 +251,7 @@ const ProductReviewsDisplay = ({ productId }) => {
       {/* Lista de reseñas */}
       {reviews.length > 0 ? (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Reseñas ({totalReviews})</h3>
+          <h3 className="text-lg font-semibold">{t("productReviews.form.title")} ({totalReviews})</h3>
 
           {reviews.map((review, index) => (
             <Card key={review.id || index}>
@@ -265,7 +267,7 @@ const ProductReviewsDisplay = ({ productId }) => {
                         <p className="font-medium text-gray-900">
                           {review.usuario_nombre ||
                             review.nombre_usuario ||
-                            "Usuario"}
+                            t("productReviews.messages.user")}
                         </p>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Calendar className="w-3 h-3" />
@@ -290,7 +292,7 @@ const ProductReviewsDisplay = ({ productId }) => {
                   {/* Información adicional */}
                   {review.producto_nombre && (
                     <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                      Producto: {review.producto_nombre}
+                      {t("productReviews.messages.product")}: {review.producto_nombre}
                     </div>
                   )}
                 </div>
@@ -304,10 +306,10 @@ const ProductReviewsDisplay = ({ productId }) => {
             <div className="text-center py-8">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">
-                Aún no hay reseñas para este producto
+                {t("productReviews.messages.noReviews")}
               </p>
               <p className="text-sm text-gray-500">
-                ¡Sé el primero en escribir una reseña!
+                {t("productReviews.messages.beFirst")}
               </p>
             </div>
           </CardContent>

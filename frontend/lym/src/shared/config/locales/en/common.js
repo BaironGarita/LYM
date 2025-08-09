@@ -11,5 +11,6 @@ export const common = {
   save: "Save",
   cancel: "Cancel",
   edit: "Edit",
-  delete: "Delete"
+  delete: "Delete",
+  locale: "en-US"
 };

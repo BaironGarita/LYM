@@ -4,12 +4,14 @@ import { Button } from "@/shared/components/UI/button";
 import ProductCard from "@/features/product-management/ProductCard";
 import { toast } from "sonner";
 import { usePromociones } from "@/features/promotions/usePromociones";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 export const Home = ({ addToCart }) => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { calcularPrecio, loading: promocionesLoading } = usePromociones();
+  const { t } = useI18n();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,7 +39,7 @@ export const Home = ({ addToCart }) => {
         setFeaturedProducts(productosConPromocion);
       } catch (err) {
         setError(err.message);
-        toast.error("Error al cargar productos destacados.");
+        toast.error(t("pages.home.errorLoadingProducts", "Error al cargar productos destacados."));
       } finally {
         setLoading(false);
       }
@@ -51,24 +53,23 @@ export const Home = ({ addToCart }) => {
       {/* Hero Section */}
       <section className="text-center bg-gray-100 dark:bg-gray-800 p-12 rounded-lg">
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white">
-          Encuentra tu Estilo en Look Your Mood
+          {t("pages.home.heroTitle", "Encuentra tu Estilo en Look Your Mood")}
         </h1>
         <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Explora nuestras colecciones exclusivas y descubre las prendas
-          perfectas que se adaptan a tu estado de ánimo.
+          {t("pages.home.heroSubtitle", "Explora nuestras colecciones exclusivas y descubre las prendas perfectas que se adaptan a tu estado de ánimo.")}
         </p>
         <Button asChild size="lg" className="mt-8">
-          <Link to="/productos">Explorar Colección</Link>
+          <Link to="/productos">{t("pages.home.exploreButton", "Explorar Colección")}</Link>
         </Button>
       </section>
 
       {/* Featured Products Section */}
       <section>
         <h2 className="text-3xl font-bold text-center mb-8">
-          Productos Destacados
+          {t("pages.home.featuredProducts", "Productos Destacados")}
         </h2>
         {(loading || promocionesLoading) && (
-          <p className="text-center">Cargando productos...</p>
+          <p className="text-center">{t("pages.home.loading", "Cargando productos...")}</p>
         )}
         {error && <p className="text-center text-red-500">{error}</p>}
 

@@ -7,6 +7,7 @@ import OrdersPage from "../Pages/Orders/OrdersPage";
 import ProductsPage from "../Pages/Admin/AdminProductsPage";
 import ResenasList from "../features/reviews/ResenasList";
 import ResenaDetail from "../features/reviews/ResenaDetail";
+import Dashboard from "../Pages/Admin/Dashboard";
 
 // Rutas públicas
 export const publicRoutes = [
@@ -70,7 +71,7 @@ export const adminRoutes = [
     path: "/admin/dashboard",
     element: (
       <ProtectedRoute requireAdmin={true}>
-        <div>Panel de Administrador</div>
+        <Dashboard />
       </ProtectedRoute>
     ),
   },

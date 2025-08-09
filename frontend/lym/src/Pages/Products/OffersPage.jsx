@@ -4,6 +4,7 @@ import ProductCard from "@/features/product-management/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePromociones } from "@/features/promotions/usePromociones";
 import { toast } from "sonner";
+import { useI18n } from "@/shared/hooks/useI18n";
 
 const OffersPage = () => {
   const [productos, setProductos] = useState([]);
@@ -12,6 +13,7 @@ const OffersPage = () => {
   const [error, setError] = useState(null);
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
   const [ordenamiento, setOrdenamiento] = useState("descuento");
+  const { t } = useI18n();
 
   // Usar el mismo hook que ProductsPage
   const {
@@ -45,7 +47,7 @@ const OffersPage = () => {
 
       const response = await fetch("http://localhost:81/api_lym/productos");
       if (!response.ok) {
-        throw new Error("Error al cargar los productos");
+        throw new Error(t("pages.offers.errorLoading", "Error al cargar los productos"));
       }
 
       const productosData = await response.json();
@@ -53,7 +55,7 @@ const OffersPage = () => {
     } catch (err) {
       setError(err.message);
       console.error("Error fetching data:", err);
-      toast.error("Error al cargar los productos");
+      toast.error(t("pages.offers.errorLoadingProducts", "Error al cargar los productos"));
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,7 @@ const OffersPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando productos en oferta...</p>
+          <p className="mt-4 text-gray-600">{t("pages.offers.loading", "Cargando productos en oferta...")}</p>
         </div>
       </div>
     );
@@ -137,7 +139,7 @@ const OffersPage = () => {
             onClick={fetchProductos}
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
           >
-            Reintentar
+            {t("pages.offers.retry", "Reintentar")}
           </button>
         </div>
       </div>
@@ -168,7 +170,7 @@ const OffersPage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              Productos en Oferta
+              {t("pages.offers.title", "Productos en Oferta")}
             </motion.h1>
             <motion.p
               className="text-2xl opacity-90"
@@ -176,7 +178,7 @@ const OffersPage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              {productosEnOferta.length} productos con descuentos especiales
+              {t("pages.offers.productsCount", "{{count}} productos con descuentos especiales", { count: productosEnOferta.length })}
             </motion.p>
             <motion.div
               className="mt-4 text-lg"
@@ -184,7 +186,7 @@ const OffersPage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              🎉 ¡Ofertas limitadas por tiempo!
+              🎉 {t("pages.offers.limitedTimeOffer", "¡Ofertas limitadas por tiempo!")}
             </motion.div>
           </div>
         </div>
@@ -203,14 +205,14 @@ const OffersPage = () => {
             <div className="flex items-center gap-3">
               <Filter className="h-5 w-5 text-gray-500" />
               <label className="text-sm font-medium text-gray-700">
-                Categoría:
+                {t("pages.offers.category", "Categoría:")} 
               </label>
               <select
                 value={filtroCategoria}
                 onChange={(e) => setFiltroCategoria(e.target.value)}
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               >
-                <option value="todas">Todas las categorías</option>
+                <option value="todas">{t("pages.offers.allCategories", "Todas las categorías")}</option>
                 {categorias.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     {categoria.nombre}
@@ -222,26 +224,26 @@ const OffersPage = () => {
             <div className="flex items-center gap-3">
               <SortAsc className="h-5 w-5 text-gray-500" />
               <label className="text-sm font-medium text-gray-700">
-                Ordenar por:
+                {t("pages.offers.sortBy", "Ordenar por:")}
               </label>
               <select
                 value={ordenamiento}
                 onChange={(e) => setOrdenamiento(e.target.value)}
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               >
-                <option value="descuento">Mayor descuento</option>
-                <option value="precio-menor">Menor precio</option>
-                <option value="precio-mayor">Mayor precio</option>
-                <option value="nombre">Nombre A-Z</option>
+                <option value="descuento">{t("pages.offers.highestDiscount", "Mayor descuento")}</option>
+                <option value="precio-menor">{t("pages.offers.lowestPrice", "Menor precio")}</option>
+                <option value="precio-mayor">{t("pages.offers.highestPrice", "Mayor precio")}</option>
+                <option value="nombre">{t("pages.offers.nameAZ", "Nombre A-Z")}</option>
               </select>
             </div>
 
             <div className="ml-auto flex items-center gap-4">
               <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                📊 {promociones.length} promociones activas
+                📊 {t("pages.offers.activePromotions", "{{count}} promociones activas", { count: promociones.length })}
               </div>
               <div className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                🛍️ {productosEnOferta.length} productos
+                🛍️ {t("pages.offers.productsCount2", "{{count}} productos", { count: productosEnOferta.length })}
               </div>
             </div>
           </div>
@@ -258,12 +260,12 @@ const OffersPage = () => {
             >
               <Percent className="h-32 w-32 text-gray-300 mx-auto mb-6" />
               <h2 className="text-3xl font-semibold text-gray-600 mb-4">
-                No hay productos en oferta
+                {t("pages.offers.noProducts", "No hay productos en oferta")}
               </h2>
               <p className="text-gray-500 text-lg">
                 {filtroCategoria !== "todas"
-                  ? "No hay ofertas para esta categoría. Prueba con otra categoría."
-                  : "Vuelve pronto para descubrir nuevas ofertas increíbles"}
+                  ? t("pages.offers.noCategoryOffers", "No hay ofertas para esta categoría. Prueba con otra categoría.")
+                  : t("pages.offers.checkBackSoon", "Vuelve pronto para descubrir nuevas ofertas increíbles")}
               </p>
             </motion.div>
           ) : (
@@ -300,12 +302,10 @@ const OffersPage = () => {
           transition={{ delay: 1.2 }}
         >
           <h3 className="text-2xl font-bold text-gray-800 mb-4">
-            🔥 ¡No te pierdas estas ofertas!
+            🔥 {t("pages.offers.dontMiss", "¡No te pierdas estas ofertas!")}
           </h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Nuestras ofertas cambian regularmente. Sigue visitando para
-            descubrir nuevos productos con descuentos increíbles. ¡Ahorra en tus
-            marcas favoritas!
+            {t("pages.offers.offersChangeRegularly", "Nuestras ofertas cambian regularmente. Sigue visitando para descubrir nuevos productos con descuentos increíbles. ¡Ahorra en tus marcas favoritas!")}
           </p>
         </motion.div>
       </div>

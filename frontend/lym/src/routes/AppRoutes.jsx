@@ -2,12 +2,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/shared/hooks/useAuth"; // Usando alias @
 
 // --- Páginas Públicas ---
-import { Home } from "@/Pages/HomePage";
+import { Home } from "@/Pages/home/HomePage";
 import { ProductsPage } from "@/Pages/Products/ProductsPage";
 import ProductList from "../features/product-management/ProductList";
 import ProductDetail from "@/features/product-management/ProductDetail";
 import OffersPage from "@/Pages/Products/OffersPage";
-import { ReviewsPage } from "@/Pages/ReviewsPage";
+import { ReviewsPage } from "@/Pages/Products/ReviewsPage";
 import ResenaDetail from "@/features/reviews/ResenaDetail";
 
 // --- Layout y Páginas de Administrador ---

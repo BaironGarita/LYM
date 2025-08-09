@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import { Navbar } from "@/shared/components/layout/Navbar";
 import AppRoutes from "./routes/AppRoutes";
 import { AuthProvider } from "./shared/hooks/useAuth";
-import { CartProvider } from "./features/cart/useCart";
+import { CartProvider } from "./shared/hooks/useCart";
 import "./App.css";
 
 function App() {

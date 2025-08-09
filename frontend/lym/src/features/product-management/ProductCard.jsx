@@ -13,9 +13,9 @@ import {
   TooltipContent,
 } from "@/shared/components/UI/tooltip";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleWishlist } from "@/store/fashionSlice"; // Ajusta la ruta según tu estructura de carpetas
+import { toggleWishlist } from "@/App/store/fashionSlice"; // Ajusta la ruta según tu estructura de carpetas
 import { toast } from "sonner"; // Importar toast
-import { useCart } from "@/features/cart/useCart";
+import { useCart } from "@/shared/hooks/useCart";
 import { useI18n } from "@/shared/hooks/useI18n";
 
 export function ProductCardSkeleton() {
@@ -109,9 +109,17 @@ const ProductCard = ({ product }) => {
       addToCart({
         ...product,
         cantidad: 1, // ProductCard siempre añade 1 unidad
+        quantity: 1, // Para compatibilidad con cartSlice.js
         precio: promocionInfo.precioFinal,
         precioOriginal: promocionInfo.precioOriginal,
         promocionAplicada: promocionInfo.promocionAplicada,
+        promocionInfo: {
+          precioFinal: promocionInfo.precioFinal,
+          precioOriginal: promocionInfo.precioOriginal,
+          descuento: promocionInfo.descuento,
+          promocionAplicada: promocionInfo.promocionAplicada,
+          ahorroMonetario: promocionInfo.ahorroMonetario,
+        },
       });
     } catch (error) {
       console.error("Error adding to cart:", error);

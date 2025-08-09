@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useCart } from "@/features/cart/useCart";
+import { useCart } from "@/shared/hooks/useCart";
 import { useClickOutside } from "@/shared/hooks/useClickOutside";
 import { useI18n } from "@/shared/hooks/useI18n";
 import { Logo } from "./navbar/Logo";

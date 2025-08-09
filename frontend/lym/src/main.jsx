@@ -7,7 +7,7 @@ import i18n from "@/shared/config/i18n";
 import { I18nextProvider } from "react-i18next";
 
 import { Provider } from "react-redux";
-import store from "@/store/store.js";
+import store from "@/App/store/store.js";
 
 import "./index.css";
 

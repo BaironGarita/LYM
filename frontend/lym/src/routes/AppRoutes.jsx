@@ -9,6 +9,7 @@ import ProductDetail from "@/features/product-management/ProductDetail";
 import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/Products/ReviewsPage";
 import ResenaDetail from "@/features/reviews/ResenaDetail";
+import CheckoutPage from "@/Pages/Checkout/CheckoutPage";
 
 // --- Layout y Páginas de Administrador ---
 import { AdminLayout } from "@/shared/components/layout/AdminLayout";
@@ -43,6 +44,7 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         path="/producto/:id"
         element={<ProductDetail onAddToCart={addToCart} />}
       />
+      <Route path="/checkout" element={<CheckoutPage />} />
 
       {/* --- Rutas de Administrador Protegidas --- */}
       <Route

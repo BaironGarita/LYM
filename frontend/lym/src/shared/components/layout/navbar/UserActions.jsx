@@ -1,4 +1,4 @@
-import { Heart, User, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { UserMenu } from "./UserMenu.jsx";
 import { CartDropdown } from "./CartDropdown.jsx";
 import toast from "react-hot-toast";
@@ -20,18 +20,24 @@ export function UserActions({
 }) {
   const { t } = useI18n();
   return (
-    <>
+    <div className="flex items-center space-x-3">
       {/* Botón favoritos */}
       {isAuthenticated() && !isAdmin() && (
         <div className="hidden md:block">
           <button
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
             onClick={() =>
-              toast(t("navbar.user.favoritesInDevelopment", "Funcionalidad de favoritos en desarrollo"), {
-                icon: <Heart className="h-5 w-5" />,
-                duration: 2000,
-                position: "top-center",
-              })
+              toast(
+                t(
+                  "navbar.user.favoritesInDevelopment",
+                  "Funcionalidad de favoritos en desarrollo"
+                ),
+                {
+                  icon: <Heart className="h-5 w-5" />,
+                  duration: 2000,
+                  position: "top-center",
+                }
+              )
             }
             aria-label={t("navbar.user.favorites")}
           >
@@ -53,10 +59,12 @@ export function UserActions({
       />
 
       {/* Carrito - Para todos los usuarios */}
-      <div className="relative hidden md:block" ref={cartBtnRef}>
+      <div className="relative">
         <button
+          ref={cartBtnRef}
           onClick={handlers.toggleCart}
           className="relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          aria-label="Abrir carrito de compras"
         >
           <ShoppingCart className="h-5 w-5 mr-2" />
           <span className="hidden sm:inline">{t("navbar.cart.title")}</span>
@@ -82,6 +90,6 @@ export function UserActions({
           />
         )}
       </div>
-    </>
+    </div>
   );
 }

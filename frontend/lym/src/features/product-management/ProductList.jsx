@@ -4,7 +4,7 @@ import CategoryFilter from "./CategoryFilter";
 import { usePromociones } from "@/features/promotions/usePromociones";
 import { TooltipProvider } from "@/shared/components/UI/tooltip";
 
-const ProductList = ({ onAddToCart }) => {
+const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -51,11 +51,7 @@ const ProductList = ({ onAddToCart }) => {
                 <ProductCardSkeleton key={index} />
               ))
             : products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
         </div>
       </div>

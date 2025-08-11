@@ -1,15 +1,16 @@
 import { BrowserRouter as Router } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "@/App/store"; // Asegúrate que la ruta a tu store sea correcta
 import { Toaster } from "sonner";
 import { Navbar } from "@/shared/components/layout/Navbar";
 import AppRoutes from "./routes/AppRoutes";
 import { AuthProvider } from "./shared/hooks/useAuth";
-import { CartProvider } from "./shared/hooks/useCart";
 import "./App.css";
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
+    <Provider store={store}>
+      <AuthProvider>
         <Router>
           <div className="min-h-screen flex flex-col">
             <Navbar />
@@ -38,8 +39,8 @@ function App() {
             }}
           />
         </Router>
-      </CartProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </Provider>
   );
 }
 

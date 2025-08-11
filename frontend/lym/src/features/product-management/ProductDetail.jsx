@@ -51,6 +51,8 @@ import { toast } from "sonner";
 import { usePromociones } from "@/features/promotions/usePromociones.js";
 import ProductReviews from "./ProductReviews";
 import { useI18n } from "@/shared/hooks/useI18n";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/App/store/cartSlice"; // Importar la acción de Redux
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -69,9 +71,10 @@ const useClickOutside = (ref, handler) => {
   }, [ref, handler]);
 };
 
-const ProductDetail = ({ onAddToCart }) => {
+const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Agregar dispatch de Redux
   const [product, setProduct] = useState(null);
   const [imagenes, setImagenes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -156,28 +159,38 @@ const ProductDetail = ({ onAddToCart }) => {
     return product?.promocionInfo?.descuento || 0;
   };
 
+  // Usar Redux para agregar al carrito
   const handleAddToCart = async () => {
-    if (onAddToCart) {
-      setIsAddingToCart(true);
-      try {
-        await onAddToCart({
-          ...product,
-          quantity,
-          precio: product.promocionInfo.precioFinal,
+    setIsAddingToCart(true);
+    try {
+      // Usar la acción de Redux directamente
+      dispatch(addToCart({
+        ...product,
+        cantidad: quantity,
+        quantity: quantity,
+        precio: product.promocionInfo.precioFinal,
+        precioOriginal: product.promocionInfo.precioOriginal,
+        promocionAplicada: product.promocionInfo.promocionAplicada,
+        promocionInfo: {
+          precioFinal: product.promocionInfo.precioFinal,
           precioOriginal: product.promocionInfo.precioOriginal,
+          descuento: product.promocionInfo.descuento,
           promocionAplicada: product.promocionInfo.promocionAplicada,
-        });
-        toast.success("¡Agregado al carrito!", {
-          description: `${product.nombre} (${quantity}) se agregó a tu carrito`,
-        });
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-        toast.error("Error", {
-          description: "No se pudo agregar el producto al carrito",
-        });
-      } finally {
-        setIsAddingToCart(false);
-      }
+          ahorroMonetario: product.promocionInfo.ahorroMonetario,
+        },
+        imagen: imagenes.length > 0 ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}` : null,
+      }));
+
+      toast.success("¡Agregado al carrito!", {
+        description: `${product.nombre} (${quantity}) se agregó a tu carrito`,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Error", {
+        description: "No se pudo agregar el producto al carrito",
+      });
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -560,7 +573,7 @@ const ProductDetail = ({ onAddToCart }) => {
                       }}
                     >
                       <img
-                        src={`http://localhost:81/api_lym/${img.ruta_archivo}`} // CORRECCIÓN: era "apy_lym"
+                        src={`http://localhost:81/api_lym/${img.ruta_archivo}`}
                         alt={img.alt_text || product.nombre}
                         className="w-full h-full object-cover"
                       />

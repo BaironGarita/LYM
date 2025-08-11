@@ -5,7 +5,7 @@ import { usePromociones } from "@/features/promotions/usePromociones";
 import { toast } from "sonner";
 import { useI18n } from "@/shared/hooks/useI18n";
 
-export const ProductsPage = ({ addToCart }) => {
+export const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,7 +32,12 @@ export const ProductsPage = ({ addToCart }) => {
 
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(t("pages.products.errorLoading", "No se pudieron cargar los productos."));
+          throw new Error(
+            t(
+              "pages.products.errorLoading",
+              "No se pudieron cargar los productos."
+            )
+          );
         }
         const data = await response.json();
 
@@ -48,12 +53,20 @@ export const ProductsPage = ({ addToCart }) => {
 
         if (productosConPromociones.length === 0) {
           toast.info(
-            t("pages.products.noProductsInCategory", "No se encontraron productos para la categoría seleccionada.")
+            t(
+              "pages.products.noProductsInCategory",
+              "No se encontraron productos para la categoría seleccionada."
+            )
           );
         }
       } catch (err) {
         setError(err.message);
-        toast.error(t("pages.products.errorLoadingProducts", "Error al cargar los productos."));
+        toast.error(
+          t(
+            "pages.products.errorLoadingProducts",
+            "Error al cargar los productos."
+          )
+        );
       } finally {
         setLoading(false);
       }
@@ -73,7 +86,10 @@ export const ProductsPage = ({ addToCart }) => {
             {t("pages.products.title", "Nuestra Colección")}
           </h1>
           <p className="text-lg text-gray-500 dark:text-gray-400 mt-1">
-            {t("pages.products.subtitle", "Filtra por categoría para encontrar tu estilo perfecto.")}
+            {t(
+              "pages.products.subtitle",
+              "Filtra por categoría para encontrar tu estilo perfecto."
+            )}
           </p>
         </div>
         <CategoryFilter onChange={setSelectedCategory} />
@@ -81,7 +97,9 @@ export const ProductsPage = ({ addToCart }) => {
 
       <main>
         {(loading || promocionesLoading) && (
-          <p className="text-center py-10">{t("pages.products.loading", "Cargando productos...")}</p>
+          <p className="text-center py-10">
+            {t("pages.products.loading", "Cargando productos...")}
+          </p>
         )}
         {error && <p className="text-center text-red-500 py-10">{error}</p>}
 
@@ -90,20 +108,22 @@ export const ProductsPage = ({ addToCart }) => {
             {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={() => addToCart(product)}
-                  />
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
               <div className="text-center py-10">
                 <p className="text-xl font-semibold">
-                  {t("pages.products.noProducts", "No se encontraron productos.")}
+                  {t(
+                    "pages.products.noProducts",
+                    "No se encontraron productos."
+                  )}
                 </p>
                 <p className="text-gray-500">
-                  {t("pages.products.tryAnotherCategory", "Intenta seleccionar otra categoría o revisa más tarde.")}
+                  {t(
+                    "pages.products.tryAnotherCategory",
+                    "Intenta seleccionar otra categoría o revisa más tarde."
+                  )}
                 </p>
               </div>
             )}

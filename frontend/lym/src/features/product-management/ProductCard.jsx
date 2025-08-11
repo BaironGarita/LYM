@@ -13,9 +13,9 @@ import {
   TooltipContent,
 } from "@/shared/components/UI/tooltip";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleWishlist } from "@/App/store/fashionSlice"; // Ajusta la ruta según tu estructura de carpetas
-import { toast } from "sonner"; // Importar toast
-import { useCart } from "@/shared/hooks/useCart";
+import { toggleWishlist } from "@/App/store/fashionSlice";
+import { addToCart } from "@/App/store/cartSlice"; // Importar la acción de Redux
+import { toast } from "sonner";
 import { useI18n } from "@/shared/hooks/useI18n";
 
 export function ProductCardSkeleton() {
@@ -45,9 +45,8 @@ const ProductCard = ({ product }) => {
   const placeholder = "https://via.placeholder.com/200x200?text=Sin+Imagen";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { addToCart } = useCart();
 
-  // Obtener el estado de la wishlist desde Redux
+  // Obtener el estado de la wishlist y cart desde Redux
   const wishlistItems = useSelector((state) => state.fashion.wishlist.items);
   const isWishlisted = wishlistItems.some((item) => item.id === product.id);
 
@@ -94,7 +93,7 @@ const ProductCard = ({ product }) => {
     return isNaN(numRating) ? 0 : numRating;
   };
 
-  // Aplicar la misma lógica que ProductDetail.jsx
+  // Usar Redux para agregar al carrito
   const handleAddToCart = async () => {
     if (!isInStock) {
       toast.error(t("productCard.product.outOfStock"), {
@@ -105,22 +104,28 @@ const ProductCard = ({ product }) => {
 
     setIsAddingToCart(true);
     try {
-      // Usar la función addToCart del contexto
-      addToCart({
-        ...product,
-        cantidad: 1, // ProductCard siempre añade 1 unidad
-        quantity: 1, // Para compatibilidad con cartSlice.js
-        precio: promocionInfo.precioFinal,
-        precioOriginal: promocionInfo.precioOriginal,
-        promocionAplicada: promocionInfo.promocionAplicada,
-        promocionInfo: {
-          precioFinal: promocionInfo.precioFinal,
+      // Usar la acción de Redux directamente
+      dispatch(
+        addToCart({
+          ...product,
+          cantidad: 1,
+          quantity: 1,
+          precio: promocionInfo.precioFinal,
           precioOriginal: promocionInfo.precioOriginal,
-          descuento: promocionInfo.descuento,
           promocionAplicada: promocionInfo.promocionAplicada,
-          ahorroMonetario: promocionInfo.ahorroMonetario,
-        },
-      });
+          promocionInfo: {
+            precioFinal: promocionInfo.precioFinal,
+            precioOriginal: promocionInfo.precioOriginal,
+            descuento: promocionInfo.descuento,
+            promocionAplicada: promocionInfo.promocionAplicada,
+            ahorroMonetario: promocionInfo.ahorroMonetario,
+          },
+          imagen:
+            imagenes.length > 0
+              ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}`
+              : null,
+        })
+      );
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(t("productCard.errors.addToCart"), {

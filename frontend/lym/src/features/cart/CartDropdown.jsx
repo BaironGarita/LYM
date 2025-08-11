@@ -1,79 +1,142 @@
-import { ShoppingCart, X } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  removeItemFromCart,
+  addToCart,
+  deleteItemFromCart,
+} from "@/App/store/cartSlice";
+import { Button } from "@/shared/components/UI/button";
+import { ScrollArea } from "@/shared/components/UI/scroll-area";
+import { Separator } from "@/shared/components/UI/separator";
+import { ShoppingCart, Trash2, Plus, Minus, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function CartDropdown({
-  cart = [],
-  removeFromCart,
-  clearCart,
-  onClose,
-}) {
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + item.precio * (item.cantidad || 1),
-    0
+const CartDropdown = ({ onClose }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { items, totalAmount, totalQuantity } = useSelector(
+    (state) => state.cart
   );
 
-  return (
-    <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50">
-      <div className="flex items-center justify-between p-4 border-b">
-        <span className="font-bold text-lg flex items-center">
-          <ShoppingCart className="h-5 w-5 mr-2" /> Carrito
-        </span>
-        <button onClick={onClose} className="text-gray-500 hover:text-red-500">
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency: "CRC",
+      minimumFractionDigits: 0,
+    }).format(price);
 
-      <div className="max-h-64 overflow-y-auto">
-        {cart.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            El carrito está vacío
-          </div>
-        ) : (
-          cart.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between px-4 py-2 border-b last:border-b-0"
-            >
-              <div>
-                <div className="font-semibold">{item.nombre}</div>
-                <div className="text-xs text-gray-500">
-                  Cantidad: {item.cantidad}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Precio: ₡
-                  {item.precio.toLocaleString("es-CR", {
-                    minimumFractionDigits: 2,
-                  })}
-                </div>
-              </div>
-              <button
-                onClick={() => removeFromCart(item.id)}
-                className="text-red-500 hover:underline text-xs"
-              >
-                Quitar
-              </button>
-            </div>
-          ))
+  const handleGoToCheckout = () => {
+    navigate("/checkout");
+    if (onClose) onClose();
+  };
+
+  const handleIncrease = (item) => {
+    // Para aumentar, añadimos una copia del producto con cantidad 1
+    dispatch(addToCart({ ...item, quantity: 1 }));
+  };
+
+  const handleDecrease = (item) => {
+    dispatch(removeItemFromCart(item.id));
+  };
+
+  const handleDelete = (item) => {
+    dispatch(deleteItemFromCart(item.id));
+  };
+
+  return (
+    <div className="w-80 md:w-96 bg-white rounded-lg shadow-2xl border flex flex-col">
+      <div className="p-4 flex justify-between items-center border-b">
+        <h3 className="text-lg font-semibold text-gray-800">
+          Carrito de Compras ({totalQuantity})
+        </h3>
+        {onClose && (
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
         )}
       </div>
 
-      <div className="p-4 border-t flex items-center justify-between">
-        <span className="font-bold">Total:</span>
-        <span className="font-bold">
-          ₡{totalPrice.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
-        </span>
-      </div>
-
-      <div className="p-4 pt-0 flex justify-between gap-2">
-        <button
-          onClick={clearCart}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-3 py-1 text-sm"
-        >
-          Vaciar carrito
-        </button>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1 text-sm">
-          Comprar
-        </button>
-      </div>
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-64 text-center p-4">
+          <ShoppingCart className="h-16 w-16 text-gray-300 mb-4" />
+          <p className="text-gray-600 font-medium">Tu carrito está vacío</p>
+          <p className="text-sm text-gray-400 mt-1">
+            Añade productos para verlos aquí.
+          </p>
+        </div>
+      ) : (
+        <>
+          <ScrollArea className="flex-grow" style={{ height: "350px" }}>
+            <div className="p-2">
+              {items.map((item) => (
+                <div key={item.id} className="flex items-start p-2 rounded-lg">
+                  <img
+                    src={item.imagen}
+                    alt={item.nombre}
+                    className="w-16 h-16 object-cover rounded-md mr-4"
+                  />
+                  <div className="flex-grow">
+                    <p className="font-semibold text-sm text-gray-800 line-clamp-1">
+                      {item.nombre}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatPrice(
+                        item.promocionInfo?.precioFinal || item.precio
+                      )}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center border rounded-md">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleDecrease(item)}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="px-2 text-sm font-bold">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleIncrease(item)}
+                          disabled={item.quantity >= item.stock}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-500"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <Separator />
+          <div className="p-4 space-y-4">
+            <div className="flex justify-between font-semibold">
+              <span className="text-gray-700">Subtotal</span>
+              <span className="text-gray-900">{formatPrice(totalAmount)}</span>
+            </div>
+            <Button
+              className="w-full h-11 text-base"
+              onClick={handleGoToCheckout}
+            >
+              Ir a Pagar
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default CartDropdown;

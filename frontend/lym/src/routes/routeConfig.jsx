@@ -13,15 +13,15 @@ import Dashboard from "../Pages/Admin/Dashboard";
 export const publicRoutes = [
   {
     path: "/",
-    element: ({ addToCart }) => <ProductList onAddToCart={addToCart} />,
+    element: () => <ProductList />, // Sin props
   },
   {
     path: "/productos",
-    element: ({ addToCart }) => <ProductList onAddToCart={addToCart} />,
+    element: () => <ProductList />, // Sin props
   },
   {
     path: "/producto/:id",
-    element: ({ addToCart }) => <ProductDetail onAddToCart={addToCart} />,
+    element: () => <ProductDetail />, // Sin props
   },
   {
     path: "/offers",

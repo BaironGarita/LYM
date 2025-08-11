@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Menu, X } from "lucide-react";
+import { useSelector } from "react-redux";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useCart } from "@/shared/hooks/useCart";
 import { useClickOutside } from "@/shared/hooks/useClickOutside";
 import { useI18n } from "@/shared/hooks/useI18n";
 import { Logo } from "./navbar/Logo";
@@ -10,6 +10,7 @@ import { UserActions } from "./navbar/UserActions";
 import { MobileMenu } from "./navbar/MobileMenu";
 import { AuthModal } from "../../../features/auth/AuthModal";
 import { LanguageSelector } from "../LanguageSelector";
+import CartDropdown from "@/features/cart/CartDropdown";
 
 export function Navbar() {
   const { t } = useI18n();
@@ -20,20 +21,22 @@ export function Navbar() {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
 
   const { user, isAuthenticated, isAdmin } = useAuth();
-  const { cart, removeFromCart, clearCart, state } = useCart();
+  const { totalQuantity, totalAmount } = useSelector((state) => state.cart);
 
-  const cartBtnRef = useRef();
+  const cartDropdownRef = useRef(); // Renombrado para mayor claridad
+  const cartBtnRef = useRef(); // Nueva referencia para el botón del carrito
   const userMenuRef = useRef();
   const adminMenuRef = useRef();
 
   // Custom hooks para cerrar menús
-  useClickOutside(userMenuRef, () => setShowUserMenu(false), showUserMenu);
-  useClickOutside(cartBtnRef, () => setShowCart(false), showCart);
-  useClickOutside(adminMenuRef, () => setShowAdminMenu(false), showAdminMenu);
+  useClickOutside(userMenuRef, () => setShowUserMenu(false));
+  // Modificar useClickOutside para ignorar clics en el botón del carrito
+  useClickOutside(cartDropdownRef, () => setShowCart(false), cartBtnRef);
+  useClickOutside(adminMenuRef, () => setShowAdminMenu(false));
 
   const cartStats = {
-    totalItems: state.itemCount,
-    totalPrice: state.total,
+    totalItems: totalQuantity,
+    totalPrice: totalAmount,
   };
 
   const menuHandlers = {
@@ -44,6 +47,7 @@ export function Navbar() {
     openAuthModal: () => setIsAuthModalOpen(true),
     closeAuthModal: () => setIsAuthModalOpen(false),
     closeMobileMenu: () => setShowMobileMenu(false),
+    closeCart: () => setShowCart(false),
   };
 
   return (
@@ -74,13 +78,9 @@ export function Navbar() {
                 isAdmin={isAdmin}
                 user={user}
                 showUserMenu={showUserMenu}
-                showCart={showCart}
-                cart={cart}
                 cartStats={cartStats}
-                removeFromCart={removeFromCart}
-                clearCart={clearCart}
                 userMenuRef={userMenuRef}
-                cartBtnRef={cartBtnRef}
+                cartBtnRef={cartBtnRef} // Pasar la nueva referencia al componente de acciones
                 handlers={menuHandlers}
               />
             </div>
@@ -115,6 +115,13 @@ export function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* Dropdown del Carrito */}
+      {showCart && (
+        <div className="absolute top-16 right-4 z-50" ref={cartDropdownRef}>
+          <CartDropdown onClose={menuHandlers.closeCart} />
+        </div>
+      )}
 
       {/* Menú móvil */}
       <MobileMenu

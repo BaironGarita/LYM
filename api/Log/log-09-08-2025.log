@@ -1,0 +1,6 @@
+[09-08-2025 05:50:19] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: mysqli::__construct(): Error while reading greeting packet. PID=2952
+ [09-08-2025 05:50:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [09-08-2025 05:50:39] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [09-08-2025 05:50:39] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [09-08-2025 05:50:44] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ 

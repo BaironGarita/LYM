@@ -1,111 +1,244 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 
+// Local storage key for cart persistence
+export const CART_STORAGE_KEY = "lym_cart";
+
+// Helper functions for localStorage operations
+const loadCartFromStorage = () => {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    return savedCart ? JSON.parse(savedCart) : null;
+  } catch (error) {
+    console.error("Error loading cart from localStorage:", error);
+    return null;
+  }
+};
+
+const saveCartToStorage = (cart) => {
+  try {
+    localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({
+        items: cart.items,
+        totalQuantity: cart.totalQuantity,
+        totalAmount: cart.totalAmount,
+      })
+    );
+  } catch (error) {
+    console.error("Error saving cart to localStorage:", error);
+  }
+};
+
 const initialState = {
-  items: [], // Cada item: { ...product, quantity: number, totalPrice: number }
+  items: [],
   totalQuantity: 0,
   totalAmount: 0,
+  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+  error: null,
+  lastUpdated: null,
 };
+
+// Load initial state from localStorage
+const savedCart = loadCartFromStorage();
+if (savedCart) {
+  initialState.items = savedCart.items || [];
+  initialState.totalQuantity = savedCart.totalQuantity || 0;
+  initialState.totalAmount = savedCart.totalAmount || 0;
+  initialState.lastUpdated = savedCart.lastUpdated || null;
+}
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // Acción para añadir un item al carrito.
-    // Si el item ya existe, su cantidad es aumentada.
-    addToCart(state, action) {
-      const newItem = action.payload;
-      const existingItem = state.items.find((item) => item.id === newItem.id);
-      const quantityToAdd = newItem.quantity || 1; // Cantidad a añadir, por defecto 1
-
-      state.totalQuantity += quantityToAdd;
-
-      // Usar promocionInfo si está disponible para el cálculo del precio
-      const price = newItem.promocionInfo?.precioFinal || newItem.precio;
-
-      if (!existingItem) {
-        state.items.push({
-          ...newItem,
-          quantity: quantityToAdd,
-          totalPrice: price * quantityToAdd,
-        });
-        state.totalAmount += price * quantityToAdd;
-        toast.success(
-          `"${newItem.nombre}" (${quantityToAdd}) se ha añadido al carrito.`
-        );
-      } else {
-        existingItem.quantity += quantityToAdd;
-        existingItem.totalPrice += price * quantityToAdd;
-        state.totalAmount += price * quantityToAdd;
-        toast.info(
-          `Cantidad de "${newItem.nombre}" actualizada en el carrito.`
-        );
-      }
+    // Set loading state
+    setLoading: (state) => {
+      state.status = "loading";
     },
 
-    // Acción para remover un item del carrito.
-    // Si la cantidad del item es mayor a 1, disminuye la cantidad.
-    // De lo contrario, remueve el item completamente.
-    removeItemFromCart(state, action) {
-      const id = action.payload;
-      const existingItem = state.items.find((item) => item.id === id);
+    // Set error state
+    setError: (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
+      toast.error(action.payload || "Error en el carrito");
+    },
 
-      if (existingItem) {
-        state.totalQuantity--;
-        const price =
-          existingItem.promocionInfo?.precioFinal || existingItem.precio;
-        state.totalAmount -= price;
+    // Add item to cart
+    addItem: {
+      reducer: (state, action) => {
+        const { item, quantity = 1 } = action.payload;
+        const existingItem = state.items.find((i) => i.id === item.id);
+        const price = item.promocionInfo?.precioFinal || item.precio;
+        const itemQuantity = Math.min(quantity, item.stock || Infinity);
 
-        if (existingItem.quantity === 1) {
-          toast.error(`"${existingItem.nombre}" se ha eliminado del carrito.`);
-          state.items = state.items.filter((item) => item.id !== id);
+        if (existingItem) {
+          // Update existing item
+          const newQuantity = existingItem.quantity + itemQuantity;
+          if (item.stock !== undefined && newQuantity > item.stock) {
+            toast.warning(`Solo quedan ${item.stock} unidades disponibles`);
+            return;
+          }
+
+          existingItem.quantity = newQuantity;
+          existingItem.totalPrice = price * newQuantity;
+          state.totalQuantity += itemQuantity;
+          state.totalAmount += price * itemQuantity;
+          toast.success(
+            `Cantidad actualizada: ${item.nombre} (${newQuantity})`
+          );
         } else {
-          existingItem.quantity--;
-          existingItem.totalPrice -= price;
-          toast.warn(`Se ha quitado una unidad de "${existingItem.nombre}".`);
+          // Add new item
+          if (item.stock !== undefined && itemQuantity > item.stock) {
+            toast.warning(`Solo quedan ${item.stock} unidades disponibles`);
+            return;
+          }
+
+          state.items.push({
+            ...item,
+            quantity: itemQuantity,
+            totalPrice: price * itemQuantity,
+            addedAt: new Date().toISOString(),
+          });
+          state.totalQuantity += itemQuantity;
+          state.totalAmount += price * itemQuantity;
+          toast.success(`"${item.nombre}" añadido al carrito`);
         }
-      }
+
+        state.lastUpdated = new Date().toISOString();
+        saveCartToStorage(state);
+        state.status = "succeeded";
+      },
+      prepare: (item, quantity = 1) => ({
+        payload: { item, quantity },
+      }),
     },
 
-    // Acción para eliminar completamente todas las unidades de un producto.
-    deleteItemFromCart(state, action) {
-      const id = action.payload;
-      const existingItemIndex = state.items.findIndex((item) => item.id === id);
+    // Remove item from cart
+    removeItem: {
+      reducer: (state, action) => {
+        const itemId = action.payload;
+        const itemIndex = state.items.findIndex((item) => item.id === itemId);
 
-      if (existingItemIndex !== -1) {
-        const existingItem = state.items[existingItemIndex];
-        state.totalQuantity -= existingItem.quantity;
-        state.totalAmount -= existingItem.totalPrice;
-        toast.error(`"${existingItem.nombre}" se ha eliminado del carrito.`);
-        state.items.splice(existingItemIndex, 1);
-      }
+        if (itemIndex === -1) {
+          toast.error("Producto no encontrado en el carrito");
+          return;
+        }
+
+        const item = state.items[itemIndex];
+
+        if (item.quantity > 1) {
+          // Decrease quantity
+          item.quantity -= 1;
+          const price = item.promocionInfo?.precioFinal || item.precio;
+          item.totalPrice -= price;
+          state.totalQuantity -= 1;
+          state.totalAmount -= price;
+          toast.info(`Se quitó una unidad de "${item.nombre}"`);
+        } else {
+          // Remove item completely
+          state.items.splice(itemIndex, 1);
+          state.totalQuantity -= 1;
+          state.totalAmount -= item.totalPrice;
+          toast.success(`"${item.nombre}" eliminado del carrito`);
+        }
+
+        state.lastUpdated = new Date().toISOString();
+        saveCartToStorage(state);
+        state.status = "succeeded";
+      },
+      prepare: (itemId) => ({
+        payload: itemId,
+      }),
     },
 
-    // Acción para limpiar completamente el carrito.
-    clearCart(state) {
-      if (state.items.length > 0) {
-        state.items = [];
-        state.totalQuantity = 0;
-        state.totalAmount = 0;
-        toast.info("El carrito se ha vaciado.");
-      }
+    // Delete item completely from cart
+    deleteItem: {
+      reducer: (state, action) => {
+        const itemId = action.payload;
+        const itemIndex = state.items.findIndex((item) => item.id === itemId);
+
+        if (itemIndex === -1) return;
+
+        const item = state.items[itemIndex];
+        state.items.splice(itemIndex, 1);
+        state.totalQuantity -= item.quantity;
+        state.totalAmount -= item.totalPrice;
+
+        state.lastUpdated = new Date().toISOString();
+        saveCartToStorage(state);
+        state.status = "succeeded";
+        toast.success(`"${item.nombre}" eliminado del carrito`);
+      },
+      prepare: (itemId) => ({
+        payload: itemId,
+      }),
     },
 
-    // Acción para establecer el estado completo del carrito, útil para cargar desde localStorage
-    setCart(state, action) {
-      state.items = action.payload.items;
-      state.totalQuantity = action.payload.totalQuantity;
-      state.totalAmount = action.payload.totalAmount;
+    // Clear entire cart
+    clearCart: (state) => {
+      if (state.items.length === 0) return;
+
+      state.items = [];
+      state.totalQuantity = 0;
+      state.totalAmount = 0;
+      state.lastUpdated = new Date().toISOString();
+      saveCartToStorage(state);
+      state.status = "succeeded";
+      toast.info("Carrito vaciado");
+    },
+
+    // Update cart from server/local storage
+    updateCart: (state, action) => {
+      const { items, totalQuantity, totalAmount } = action.payload;
+      state.items = items || [];
+      state.totalQuantity = totalQuantity || 0;
+      state.totalAmount = totalAmount || 0;
+      state.lastUpdated = new Date().toISOString();
+      state.status = "succeeded";
+      saveCartToStorage(state);
     },
   },
 });
 
+// Export actions
 export const {
-  addToCart,
-  removeItemFromCart,
-  deleteItemFromCart,
+  setLoading,
+  setError,
+  addItem,
+  removeItem,
+  deleteItem,
   clearCart,
-  setCart,
+  updateCart,
 } = cartSlice.actions;
+
+// Export thunks
+export const cartActions = {
+  addToCart:
+    (item, quantity = 1) =>
+    (dispatch) => {
+      dispatch(addItem({ item, quantity }));
+    },
+  removeFromCart: (itemId) => (dispatch) => {
+    dispatch(removeItem(itemId));
+  },
+  deleteFromCart: (itemId) => (dispatch) => {
+    dispatch(deleteItem(itemId));
+  },
+  clearCart: () => (dispatch) => {
+    dispatch(clearCart());
+  },
+  syncCart: () => (dispatch, getState) => {
+    const { cart } = getState();
+    dispatch(
+      updateCart({
+        items: cart.items,
+        totalQuantity: cart.totalQuantity,
+        totalAmount: cart.totalAmount,
+      })
+    );
+  },
+};
+// cartSlice.js
 
 export default cartSlice.reducer;

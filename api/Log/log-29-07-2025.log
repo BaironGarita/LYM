@@ -1,0 +1,19 @@
+[29-07-2025 03:03:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:03:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:03:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:03:51] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:04:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:04:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:04:04] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 03:10:55] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ProductoController.php - line: 48 - Message: Call to undefined method ProductoModel::getById()
+ [29-07-2025 22:28:47] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 22:30:34] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 22:35:01] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 22:37:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 22:47:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 102 - Message: json_decode(): Argument #1 ($json) must be of type string, stdClass given
+ [29-07-2025 23:00:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 277 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 23:01:49] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 287 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 23:02:46] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 307 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 23:04:16] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 313 - Message: Cannot use object of type stdClass as array
+ [29-07-2025 23:05:40] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 322 - Message: Cannot use object of type stdClass as array
+ 

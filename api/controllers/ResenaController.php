@@ -102,38 +102,38 @@ class ResenaController
             $data = $request->getBody();
 
             // Si no hay pedido_id, usar el método simple
-            if (!isset($data['pedido_id']) || empty($data['pedido_id'])) {
+            if (!isset($data->pedido_id) || empty($data->pedido_id)) {
                 return $this->createSimple();
             }
 
             // Validar campos requeridos para el método completo
             $requiredFields = ['usuario_id', 'producto_id', 'pedido_id', 'valoracion'];
             foreach ($requiredFields as $field) {
-                if (!isset($data[$field]) || empty($data[$field])) {
+                if (!isset($data->$field) || empty($data->$field)) {
                     $this->response->status(400)->toJSON(['error' => "El campo $field es requerido"]);
                     return;
                 }
             }
 
             // Validar valoración
-            $valoracion = intval($data['valoracion']);
+            $valoracion = intval($data->valoracion);
             if ($valoracion < 1 || $valoracion > 5) {
                 $this->response->status(400)->toJSON(['error' => 'La valoración debe estar entre 1 y 5']);
                 return;
             }
 
             // Verificar si el usuario puede dejar reseña
-            if (!$this->model->canUserReview($data['usuario_id'], $data['producto_id'])) {
+            if (!$this->model->canUserReview($data->usuario_id, $data->producto_id)) {
                 $this->response->status(403)->toJSON(['error' => 'No puedes reseñar un producto que no has comprado']);
                 return;
             }
 
-            $comentario = isset($data['comentario']) ? $data['comentario'] : '';
+            $comentario = isset($data->comentario) ? $data->comentario : '';
             
             $result = $this->model->createResena(
-                $data['usuario_id'],
-                $data['producto_id'],
-                $data['pedido_id'],
+                $data->usuario_id,
+                $data->producto_id,
+                $data->pedido_id,
                 $valoracion,
                 $comentario
             );
@@ -269,18 +269,14 @@ class ResenaController
             $request = new Request();
             $data = $request->getJSON();
             
-            // Verificar que $data es un array válido
-            if (!is_array($data)) {
-                $this->response->status(400)->toJSON(['error' => 'Datos JSON inválidos']);
-                return;
-            }
+
 
             // Validar campos requeridos
             $requiredFields = ['usuario_id', 'producto_id', 'valoracion', 'comentario'];
             foreach ($requiredFields as $field) {
-                if (!isset($data[$field]) || 
-                    (is_string($data[$field]) && trim($data[$field]) === '') ||
-                    (is_numeric($data[$field]) && $data[$field] <= 0)) {
+                if (!isset($data->$field) || 
+                    (is_string($data->$field) && trim($data->$field) === '') ||
+                    (is_numeric($data->$field) && $data->$field <= 0)) {
                     $this->response->status(400)->toJSON(['error' => "El campo $field es requerido y debe tener un valor válido"]);
                     return;
                 }
@@ -288,7 +284,7 @@ class ResenaController
 
             // Validar que el usuario exists y está activo
             $usuarioModel = new UsuarioModel();
-            $usuario = $usuarioModel->get(intval($data['usuario_id']));
+            $usuario = $usuarioModel->get(intval($data->usuario_id));
             if (!$usuario) {
                 $this->response->status(401)->toJSON(['error' => 'Usuario no encontrado']);
                 return;
@@ -308,13 +304,13 @@ class ResenaController
             }
 
             // Validar valoración
-            $valoracion = intval($data['valoracion']);
+            $valoracion = intval($data->valoracion);
             if ($valoracion < 1 || $valoracion > 5) {
                 $this->response->status(400)->toJSON(['error' => 'La valoración debe estar entre 1 y 5']);
                 return;
             }
 
-            $comentario = trim($data['comentario']);
+            $comentario = trim($data->comentario);
             
             // Validar que el comentario no esté vacío después del trim
             if (empty($comentario) || strlen($comentario) < 3) {
@@ -323,8 +319,8 @@ class ResenaController
             }
             
             $result = $this->model->createResenaSimple(
-                intval($data['usuario_id']),
-                intval($data['producto_id']),
+                intval($data->usuario_id),
+                intval($data->producto_id),
                 $valoracion,
                 $comentario
             );

@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/UI/tooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist } from "@/App/store/fashionSlice";
-import { addToCart } from "@/App/store/cartSlice"; // Importar la acción de Redux
+import { cartActions } from "@/App/store/cartSlice"; // Importar cartActions completo
 import { toast } from "sonner";
 import { useI18n } from "@/shared/hooks/useI18n";
 
@@ -96,41 +96,27 @@ const ProductCard = ({ product }) => {
   // Usar Redux para agregar al carrito
   const handleAddToCart = async () => {
     if (!isInStock) {
-      toast.error(t("productCard.product.outOfStock"), {
-        description: t("productCard.product.unavailable"),
-      });
+      toast.error(t("productCard.product.outOfStock"));
       return;
     }
 
     setIsAddingToCart(true);
     try {
-      // Usar la acción de Redux directamente
-      dispatch(
-        addToCart({
-          ...product,
-          cantidad: 1,
-          quantity: 1,
-          precio: promocionInfo.precioFinal,
-          precioOriginal: promocionInfo.precioOriginal,
-          promocionAplicada: promocionInfo.promocionAplicada,
-          promocionInfo: {
-            precioFinal: promocionInfo.precioFinal,
-            precioOriginal: promocionInfo.precioOriginal,
-            descuento: promocionInfo.descuento,
-            promocionAplicada: promocionInfo.promocionAplicada,
-            ahorroMonetario: promocionInfo.ahorroMonetario,
-          },
-          imagen:
-            imagenes.length > 0
-              ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}`
-              : null,
-        })
-      );
+      const productToAdd = {
+        ...product,
+        quantity: quantity || 1, // Usar solo quantity
+        precio: promocionInfo.precioFinal,
+        promocionInfo,
+        imagen:
+          imagenes.length > 0
+            ? `${API_BASE_URL}/${imagenes[0].ruta_archivo}`
+            : null,
+      };
+
+      dispatch(cartActions.addToCart(productToAdd, quantity || 1));
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error(t("productCard.errors.addToCart"), {
-        description: t("productCard.errors.addToCartDescription"),
-      });
+      toast.error(t("productCard.errors.addToCart"));
     } finally {
       setIsAddingToCart(false);
     }

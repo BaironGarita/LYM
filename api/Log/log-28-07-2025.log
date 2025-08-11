@@ -1,0 +1,8 @@
+[28-07-2025 01:10:48] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [28-07-2025 01:14:21] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [28-07-2025 01:16:39] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [28-07-2025 06:08:39] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\ResenaController.php - line: 105 - Message: Cannot use object of type stdClass as array
+ [28-07-2025 06:28:15] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 118 - Message: Cannot add or update a child row: a foreign key constraint fails (`lym_db`.`resenas`, CONSTRAINT `resenas_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE)
+ [28-07-2025 06:28:53] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 118 - Message: Cannot add or update a child row: a foreign key constraint fails (`lym_db`.`resenas`, CONSTRAINT `resenas_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE)
+ [28-07-2025 06:32:02] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 118 - Message: Duplicate entry '5-2' for key 'uk_usuario_producto_simple'
+ 

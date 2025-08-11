@@ -52,7 +52,7 @@ import { usePromociones } from "@/features/promotions/usePromociones.js";
 import ProductReviews from "./ProductReviews";
 import { useI18n } from "@/shared/hooks/useI18n";
 import { useDispatch } from "react-redux";
-import { addToCart } from "@/App/store/cartSlice"; // Importar la acción de Redux
+import { cartActions } from "@/App/store/cartSlice"; // Cambiar la importación
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -71,10 +71,10 @@ const useClickOutside = (ref, handler) => {
   }, [ref, handler]);
 };
 
-const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
+const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Agregar dispatch de Redux
+  const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
   const [imagenes, setImagenes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -161,34 +161,28 @@ const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
 
   // Usar Redux para agregar al carrito
   const handleAddToCart = async () => {
+    if (!isInStock) {
+      toast.error(t("productCard.product.outOfStock"));
+      return;
+    }
+
     setIsAddingToCart(true);
     try {
-      // Usar la acción de Redux directamente
-      dispatch(addToCart({
+      const productToAdd = {
         ...product,
-        cantidad: quantity,
-        quantity: quantity,
-        precio: product.promocionInfo.precioFinal,
-        precioOriginal: product.promocionInfo.precioOriginal,
-        promocionAplicada: product.promocionInfo.promocionAplicada,
-        promocionInfo: {
-          precioFinal: product.promocionInfo.precioFinal,
-          precioOriginal: product.promocionInfo.precioOriginal,
-          descuento: product.promocionInfo.descuento,
-          promocionAplicada: product.promocionInfo.promocionAplicada,
-          ahorroMonetario: product.promocionInfo.ahorroMonetario,
-        },
-        imagen: imagenes.length > 0 ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}` : null,
-      }));
+        quantity: quantity || 1, // Usar solo quantity
+        precio: promocionInfo.precioFinal,
+        promocionInfo,
+        imagen:
+          imagenes.length > 0
+            ? `${API_BASE_URL}/${imagenes[0].ruta_archivo}`
+            : null,
+      };
 
-      toast.success("¡Agregado al carrito!", {
-        description: `${product.nombre} (${quantity}) se agregó a tu carrito`,
-      });
+      dispatch(cartActions.addToCart(productToAdd, quantity || 1));
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Error", {
-        description: "No se pudo agregar el producto al carrito",
-      });
+      toast.error(t("productCard.errors.addToCart"));
     } finally {
       setIsAddingToCart(false);
     }
@@ -792,7 +786,9 @@ const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
                     ) : (
                       <>
                         <ShoppingCart className="h-6 w-6 mr-3" />
-                        {isInStock ? t("productCard.addToCart") : t("productCard.outOfStockShort")}
+                        {isInStock
+                          ? t("productCard.addToCart")
+                          : t("productCard.outOfStockShort")}
                       </>
                     )}
                   </Button>
@@ -827,14 +823,17 @@ const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
                     <strong>
                       {product.precio > 50000
                         ? t("productDetail.free")
-                        : t("productDetail.availableFor", { price: formatPrice(2500) })}
+                        : t("productDetail.availableFor", {
+                            price: formatPrice(2500),
+                          })}
                     </strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Shield className="h-5 w-5 text-blue-600" />
                   <span>
-                    <strong>{t("productDetail.satisfactionGuarantee")}</strong> - {t("productDetail.daysForReturns", { days: 30 })}
+                    <strong>{t("productDetail.satisfactionGuarantee")}</strong>{" "}
+                    - {t("productDetail.daysForReturns", { days: 30 })}
                   </span>
                 </div>
               </div>
@@ -873,9 +872,12 @@ const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
                         />
                       )}
                       <span className="relative z-10">
-                        {{
+                        {
+                          {
                             description: t("productDetail.tabs.description"),
-                            specifications: t("productDetail.tabs.specifications"),
+                            specifications: t(
+                              "productDetail.tabs.specifications"
+                            ),
                             reviews: t("productDetail.tabs.reviews"),
                           }[tab]
                         }
@@ -946,7 +948,11 @@ const ProductDetail = () => { // Remover onAddToCart prop ya que usaremos Redux
                                 value: product.dimensiones,
                                 icon: "📏",
                               },
-                              { label: t("productDetail.specs.sku"), value: product.id, icon: "🔢" },
+                              {
+                                label: t("productDetail.specs.sku"),
+                                value: product.id,
+                                icon: "🔢",
+                              },
                             ]
                               .filter((item) => item.value)
                               .map((spec, index) => (

@@ -160,32 +160,21 @@ const ProductDetail = () => {
   };
 
   // Usar Redux para agregar al carrito
-  const handleAddToCart = async () => {
-    if (!isInStock) {
-      toast.error(t("productCard.product.outOfStock"));
-      return;
-    }
-
-    setIsAddingToCart(true);
-    try {
-      const productToAdd = {
-        ...product,
-        quantity: quantity || 1, // Usar solo quantity
-        precio: promocionInfo.precioFinal,
-        promocionInfo,
-        imagen:
-          imagenes.length > 0
-            ? `${API_BASE_URL}/${imagenes[0].ruta_archivo}`
-            : null,
-      };
-
-      dispatch(cartActions.addToCart(productToAdd, quantity || 1));
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error(t("productCard.errors.addToCart"));
-    } finally {
-      setIsAddingToCart(false);
-    }
+  const handleAddToCart = () => {
+    const productToAdd = {
+      id: product.id,
+      nombre: product.nombre,
+      precio: product.precio,
+      stock: product.stock,
+      promocionInfo: {
+        precioFinal: product.promocionInfo?.precioFinal || product.precio,
+      },
+      // La cantidad seleccionada por el usuario
+      quantity: selectedQuantity,
+      // otros datos como imágenes
+    };
+    
+    dispatch(cartActions.addToCart(productToAdd, selectedQuantity));
   };
 
   const handleQuantityChange = (action) => {

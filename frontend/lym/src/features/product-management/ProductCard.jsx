@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/UI/tooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist } from "@/App/store/fashionSlice";
-import { cartActions } from "@/App/store/cartSlice"; // Importar cartActions completo
+import { addItem } from "@/App/store/cartSlice";
 import { toast } from "sonner";
 import { useI18n } from "@/shared/hooks/useI18n";
 
@@ -95,21 +95,35 @@ const ProductCard = ({ product }) => {
 
   // Usar Redux para agregar al carrito
   const handleAddToCart = () => {
+    // Asegurar que todas las propiedades existan antes de enviar
+    if (!product || !product.id || !product.nombre || !product.precio) {
+      toast.error("Error: Datos del producto incompletos");
+      return;
+    }
+
     const productToAdd = {
       id: product.id,
       nombre: product.nombre,
       precio: product.precio,
-      stock: product.stock,
+      stock: product.stock || 0,
       promocionInfo: {
         precioFinal: product.promocionInfo?.precioFinal || product.precio,
-        // incluir otros datos de promoción si existen
+        precioOriginal: product.promocionInfo?.precioOriginal || product.precio,
+        descuento: product.promocionInfo?.descuento || 0,
+        ahorroMonetario: product.promocionInfo?.ahorroMonetario || 0,
       },
-      // Usa quantity en lugar de cantidad para mantener consistencia
-      quantity: 1,
-      // incluir otros datos necesarios (imagen, etc.)
+      imagen: imagenes.length > 0 ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}`: null,
+      // Otras propiedades del producto
+      color_principal: product.color_principal,
+      material: product.material,
+      categoria_nombre: product.categoria_nombre,
     };
 
-    dispatch(cartActions.addToCart(productToAdd));
+    // Opción 1: Usar addItem directamente
+    dispatch(addItem(productToAdd, 1));
+
+    // O Opción 2: Usar cartActions
+    // dispatch(cartActions.addToCart(productToAdd, 1));
   };
 
   const handleWishlistToggle = () => {

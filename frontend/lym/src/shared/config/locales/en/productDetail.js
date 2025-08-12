@@ -2,6 +2,7 @@ export const productDetail = {
   productNotFound: "Product not found",
   productNotFoundDescription: "Sorry, the product you are looking for does not exist or has been removed from our catalog.",
   exploreProducts: "Explore products",
+  addToCart: "Add to cart",
   goBack: "Go back",
   back: "Back",
   total: "Total",

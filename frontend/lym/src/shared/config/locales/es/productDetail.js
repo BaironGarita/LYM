@@ -1,7 +1,11 @@
+import { addToCart } from "@/App/store/cartSlice";
+
 export const productDetail = {
   productNotFound: "Producto no encontrado",
-  productNotFoundDescription: "Lo sentimos, el producto que buscas no existe o ha sido eliminado de nuestro catálogo.",
+  productNotFoundDescription:
+    "Lo sentimos, el producto que buscas no existe o ha sido eliminado de nuestro catálogo.",
   exploreProducts: "Explorar productos",
+  addToCart: "Agregar al carrito",
   goBack: "Volver atrás",
   back: "Volver",
   total: "Total",

@@ -52,7 +52,7 @@ import { usePromociones } from "@/features/promotions/usePromociones.js";
 import ProductReviews from "./ProductReviews";
 import { useI18n } from "@/shared/hooks/useI18n";
 import { useDispatch } from "react-redux";
-import { cartActions } from "@/App/store/cartSlice"; // Cambiar la importación
+import { addToCart } from "@/App/store/cartSlice"; // Cambiar la importación
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -161,20 +161,41 @@ const ProductDetail = () => {
 
   // Usar Redux para agregar al carrito
   const handleAddToCart = () => {
+    // Validar datos antes de enviar
+    if (!product || !product.id || !product.nombre || !product.precio) {
+      toast.error("Error: Datos del producto incompletos");
+      return;
+    }
+
+    if (quantity <= 0 || quantity > product.stock) {
+      toast.error("Cantidad inválida");
+      return;
+    }
+
     const productToAdd = {
       id: product.id,
       nombre: product.nombre,
       precio: product.precio,
-      stock: product.stock,
+      stock: product.stock || 0,
+      quantity: quantity, // Agregar la cantidad aquí
       promocionInfo: {
         precioFinal: product.promocionInfo?.precioFinal || product.precio,
+        precioOriginal: product.promocionInfo?.precioOriginal || product.precio,
+        descuento: product.promocionInfo?.descuento || 0,
+        ahorroMonetario: product.promocionInfo?.ahorroMonetario || 0,
       },
-      // La cantidad seleccionada por el usuario
-      quantity: selectedQuantity,
-      // otros datos como imágenes
+      imagen:
+        imagenes.length > 0
+          ? `http://localhost:81/api_lym/${imagenes[0].ruta_archivo}`
+          : null,
+      // Otras propiedades del producto
+      color_principal: product.color_principal,
+      material: product.material,
+      categoria_nombre: product.categoria_nombre,
     };
-    
-    dispatch(cartActions.addToCart(productToAdd, selectedQuantity));
+
+    // Usar addToCart directamente
+    dispatch(addToCart(productToAdd));
   };
 
   const handleQuantityChange = (action) => {
@@ -770,14 +791,14 @@ const ProductDetail = () => {
                     {isAddingToCart ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        {t("productCard.adding")}
+                        {t("productDetail.adding")}
                       </>
                     ) : (
                       <>
                         <ShoppingCart className="h-6 w-6 mr-3" />
                         {isInStock
-                          ? t("productCard.addToCart")
-                          : t("productCard.outOfStockShort")}
+                          ? t("productDetail.addToCart")
+                          : t("productDetail.outOfStockShort")}
                       </>
                     )}
                   </Button>

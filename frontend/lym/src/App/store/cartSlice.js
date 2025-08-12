@@ -114,6 +114,41 @@ const cartSlice = createSlice({
       }),
     },
 
+    // Agregar un reducer más simple que coincida con el ejemplo
+    addToCart: (state, action) => {
+      const item = action.payload;
+      const existingItem = state.items.find((i) => i.id === item.id);
+
+      if (existingItem) {
+        existingItem.quantity += item.quantity || 1;
+        existingItem.totalPrice =
+          (existingItem.promocionInfo?.precioFinal || existingItem.precio) *
+          existingItem.quantity;
+      } else {
+        const price = item.promocionInfo?.precioFinal || item.precio;
+        state.items.push({
+          ...item,
+          quantity: item.quantity || 1,
+          totalPrice: price * (item.quantity || 1),
+          addedAt: new Date().toISOString(),
+        });
+      }
+
+      // Recalcular totales
+      state.totalQuantity = state.items.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+      state.totalAmount = state.items.reduce(
+        (total, item) => total + item.totalPrice,
+        0
+      );
+
+      state.lastUpdated = new Date().toISOString();
+      saveCartToStorage(state);
+      toast.success(`"${item.nombre}" añadido al carrito`);
+    },
+
     // Remove item from cart
     removeItem: {
       reducer: (state, action) => {
@@ -205,6 +240,7 @@ const cartSlice = createSlice({
 export const {
   setLoading,
   setError,
+  addToCart,
   addItem,
   removeItem,
   deleteItem,

@@ -10,6 +10,7 @@ import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/Products/ReviewsPage";
 import ResenaDetail from "@/features/reviews/ResenaDetail";
 import CheckoutPage from "@/Pages/Checkout/CheckoutPage";
+import OrdersPage from "@/Pages/Orders/OrdersPage";
 
 // --- Layout y Páginas de Administrador ---
 import { AdminLayout } from "@/shared/components/layout/AdminLayout";
@@ -37,6 +38,7 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         path="/productos" // Cambiado de /products a /productos para consistencia
         element={<ProductsPage addToCart={addToCart} />}
       />
+      <Route path="/ordenes" element={<OrdersPage />} />
       <Route path="/offers" element={<OffersPage />} />
       <Route path="/resenas" element={<ReviewsPage />} />
       <Route path="/resenas/:id" element={<ResenaDetail />} />

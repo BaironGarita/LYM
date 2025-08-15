@@ -90,8 +90,9 @@ export function UploadProductPage() {
 
       const res = await fetch("http://localhost:81/api/productos", {
         method: "POST",
-        // NO poner 'Content-Type': el navegador lo añade
-        // headers: { Authorization: `Bearer ${user?.token}` }, // descomenta si tu API exige auth
+        headers: user?.token
+          ? { Authorization: `Bearer ${user.token}` }
+          : undefined,
         body: formData,
       });
 

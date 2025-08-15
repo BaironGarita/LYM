@@ -78,7 +78,15 @@ const ProductUploadForm = () => {
 
     const data = new FormData();
     for (const key in formData) {
-      data.append(key, formData[key]);
+      const value = formData[key];
+      if (value === null || typeof value === "undefined") continue;
+      // Si es array (p. ej. etiquetas) añadir cada elemento
+      if (Array.isArray(value)) {
+        value.forEach((v) => data.append(`${key}[]`, v));
+        continue;
+      }
+      // Si es File, FormData lo soporta
+      data.append(key, value);
     }
 
     try {

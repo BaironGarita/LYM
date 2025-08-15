@@ -1,0 +1,21 @@
+const UploadProductPage = () => {
+    return (
+        <div>
+            <h1>Upload Product</h1>
+            <ProductUploadForm />
+        </div>
+    );
+};
+
+export default UploadProductPage;
+
+const ProductUploadForm = () => {
+    return (
+        <form enctype="multipart/form-data" method="POST" action="/api/upload">
+            <input type="file" name="productImage" />
+            <button type="submit">Upload</button>
+        </form>
+    );
+};
+
+export default ProductUploadForm;

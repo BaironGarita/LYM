@@ -37,7 +37,12 @@ const ProductUploadForm = () => {
         const data = await ProductoService.getCategorias();
         setCategorias(Array.isArray(data) ? data : []);
       } catch (error) {
-        toast.error(t("admin.productUpload.errors.loadCategories", "No se pudieron cargar las categorías."));
+        toast.error(
+          t(
+            "admin.productUpload.errors.loadCategories",
+            "No se pudieron cargar las categorías."
+          )
+        );
       }
     };
     fetchCategorias();
@@ -61,7 +66,12 @@ const ProductUploadForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.imagen) {
-      toast.error(t("admin.productUpload.errors.noImage", "Por favor, selecciona una imagen para el producto."));
+      toast.error(
+        t(
+          "admin.productUpload.errors.noImage",
+          "Por favor, selecciona una imagen para el producto."
+        )
+      );
       return;
     }
     setSubmitting(true);
@@ -73,10 +83,21 @@ const ProductUploadForm = () => {
 
     try {
       await ProductoService.createProducto(data);
-      toast.success(t("admin.productUpload.success.created", "¡Producto creado exitosamente!"));
+      toast.success(
+        t(
+          "admin.productUpload.success.created",
+          "¡Producto creado exitosamente!"
+        )
+      );
       navigate("/admin/productos");
     } catch (error) {
-      toast.error(t("admin.productUpload.errors.create", "Error al crear el producto: {{message}}", { message: error.message }));
+      toast.error(
+        t(
+          "admin.productUpload.errors.create",
+          "Error al crear el producto: {{message}}",
+          { message: error.message }
+        )
+      );
     } finally {
       setSubmitting(false);
     }
@@ -92,6 +113,7 @@ const ProductUploadForm = () => {
       </div>
 
       <form
+        encType="multipart/form-data"
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md space-y-8"
       >
@@ -101,24 +123,34 @@ const ProductUploadForm = () => {
             {t("admin.productUpload.sections.basicInfo", "Información Básica")}
           </h2>
           <div>
-            <Label htmlFor="nombre">{t("admin.productUpload.fields.name", "Nombre del Producto")} *</Label>
+            <Label htmlFor="nombre">
+              {t("admin.productUpload.fields.name", "Nombre del Producto")} *
+            </Label>
             <Input
               id="nombre"
               name="nombre"
               value={formData.nombre}
               onChange={handleInputChange}
               required
-              placeholder={t("admin.productUpload.placeholders.name", "Ej: Camiseta de Algodón Premium")}
+              placeholder={t(
+                "admin.productUpload.placeholders.name",
+                "Ej: Camiseta de Algodón Premium"
+              )}
             />
           </div>
           <div>
-            <Label htmlFor="descripcion">{t("admin.productUpload.fields.description", "Descripción")}</Label>
+            <Label htmlFor="descripcion">
+              {t("admin.productUpload.fields.description", "Descripción")}
+            </Label>
             <Textarea
               id="descripcion"
               name="descripcion"
               value={formData.descripcion}
               onChange={handleInputChange}
-              placeholder={t("admin.productUpload.placeholders.description", "Describe las características, materiales, etc.")}
+              placeholder={t(
+                "admin.productUpload.placeholders.description",
+                "Describe las características, materiales, etc."
+              )}
             />
           </div>
         </div>
@@ -130,7 +162,9 @@ const ProductUploadForm = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="precio">{t("admin.productUpload.fields.price", "Precio")} *</Label>
+              <Label htmlFor="precio">
+                {t("admin.productUpload.fields.price", "Precio")} *
+              </Label>
               <Input
                 id="precio"
                 name="precio"
@@ -144,7 +178,9 @@ const ProductUploadForm = () => {
               />
             </div>
             <div>
-              <Label htmlFor="stock">{t("admin.productUpload.fields.stock", "Stock")} *</Label>
+              <Label htmlFor="stock">
+                {t("admin.productUpload.fields.stock", "Stock")} *
+              </Label>
               <Input
                 id="stock"
                 name="stock"
@@ -166,10 +202,17 @@ const ProductUploadForm = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="categoria_id">{t("admin.productUpload.fields.category", "Categoría")} *</Label>
+              <Label htmlFor="categoria_id">
+                {t("admin.productUpload.fields.category", "Categoría")} *
+              </Label>
               <Select onValueChange={handleSelectChange} required>
                 <SelectTrigger id="categoria_id">
-                  <SelectValue placeholder={t("admin.productUpload.placeholders.category", "Seleccionar categoría")} />
+                  <SelectValue
+                    placeholder={t(
+                      "admin.productUpload.placeholders.category",
+                      "Seleccionar categoría"
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {categorias.map((cat) => (
@@ -181,13 +224,18 @@ const ProductUploadForm = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="sku">{t("admin.productUpload.fields.sku", "SKU (Opcional)")}</Label>
+              <Label htmlFor="sku">
+                {t("admin.productUpload.fields.sku", "SKU (Opcional)")}
+              </Label>
               <Input
                 id="sku"
                 name="sku"
                 value={formData.sku}
                 onChange={handleInputChange}
-                placeholder={t("admin.productUpload.placeholders.sku", "Código único del producto")}
+                placeholder={t(
+                  "admin.productUpload.placeholders.sku",
+                  "Código único del producto"
+                )}
               />
             </div>
           </div>
@@ -199,7 +247,10 @@ const ProductUploadForm = () => {
             {t("admin.productUpload.sections.image", "Imagen del Producto")}
           </h2>
           <div>
-            <Label htmlFor="imagen">{t("admin.productUpload.fields.image", "Subir imagen principal")} *</Label>
+            <Label htmlFor="imagen">
+              {t("admin.productUpload.fields.image", "Subir imagen principal")}{" "}
+              *
+            </Label>
             <Input
               id="imagen"
               name="imagen"
@@ -210,7 +261,11 @@ const ProductUploadForm = () => {
             />
             {formData.imagen && (
               <p className="text-sm text-gray-500 mt-2">
-                {t("admin.productUpload.selectedFile", "Archivo seleccionado: {{name}}", { name: formData.imagen.name })}
+                {t(
+                  "admin.productUpload.selectedFile",
+                  "Archivo seleccionado: {{name}}",
+                  { name: formData.imagen.name }
+                )}
               </p>
             )}
           </div>

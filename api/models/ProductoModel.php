@@ -12,32 +12,48 @@ class ProductoModel
     {
         $this->enlace = new MySqlConnect();
     }
-    
+
+    /**
+     * Normaliza datos: acepta array o stdClass y devuelve array
+     */
+    private function normalize($datos)
+    {
+        if (is_object($datos)) {
+            return json_decode(json_encode($datos), true);
+        }
+        return is_array($datos) ? $datos : [];
+    }
 
     /**
      * Obtener todos los productos activos
-    */
+     * Retorna array (posible vacío) o false en error
+     */
     public function getAll()
     {
-        error_log('Antes de ejecutar SQL en getAll');
-
+        error_log('ProductoModel::getAll - preparando consulta');
         try {
-           $vSql = "SELECT p.*, c.nombre as categoria_nombre, 
+            $vSql = "SELECT p.*, c.nombre as categoria_nombre, 
                            COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+                           COALESCE(AVG(r.valoracion),0) as promedio_valoracion
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
                     LEFT JOIN resenas r ON p.id = r.producto_id
                     WHERE p.eliminado = 0 
                     GROUP BY p.id
                     ORDER BY p.created_at DESC";
-                    
-            
-            return $this->enlace->executeSQL($vSql);
-            error_log('Después de ejecutar SQL en getAll');
 
+            $result = $this->enlace->executeSQL($vSql);
+            // Evitar llamar a count() sobre valores no contables (por ejemplo false)
+            if (function_exists('is_countable')) {
+                $filas = is_countable($result) ? count($result) : ($result === false ? 'false' : 0);
+            } else {
+                $filas = is_array($result) ? count($result) : ($result === false ? 'false' : 0);
+            }
+            error_log('ProductoModel::getAll - filas obtenidas: ' . $filas);
+            return $result;
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -47,35 +63,44 @@ class ProductoModel
     public function get($id)
     {
         try {
-            $id = $this->enlace->escapeString($id);
+            $id = (int)$this->enlace->escapeString($id);
             $vSql = "SELECT p.*, c.nombre as categoria_nombre,
                            COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+                           COALESCE(AVG(r.valoracion),0) as promedio_valoracion
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
                     LEFT JOIN resenas r ON p.id = r.producto_id
-                    WHERE p.id = '$id' AND p.eliminado = 0
-                    GROUP BY p.id";
+                    WHERE p.id = $id AND p.eliminado = 0
+                    GROUP BY p.id
+                    LIMIT 1";
             $result = $this->enlace->executeSQL($vSql);
-            return $result ? $result[0] : null;
+            return (!empty($result) ? $result[0] : null);
         } catch (Exception $e) {
             handleException($e);
+            return null;
         }
     }
 
     /**
      * Crear nuevo producto
+     * $datos puede ser array o stdClass
      */
     public function create($datos)
     {
         try {
-            $nombre = $this->enlace->escapeString($datos['nombre']);
+            $datos = $this->normalize($datos);
+
+            $nombre = $this->enlace->escapeString($datos['nombre'] ?? '');
+            if ($nombre === '') {
+                throw new Exception('Nombre requerido');
+            }
+
             $descripcion = $this->enlace->escapeString($datos['descripcion'] ?? '');
-            $precio = (float) $datos['precio'];
-            $categoria_id = (int) $datos['categoria_id'];
-            $stock = (int) ($datos['stock'] ?? 0);
+            $precio = isset($datos['precio']) ? (float)$datos['precio'] : 0.0;
+            $categoria_id = isset($datos['categoria_id']) ? (int)$datos['categoria_id'] : 0;
+            $stock = (int)($datos['stock'] ?? 0);
             $sku = $this->enlace->escapeString($datos['sku'] ?? $this->generateSKU());
-            $peso = (float) ($datos['peso'] ?? 0);
+            $peso = (float)($datos['peso'] ?? 0);
             $dimensiones = $this->enlace->escapeString($datos['dimensiones'] ?? '');
             $material = $this->enlace->escapeString($datos['material'] ?? '');
             $color_principal = $this->enlace->escapeString($datos['color_principal'] ?? '');
@@ -84,46 +109,56 @@ class ProductoModel
 
             $vSql = "INSERT INTO productos (
                         nombre, descripcion, precio, categoria_id, stock, sku,
-                        peso, dimensiones, material, color_principal, genero, temporada,
                         created_at
                     ) VALUES (
                         '$nombre', '$descripcion', $precio, $categoria_id, $stock, '$sku',
-                        $peso, '$dimensiones', '$material', '$color_principal', '$genero', '$temporada',
                         NOW()
                     )";
 
             $this->enlace->executeSQL_DML($vSql);
             $id = $this->enlace->getLastId();
 
-            // Si hay etiquetas, las asociamos
-            if (isset($datos->etiquetas) && is_array($datos->etiquetas)) {
-                $this->associateEtiquetas($id, $datos->etiquetas);
+            // Manejo de etiquetas: admite array (ids) o cadena separada por comas
+            $etiquetas = $datos['etiquetas'] ?? [];
+            if (is_string($etiquetas)) {
+                $etiquetas = array_filter(array_map('trim', explode(',', $etiquetas)));
+            }
+            if (is_array($etiquetas) && !empty($etiquetas)) {
+                $this->associateEtiquetas($id, $etiquetas);
             }
 
             return $this->get($id);
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
     /**
      * Actualizar producto
+     * $datos puede ser array o stdClass
      */
     public function update($datos)
     {
         try {
-            $id = (int) $datos->id;
-            $nombre = $this->enlace->escapeString($datos->nombre);
-            $descripcion = $this->enlace->escapeString($datos->descripcion ?? '');
-            $precio = (float) $datos->precio;
-            $categoria_id = (int) $datos->categoria_id;
-            $stock = (int) ($datos->stock ?? 0);
-            $peso = (float) ($datos->peso ?? 0);
-            $dimensiones = $this->enlace->escapeString($datos->dimensiones ?? '');
-            $material = $this->enlace->escapeString($datos->material ?? '');
-            $color_principal = $this->enlace->escapeString($datos->color_principal ?? '');
-            $genero = $this->enlace->escapeString($datos->genero ?? 'unisex');
-            $temporada = $this->enlace->escapeString($datos->temporada ?? '');
+            $datos = $this->normalize($datos);
+
+            $id = isset($datos['id']) ? (int)$datos['id'] : 0;
+            if ($id <= 0) {
+                throw new Exception('ID inválido');
+            }
+
+            $nombre = $this->enlace->escapeString($datos['nombre'] ?? '');
+            $descripcion = $this->enlace->escapeString($datos['descripcion'] ?? '');
+            $precio = isset($datos['precio']) ? (float)$datos['precio'] : 0.0;
+            $categoria_id = isset($datos['categoria_id']) ? (int)$datos['categoria_id'] : 0;
+            $stock = (int)($datos['stock'] ?? 0);
+            $peso = (float)($datos['peso'] ?? 0);
+            $dimensiones = $this->enlace->escapeString($datos['dimensiones'] ?? '');
+            $material = $this->enlace->escapeString($datos['material'] ?? '');
+            $color_principal = $this->enlace->escapeString($datos['color_principal'] ?? '');
+            $genero = $this->enlace->escapeString($datos['genero'] ?? 'unisex');
+            $temporada = $this->enlace->escapeString($datos['temporada'] ?? '');
 
             $vSql = "UPDATE productos SET 
                         nombre = '$nombre',
@@ -142,14 +177,21 @@ class ProductoModel
 
             $this->enlace->executeSQL_DML($vSql);
 
-            // Actualizar etiquetas si se proporcionan
-            if (isset($datos->etiquetas) && is_array($datos->etiquetas)) {
-                $this->updateEtiquetas($id, $datos->etiquetas);
+            // Actualizar etiquetas si se proporcionan (array o csv)
+            $etiquetas = $datos['etiquetas'] ?? null;
+            if (!is_null($etiquetas)) {
+                if (is_string($etiquetas)) {
+                    $etiquetas = array_filter(array_map('trim', explode(',', $etiquetas)));
+                }
+                if (is_array($etiquetas)) {
+                    $this->updateEtiquetas($id, $etiquetas);
+                }
             }
 
             return $this->get($id);
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -159,11 +201,12 @@ class ProductoModel
     public function delete($id)
     {
         try {
-            $id = $this->enlace->escapeString($id);
-            $vSql = "UPDATE productos SET eliminado = 1, updated_at = NOW() WHERE id = '$id'";
+            $id = (int)$this->enlace->escapeString($id);
+            $vSql = "UPDATE productos SET eliminado = 1, updated_at = NOW() WHERE id = $id";
             return $this->enlace->executeSQL_DML($vSql);
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -173,19 +216,20 @@ class ProductoModel
     public function getByCategoria($categoria_id)
     {
         try {
-            $categoria_id = $this->enlace->escapeString($categoria_id);
+            $categoria_id = (int)$this->enlace->escapeString($categoria_id);
             $vSql = "SELECT p.*, c.nombre as categoria_nombre,
                            COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+                           COALESCE(AVG(r.valoracion),0) as promedio_valoracion
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
                     LEFT JOIN resenas r ON p.id = r.producto_id
-                    WHERE p.categoria_id = '$categoria_id' AND p.eliminado = 0
+                    WHERE p.categoria_id = $categoria_id AND p.eliminado = 0
                     GROUP BY p.id
                     ORDER BY p.created_at DESC";
             return $this->enlace->executeSQL($vSql);
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -203,8 +247,8 @@ class ProductoModel
             }
 
             if (!empty($filters['categoria'])) {
-                $categoria = $this->enlace->escapeString($filters['categoria']);
-                $conditions[] = "p.categoria_id = '$categoria'";
+                $categoria = (int)$this->enlace->escapeString($filters['categoria']);
+                $conditions[] = "p.categoria_id = $categoria";
             }
 
             if (!empty($filters['precio_min'])) {
@@ -218,7 +262,7 @@ class ProductoModel
             }
 
             if (!empty($filters['etiquetas'])) {
-                $etiquetas = explode(',', $filters['etiquetas']);
+                $etiquetas = is_array($filters['etiquetas']) ? $filters['etiquetas'] : explode(',', $filters['etiquetas']);
                 $etiqueta_conditions = [];
                 foreach ($etiquetas as $etiqueta) {
                     $etiqueta = $this->enlace->escapeString(trim($etiqueta));
@@ -236,7 +280,7 @@ class ProductoModel
 
             $vSql = "SELECT p.*, c.nombre as categoria_nombre,
                            COUNT(r.id) as total_resenas,
-                           AVG(r.valoracion) as promedio_valoracion
+                           COALESCE(AVG(r.valoracion),0) as promedio_valoracion
                     FROM productos p 
                     LEFT JOIN categorias c ON p.categoria_id = c.id
                     LEFT JOIN resenas r ON p.id = r.producto_id
@@ -247,6 +291,7 @@ class ProductoModel
             return $this->enlace->executeSQL($vSql);
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -273,11 +318,8 @@ class ProductoModel
     private function updateEtiquetas($producto_id, $etiquetas)
     {
         try {
-            // Eliminar etiquetas existentes
             $vSql = "DELETE FROM producto_etiquetas WHERE producto_id = $producto_id";
             $this->enlace->executeSQL_DML($vSql);
-
-            // Agregar nuevas etiquetas
             $this->associateEtiquetas($producto_id, $etiquetas);
         } catch (Exception $e) {
             handleException($e);
@@ -294,30 +336,47 @@ class ProductoModel
 
     /**
      * Insertar imagen de producto en la base de datos
-     * CORREGIDO: Alineado con el script lym_2025_final_script.sql
+     * Acepta claves: 'url_imagen' o 'ruta_archivo' o 'nombre_archivo'
      */
     public function addImagen($data)
     {
         try {
-            $producto_id = (int)$data['producto_id'];
-            $url_imagen = $this->enlace->escapeString($data['url_imagen']);
-            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? 'Imagen de producto');
-            $orden = (int)($data['orden'] ?? 0); // Se alinea con la columna 'orden' de tu tabla
+            $data = $this->normalize($data);
+            $producto_id = isset($data['producto_id']) ? (int)$data['producto_id'] : 0;
+            if ($producto_id <= 0) {
+                throw new Exception('producto_id inválido');
+            }
 
-            // La consulta ahora coincide exactamente con las columnas de tu tabla 'producto_imagenes'
+            // Compatibilidad con distintos nombres
+            $url_imagen = $data['url_imagen'] ?? $data['ruta_archivo'] ?? null;
+            if (!$url_imagen && isset($data['nombre_archivo'])) {
+                $url_imagen = 'uploads/' . $this->enlace->escapeString($data['nombre_archivo']);
+            }
+            $url_imagen = $this->enlace->escapeString($url_imagen ?? '');
+
+            if (empty($url_imagen)) {
+                throw new Exception('url_imagen inválida');
+            }
+
+            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? 'Imagen de producto');
+            $orden = (int)($data['orden'] ?? 0);
+
             $sql = "INSERT INTO producto_imagenes (producto_id, url_imagen, alt_text, orden)
                     VALUES ($producto_id, '$url_imagen', '$alt_text', $orden)";
-            
+
             $this->enlace->executeSQL_DML($sql);
             $id = $this->enlace->getLastId();
-            
+
             return [
                 'id' => $id,
                 'producto_id' => $producto_id,
-                'url_imagen' => $url_imagen
+                'url_imagen' => $url_imagen,
+                'alt_text' => $alt_text,
+                'orden' => $orden
             ];
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -333,6 +392,7 @@ class ProductoModel
             return $imagenes;
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 }

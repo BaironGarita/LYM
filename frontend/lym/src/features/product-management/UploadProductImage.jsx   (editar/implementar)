@@ -1,0 +1,12 @@
+const UploadProductImage = () => {
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        // Logic to handle the file upload
+    };
+
+    return (
+        <input type="file" onChange={handleFileChange} />
+    );
+};
+
+export default UploadProductImage;

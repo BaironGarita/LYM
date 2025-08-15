@@ -3,4 +3,18 @@
  [11-08-2025 22:47:37] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 159 - Message: preg_match(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
  [11-08-2025 23:03:10] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: mysqli::__construct(): Error while reading greeting packet. PID=1052
  [11-08-2025 23:03:19] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [11-08-2025 23:20:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [11-08-2025 23:20:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+ [11-08-2025 23:20:04] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: mysqli::__construct(): Error while reading greeting packet. PID=20040
+ [11-08-2025 23:25:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:23] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:47] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:47] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:48] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:25:48] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:30:10] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:30:10] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:30:10] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 33 - Message: Access denied for user 'root'@'localhost' (using password: YES)
+ [11-08-2025 23:56:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 159 - Message: preg_match(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
  

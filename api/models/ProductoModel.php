@@ -347,33 +347,31 @@ class ProductoModel
                 throw new Exception('producto_id inválido');
             }
 
-            // Compatibilidad con distintos nombres
-            $url_imagen = $data['url_imagen'] ?? $data['ruta_archivo'] ?? null;
-            if (!$url_imagen && isset($data['nombre_archivo'])) {
-                $url_imagen = 'uploads/' . $this->enlace->escapeString($data['nombre_archivo']);
-            }
-            $url_imagen = $this->enlace->escapeString($url_imagen ?? '');
+            // Compatibilidad: aceptar url_imagen legacy -> derivar nombre_archivo / ruta_archivo
+            $ruta_archivo = $data['ruta_archivo'] ?? null;
+            $nombre_archivo = $data['nombre_archivo'] ?? null;
 
-            if (empty($url_imagen)) {
-                throw new Exception('url_imagen inválida');
+            if (!$ruta_archivo && isset($data['url_imagen'])) {
+                $ruta_archivo = $data['url_imagen'];
+            }
+            if ($ruta_archivo && !$nombre_archivo) {
+                $nombre_archivo = basename($ruta_archivo);
             }
 
+            if (!$ruta_archivo || !$nombre_archivo) {
+                throw new Exception('Datos de imagen incompletos (ruta_archivo / nombre_archivo)');
+            }
+
+            $ruta_archivo = $this->enlace->escapeString($ruta_archivo);
+            $nombre_archivo = $this->enlace->escapeString($nombre_archivo);
             $alt_text = $this->enlace->escapeString($data['alt_text'] ?? 'Imagen de producto');
             $orden = (int)($data['orden'] ?? 0);
+            $es_principal = isset($data['es_principal']) ? (int)$data['es_principal'] : 0;
 
-            $sql = "INSERT INTO producto_imagenes (producto_id, url_imagen, alt_text, orden)
-                    VALUES ($producto_id, '$url_imagen', '$alt_text', $orden)";
-
+            $sql = "INSERT INTO producto_imagenes (producto_id, nombre_archivo, ruta_archivo, alt_text, orden, es_principal)
+                    VALUES ($producto_id, '$nombre_archivo', '$ruta_archivo', '$alt_text', $orden, $es_principal)";
             $this->enlace->executeSQL_DML($sql);
-            $id = $this->enlace->getLastId();
-
-            return [
-                'id' => $id,
-                'producto_id' => $producto_id,
-                'url_imagen' => $url_imagen,
-                'alt_text' => $alt_text,
-                'orden' => $orden
-            ];
+            return true;
         } catch (Exception $e) {
             handleException($e);
             return false;

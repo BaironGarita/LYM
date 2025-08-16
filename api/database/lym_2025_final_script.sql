@@ -1,341 +1,375 @@
--- ================================================================
--- BASE DE DATOS OPTIMIZADA PARA E-COMMERCE
--- Esquema basado en los requisitos del usuario, aplicando 3FN y
--- buenas prácticas para desarrolladores.
--- ================================================================
+-- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: lym_db
+-- ------------------------------------------------------
+-- Server version	5.5.5-10.4.32-MariaDB
 
--- Crear la base de datos si no existe
-CREATE DATABASE IF NOT EXISTS lym_db
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-USE lym_db;
+--
+-- Table structure for table `carrito`
+--
 
--- ================================================================
--- 1. TABLA DE USUARIOS (Autenticación y Autorización)
--- ================================================================
-CREATE TABLE usuarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    correo VARCHAR(100) NOT NULL UNIQUE,
-    contrasena VARCHAR(255) NOT NULL, -- Se debe almacenar un hash
-    rol ENUM('administrador', 'cliente') NOT NULL DEFAULT 'cliente',
-    activo BOOLEAN DEFAULT TRUE,
-    INDEX idx_correo (correo),
-    INDEX idx_rol (rol)
-);
+DROP TABLE IF EXISTS `carrito`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carrito` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  `personalizaciones` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`personalizaciones`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_usuario_producto` (`usuario_id`,`producto_id`),
+  KEY `producto_id` (`producto_id`),
+  KEY `idx_usuario` (`usuario_id`),
+  CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `carrito_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 2. TABLA DE CATEGORÍAS (Predeterminadas)
--- ================================================================
-CREATE TABLE categorias (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT,
-    activa BOOLEAN DEFAULT TRUE,
-    INDEX idx_nombre_categoria (nombre)
-);
+--
+-- Table structure for table `categorias`
+--
 
--- ================================================================
--- 3. TABLA DE ETIQUETAS (Reutilizables)
--- ================================================================
-CREATE TABLE etiquetas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(50) NOT NULL UNIQUE,
-    activo BOOLEAN DEFAULT TRUE,
-    INDEX idx_nombre_etiqueta (nombre)
-);
+DROP TABLE IF EXISTS `categorias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categorias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `icono` varchar(50) DEFAULT NULL,
+  `color` varchar(7) DEFAULT '#000000',
+  `orden` int(11) DEFAULT 0,
+  `activo` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_activo` (`activo`),
+  KEY `idx_orden` (`orden`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 4. TABLA DE PRODUCTOS
--- ================================================================
-CREATE TABLE productos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(200) NOT NULL,
-    descripcion TEXT NOT NULL,
-    precio DECIMAL(10, 2) NOT NULL,
-    categoria_id INT NOT NULL,
-    stock INT NOT NULL DEFAULT 0,
-    activo BOOLEAN DEFAULT TRUE,
-    eliminado BOOLEAN DEFAULT FALSE, -- Para baja lógica
-    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
-    INDEX idx_nombre_producto (nombre),
-    INDEX idx_categoria_id (categoria_id)
-);
+--
+-- Table structure for table `direcciones`
+--
 
--- ================================================================
--- 5. TABLA DE IMÁGENES DE PRODUCTOS
--- ================================================================
-CREATE TABLE producto_imagenes (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    producto_id INT NOT NULL,
-    url_imagen VARCHAR(500) NOT NULL,
-    alt_text VARCHAR(200),
-    orden INT DEFAULT 0,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    INDEX idx_producto_id_imagenes (producto_id)
-);
+DROP TABLE IF EXISTS `direcciones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `direcciones` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `provincia` varchar(50) NOT NULL,
+  `ciudad` varchar(100) NOT NULL,
+  `direccion_1` varchar(255) NOT NULL,
+  `direccion_2` varchar(255) DEFAULT NULL,
+  `codigo_postal` varchar(20) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `es_principal` tinyint(1) DEFAULT 0,
+  `activo` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_usuario` (`usuario_id`),
+  KEY `idx_principal` (`es_principal`),
+  CONSTRAINT `direcciones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 6. PRODUCTOS-ETIQUETAS (Many-to-Many)
--- ================================================================
-CREATE TABLE producto_etiquetas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    producto_id INT NOT NULL,
-    etiqueta_id INT NOT NULL,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (etiqueta_id) REFERENCES etiquetas(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_producto_etiqueta (producto_id, etiqueta_id)
-);
+--
+-- Table structure for table `etiquetas`
+--
 
--- ================================================================
--- 7. TABLA DE OPCIONES DE PERSONALIZACIÓN
--- ================================================================
-CREATE TABLE opciones_personalizacion (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    tipo ENUM('Color', 'Talla', 'Material', 'Otro') NOT NULL,
-    descripcion TEXT,
-    activo BOOLEAN DEFAULT TRUE
-);
+DROP TABLE IF EXISTS `etiquetas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `etiquetas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nombre` (`nombre`),
+  KEY `idx_nombre` (`nombre`),
+  KEY `idx_activo` (`activo`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 8. VALORES DE PERSONALIZACIÓN
--- ================================================================
-CREATE TABLE valores_personalizacion (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    opcion_id INT NOT NULL,
-    valor VARCHAR(100) NOT NULL,
-    precio_adicional DECIMAL(8, 2) DEFAULT 0.00,
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (opcion_id) REFERENCES opciones_personalizacion(id) ON DELETE CASCADE
-);
+--
+-- Table structure for table `pedido_detalles`
+--
 
--- ================================================================
--- 9. TABLA INTERMEDIA: PRODUCTOS-PERSONALIZACIÓN
--- ================================================================
-CREATE TABLE producto_personalizacion (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    producto_id INT NOT NULL,
-    opcion_id INT NOT NULL,
-    obligatorio BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (opcion_id) REFERENCES opciones_personalizacion(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_producto_opcion (producto_id, opcion_id)
-);
+DROP TABLE IF EXISTS `pedido_detalles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pedido_detalles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pedido_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  `personalizaciones` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`personalizaciones`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_pedido` (`pedido_id`),
+  KEY `idx_producto` (`producto_id`),
+  CONSTRAINT `pedido_detalles_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `pedido_detalles_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 10. TABLA DE PROMOCIONES
--- ================================================================
-CREATE TABLE promociones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(200) NOT NULL,
-    tipo ENUM('categoria', 'producto') NOT NULL,
-    categoria_id INT NULL,
-    producto_id INT NULL,
-    porcentaje DECIMAL(5, 2) NOT NULL,
-    fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME NOT NULL,
-    activa BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
-    FOREIGN KEY (producto_id) REFERENCES productos(id),
-    INDEX idx_fechas_promo (fecha_inicio, fecha_fin),
-    CHECK (
-        (tipo = 'categoria' AND categoria_id IS NOT NULL AND producto_id IS NULL) OR
-        (tipo = 'producto' AND producto_id IS NOT NULL AND categoria_id IS NULL)
-    )
-);
+--
+-- Table structure for table `pedido_historial`
+--
 
--- ================================================================
--- 11. TABLA DE DIRECCIONES
--- ================================================================
-CREATE TABLE direcciones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    provincia VARCHAR(100) NOT NULL,
-    ciudad VARCHAR(100) NOT NULL,
-    direccion_1 VARCHAR(255) NOT NULL,
-    direccion_2 VARCHAR(255),
-    codigo_postal VARCHAR(20),
-    telefono VARCHAR(20),
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    INDEX idx_usuario_id_direcciones (usuario_id)
-);
+DROP TABLE IF EXISTS `pedido_historial`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pedido_historial` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pedido_id` int(11) NOT NULL,
+  `estado_anterior` varchar(20) DEFAULT NULL,
+  `estado_nuevo` varchar(20) NOT NULL,
+  `comentario` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_pedido` (`pedido_id`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `pedido_historial_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 12. TABLA DE CARRITOS
--- ================================================================
-CREATE TABLE carritos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    INDEX idx_usuario_id_carritos (usuario_id)
-);
+--
+-- Table structure for table `pedidos`
+--
 
--- ================================================================
--- 13. TABLA DE ITEMS DEL CARRITO
--- ================================================================
-CREATE TABLE carrito_items (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    carrito_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    cantidad INT NOT NULL CHECK (cantidad > 0),
-    precio_unitario DECIMAL(10, 2) NOT NULL, -- Captura el precio al momento de agregar
-    fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (carrito_id) REFERENCES carritos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_carrito_producto (carrito_id, producto_id)
-);
+DROP TABLE IF EXISTS `pedidos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pedidos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `direccion_envio_id` int(11) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  `impuestos` decimal(10,2) DEFAULT 0.00,
+  `envio` decimal(10,2) DEFAULT 0.00,
+  `descuento` decimal(10,2) DEFAULT 0.00,
+  `total` decimal(10,2) NOT NULL,
+  `estado` enum('en_proceso','confirmado','pagado','enviado','entregado','cancelado') DEFAULT 'en_proceso',
+  `metodo_pago` varchar(50) DEFAULT NULL,
+  `notas` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `direccion_envio_id` (`direccion_envio_id`),
+  KEY `idx_usuario` (`usuario_id`),
+  KEY `idx_estado` (`estado`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
+  CONSTRAINT `pedidos_ibfk_2` FOREIGN KEY (`direccion_envio_id`) REFERENCES `direcciones` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 14. TABLA DE PEDIDOS
--- ================================================================
-CREATE TABLE pedidos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    direccion_envio_id INT NOT NULL,
-    numero_pedido VARCHAR(50) NOT NULL UNIQUE,
-    estado ENUM('pendiente', 'procesando', 'enviado', 'entregado', 'cancelado') NOT NULL DEFAULT 'pendiente',
-    subtotal DECIMAL(12, 2) NOT NULL,
-    descuento DECIMAL(12, 2) DEFAULT 0.00,
-    impuestos DECIMAL(12, 2) NOT NULL,
-    total DECIMAL(12, 2) NOT NULL,
-    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id),
-    INDEX idx_usuario_id_pedidos (usuario_id),
-    INDEX idx_estado_pedido (estado)
-);
+--
+-- Table structure for table `producto_etiquetas`
+--
 
--- ================================================================
--- 15. TABLA DE ITEMS DEL PEDIDO
--- ================================================================
-CREATE TABLE pedido_items (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    pedido_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    nombre_producto VARCHAR(200) NOT NULL, -- Snapshot del nombre del producto
-    cantidad INT NOT NULL,
-    precio_unitario DECIMAL(10, 2) NOT NULL, -- Snapshot del precio
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id),
-    INDEX idx_pedido_id_items (pedido_id)
-);
+DROP TABLE IF EXISTS `producto_etiquetas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `producto_etiquetas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `producto_id` int(11) NOT NULL,
+  `etiqueta_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_producto_etiqueta` (`producto_id`,`etiqueta_id`),
+  KEY `idx_producto` (`producto_id`),
+  KEY `idx_etiqueta` (`etiqueta_id`),
+  CONSTRAINT `producto_etiquetas_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `producto_etiquetas_ibfk_2` FOREIGN KEY (`etiqueta_id`) REFERENCES `etiquetas` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ================================================================
--- 16. TABLA DE HISTORIAL DE ESTADOS DEL PEDIDO
--- ================================================================
-CREATE TABLE pedido_historial_estados (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    pedido_id INT NOT NULL,
-    estado_anterior VARCHAR(50),
-    estado_nuevo VARCHAR(50) NOT NULL,
-    usuario_cambio_id INT, -- Puede ser NULL si el cambio es automático
-    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_cambio_id) REFERENCES usuarios(id),
-    INDEX idx_pedido_id_historial (pedido_id)
-);
+--
+-- Table structure for table `producto_imagenes`
+--
 
--- ================================================================
--- 17. TABLA DE RESEÑAS
--- ================================================================
-CREATE TABLE resenas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    pedido_id INT NOT NULL, -- Para validar que el usuario compró el producto
-    valoracion INT NOT NULL CHECK (valoracion BETWEEN 1 AND 5),
-    comentario TEXT,
-    fecha_resena TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (producto_id) REFERENCES productos(id),
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
-    UNIQUE KEY uk_usuario_producto_resena (usuario_id, producto_id, pedido_id),
-    INDEX idx_producto_id_resenas (producto_id)
-);
+DROP TABLE IF EXISTS `producto_imagenes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `producto_imagenes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `producto_id` int(11) NOT NULL,
+  `nombre_archivo` varchar(255) NOT NULL,
+  `ruta_archivo` varchar(500) NOT NULL,
+  `alt_text` varchar(200) DEFAULT NULL,
+  `orden` int(11) DEFAULT 0,
+  `es_principal` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_producto` (`producto_id`),
+  KEY `idx_orden` (`orden`),
+  KEY `idx_principal` (`es_principal`),
+  CONSTRAINT `producto_imagenes_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ===============================================================-
--- DATOS INICIALES
--- ===============================================================-
+--
+-- Table structure for table `productos`
+--
 
--- Insertar categorías principales de moda
-INSERT INTO categorias (nombre, descripcion, icono, color, orden) VALUES
-('Bolsos', 'Bolsos y carteras de cuero artesanal', 'fas fa-handbag', '#8B4513', 1),
-('Accesorios', 'Accesorios de moda y complementos', 'fas fa-gem', '#FFD700', 2),
-('Billeteras', 'Billeteras y portafolios de cuero', 'fas fa-wallet', '#2F4F4F', 3),
-('Cinturones', 'Cinturones de cuero premium', 'fas fa-circle', '#A0522D', 4),
-('Joyas', 'Joyería artesanal y exclusiva', 'fas fa-ring', '#C0C0C0', 5);
+DROP TABLE IF EXISTS `productos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `productos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(200) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  `categoria_id` int(11) NOT NULL,
+  `stock` int(11) DEFAULT 0,
+  `sku` varchar(50) DEFAULT NULL,
+  `peso` decimal(8,2) DEFAULT 0.00,
+  `dimensiones` varchar(100) DEFAULT NULL,
+  `material` varchar(100) DEFAULT NULL,
+  `color_principal` varchar(50) DEFAULT NULL,
+  `genero` enum('masculino','femenino','unisex') DEFAULT 'unisex',
+  `temporada` varchar(50) DEFAULT NULL,
+  `eliminado` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku` (`sku`),
+  KEY `idx_categoria` (`categoria_id`),
+  KEY `idx_precio` (`precio`),
+  KEY `idx_eliminado` (`eliminado`),
+  KEY `idx_stock` (`stock`),
+  KEY `idx_genero` (`genero`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- Insertar etiquetas para productos de moda
-INSERT INTO etiquetas (nombre) VALUES
-('Premium'),
-('Artesanal'),
-('Cuero Italiano'),
-('Hecho a Mano'),
-('Exclusivo'),
-('Personalizable'),
-('Vintage'),
-('Clásico'),
-('Moderno'),
-('Elegante');
+--
+-- Table structure for table `promociones`
+--
 
--- Insertar usuario administrador por defecto
-INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES
-('Administrador LYM', 'admin@lym.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'administrador');
+DROP TABLE IF EXISTS `promociones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `promociones` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(200) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `tipo` enum('producto','categoria','total') NOT NULL,
+  `producto_id` int(11) DEFAULT NULL,
+  `categoria_id` int(11) DEFAULT NULL,
+  `porcentaje` decimal(5,2) DEFAULT 0.00,
+  `monto_fijo` decimal(10,2) DEFAULT 0.00,
+  `monto_minimo` decimal(10,2) DEFAULT 0.00,
+  `fecha_inicio` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fecha_fin` timestamp NULL DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `producto_id` (`producto_id`),
+  KEY `categoria_id` (`categoria_id`),
+  KEY `idx_tipo` (`tipo`),
+  KEY `idx_activo` (`activo`),
+  KEY `idx_fechas` (`fecha_inicio`,`fecha_fin`),
+  CONSTRAINT `promociones_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `promociones_ibfk_2` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- Insertar producto estrella: Bolso Milano
-INSERT INTO productos (
-    nombre, 
-    descripcion, 
-    precio, 
-    categoria_id, 
-    stock, 
-    sku, 
-    peso, 
-    dimensiones, 
-    material, 
-    color_principal, 
-    genero, 
-    temporada
-) VALUES (
-    'Bolso Milano Premium',
-    'Nuestro producto estrella: Bolso de cuero artesanal italiano con múltiples opciones de personalización. Elaborado con cuero genuino de la más alta calidad.',
-    299.99,
-    1,
-    50,
-    'LYM-MILANO-001',
-    0.75,
-    '30cm x 25cm x 15cm',
-    'Cuero genuino italiano',
-    'Negro Premium',
-    'unisex',
-    'todo_ano'
-);
+--
+-- Table structure for table `resenas`
+--
 
--- Asociar etiquetas al Bolso Milano
-INSERT INTO producto_etiquetas (producto_id, etiqueta_id) VALUES
-(1, 1), -- Premium
-(1, 2), -- Artesanal
-(1, 3), -- Cuero Italiano
-(1, 4), -- Hecho a Mano
-(1, 6); -- Personalizable
+DROP TABLE IF EXISTS `resenas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `resenas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `producto_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `pedido_id` int(11) DEFAULT NULL,
+  `valoracion` tinyint(1) NOT NULL CHECK (`valoracion` >= 1 and `valoracion` <= 5),
+  `comentario` text DEFAULT NULL,
+  `aprobado` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_usuario_producto_simple` (`usuario_id`,`producto_id`),
+  KEY `pedido_id` (`pedido_id`),
+  KEY `idx_producto` (`producto_id`),
+  KEY `idx_usuario` (`usuario_id`),
+  KEY `idx_valoracion` (`valoracion`),
+  KEY `idx_aprobado` (`aprobado`),
+  CONSTRAINT `resenas_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `resenas_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `resenas_ibfk_3` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ===============================================================-
--- COMENTARIOS FINALES
--- ===============================================================-
--- Esta base de datos está diseñada para:
--- 1. E-commerce de moda y accesorios (según README.md)
--- 2. Gestión completa de productos con categorías y etiquetas
--- 3. Sistema de usuarios con roles
--- 4. Carrito de compras persistente
--- 5. Gestión de pedidos con historial
--- 6. Sistema de reseñas y valoraciones
--- 7. Promociones y descuentos automáticos
--- 8. Soporte para personalización de productos
+--
+-- Table structure for table `usuarios`
+--
+
+DROP TABLE IF EXISTS `usuarios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `correo` varchar(150) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `rol` enum('administrador','cliente') DEFAULT 'cliente',
+  `activo` tinyint(1) DEFAULT 1,
+  `fecha_nacimiento` date DEFAULT NULL,
+  `genero` enum('masculino','femenino','otro','prefiero_no_decir') DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `correo` (`correo`),
+  KEY `idx_correo` (`correo`),
+  KEY `idx_rol` (`rol`),
+  KEY `idx_activo` (`activo`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping events for database 'lym_db'
+--
+
+--
+-- Dumping routines for database 'lym_db'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-08-16 14:59:26

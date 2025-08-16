@@ -12,6 +12,8 @@ class MySqlConnect
 	private $dbname;
 	private $link;
 
+	private $inTransaction = false;
+
 	private $log;
 
 	public function __construct()
@@ -30,6 +32,15 @@ class MySqlConnect
 	public function connect()
 	{
 		try {
+			// Reuse connection if already connected and alive
+			if ($this->link instanceof mysqli) {
+				// thread_id is set for active connections; avoid calling ping() on closed objects
+				if (!empty($this->link->thread_id) && @$this->link->ping()) {
+					return;
+				}
+				// connection appears closed/invalid, release reference
+				$this->link = null;
+			}
 			$this->link = new mysqli($this->host, $this->username, $this->password, $this->dbname);
 		} catch (Exception $e) {
 			handleException($e);
@@ -74,7 +85,10 @@ class MySqlConnect
 				handleException($this->link->error);
 				throw new \Exception('Error: Falló la ejecución de la sentencia' . $this->link->errno . ' ' . $this->link->error);
 			}
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return $lista;
 		} catch (Exception $e) {
 			handleException($e);
@@ -95,7 +109,10 @@ class MySqlConnect
 			if ($result = $this->link->query($sql)) {
 				$num_results = mysqli_affected_rows($this->link);
 			}
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return $num_results;
 		} catch (Exception $e) {
 			/* $this->log->error("File: ".$e->getFile()." - line: ".$e->getLine()." - Code: ".$e->getCode()." - Message: ".$e->getMessage());
@@ -119,7 +136,10 @@ class MySqlConnect
 				$num_results = $this->link->insert_id;
 			}
 
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return $num_results;
 		} catch (Exception $e) {
 			handleException($e);
@@ -143,10 +163,14 @@ class MySqlConnect
 			$stmt->execute();
 			$id = $this->link->insert_id;
 			$stmt->close();
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return ['id' => $id];
 		} catch (Exception $e) {
 			handleException($e);
+			return ['id' => 0];
 		}
 	}
 
@@ -169,10 +193,14 @@ class MySqlConnect
 			$stmt->execute();
 			$updated = $stmt->affected_rows;
 			$stmt->close();
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return ['updated' => $updated];
 		} catch (Exception $e) {
 			handleException($e);
+			return ['updated' => 0];
 		}
 	}
 
@@ -194,10 +222,14 @@ class MySqlConnect
 			$stmt->execute();
 			$deleted = $stmt->affected_rows;
 			$stmt->close();
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+				$this->link = null;
+			}
 			return ['deleted' => $deleted];
 		} catch (Exception $e) {
 			handleException($e);
+			return ['deleted' => 0];
 		}
 	}
 
@@ -223,10 +255,41 @@ class MySqlConnect
 				$data[] = $row;
 			}
 			$stmt->close();
-			$this->link->close();
+			if (!$this->inTransaction) {
+				$this->link->close();
+			}
 			return $data;
 		} catch (Exception $e) {
 			handleException($e);
+			return [];
+		}
+	}
+
+	// Transaction helpers for mysqli wrapper
+	public function beginTransaction()
+	{
+		$this->connect();
+		$this->link->begin_transaction();
+		$this->inTransaction = true;
+	}
+
+	public function commit()
+	{
+		if ($this->link instanceof mysqli && $this->inTransaction) {
+			$this->link->commit();
+			$this->inTransaction = false;
+			$this->link->close();
+			$this->link = null;
+		}
+	}
+
+	public function rollBack()
+	{
+		if ($this->link instanceof mysqli && $this->inTransaction) {
+			$this->link->rollback();
+			$this->inTransaction = false;
+			$this->link->close();
+			$this->link = null;
 		}
 	}
 
@@ -235,6 +298,7 @@ class MySqlConnect
 		$this->connect();
 		$escaped = $this->link->real_escape_string($string);
 		$this->link->close();
+		$this->link = null;
 		return $escaped;
 	}
 
@@ -243,6 +307,24 @@ class MySqlConnect
 		$this->connect();
 		$id = $this->link->insert_id;
 		$this->link->close();
+		$this->link = null;
 		return $id;
+	}
+
+	public function getPdo()
+	{
+		try {
+			// Log minimal de depuración: no imprimir password completo en producción
+			error_log('[MySqlConnect::getPdo] host=' . $this->host . ' user=' . ($this->username ? 'set' : 'empty') . ' db=' . $this->dbname);
+			$dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+			$pdo = new PDO($dsn, $this->username, $this->password, [
+				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+				PDO::ATTR_EMULATE_PREPARES => false,
+			]);
+			return $pdo;
+		} catch (Exception $e) {
+			handleException($e);
+			return null;
+		}
 	}
 }

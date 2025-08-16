@@ -146,9 +146,9 @@ class ResenaModel
     {
         try {
             $comentario = $this->enlace->escapeString($comentario);
-            $sql = "UPDATE resenas SET valoracion = $valoracion, comentario = '$comentario', fecha_actualizacion = NOW() 
+            $sql = "UPDATE resenas 
+                    SET valoracion = $valoracion, comentario = '$comentario', updated_at = NOW() 
                     WHERE id = $id";
-
             return $this->enlace->executeSQL_DML($sql);
         } catch (Exception $e) {
             error_log("Error en updateResena: " . $e->getMessage());

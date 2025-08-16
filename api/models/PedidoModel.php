@@ -27,14 +27,41 @@ class Pedido {
     public $direccion_envio; // Objeto para almacenar la dirección
 
     private $conn; // Conexión a la base de datos
+    private $mysql; // Optional MySqlConnect wrapper instance
     private $tabla = 'pedidos';
 
     /**
      * Constructor de la clase.
-     * @param PDO $db Conexión a la base de datos.
+     * Acepta una instancia de PDO o el wrapper MySqlConnect.
+     * @param mixed $db PDO|MySqlConnect
      */
     public function __construct($db) {
-        $this->conn = $db;
+        // Si se pasa el wrapper MySqlConnect
+        if (is_object($db) && get_class($db) === 'MySqlConnect') {
+            $this->mysql = $db;
+            $pdo = $db->getPdo();
+            if (!$pdo) {
+                throw new Exception('No se pudo obtener PDO desde MySqlConnect');
+            }
+            $this->conn = $pdo;
+        } else {
+            // Suponemos que es PDO u otro objeto compatible
+            $this->conn = $db;
+        }
+    }
+
+    /**
+     * Helper: obtiene un valor de un item que puede ser array o stdClass
+     */
+    private function getItemVal($item, $key)
+    {
+        if (is_array($item)) {
+            return isset($item[$key]) ? $item[$key] : null;
+        }
+        if (is_object($item)) {
+            return isset($item->{$key}) ? $item->{$key} : null;
+        }
+        return null;
     }
 
     /**
@@ -48,80 +75,169 @@ class Pedido {
      */
     public function crearDesdeCarrito($usuario_id, $direccion_envio_id, $items_carrito) {
         if (empty($items_carrito)) {
-            return false; // No se puede crear un pedido sin items
+            return false;
+        }
+
+        // Validaciones básicas de items
+        foreach ($items_carrito as $i => $item) {
+            $producto_id = $this->getItemVal($item, 'producto_id');
+            $cantidad = (int)($this->getItemVal($item, 'cantidad') ?? 0);
+            $precio_unitario = (float)($this->getItemVal($item, 'precio_unitario') ?? 0);
+            if (!$producto_id || $cantidad <= 0 || $precio_unitario < 0) {
+                throw new InvalidArgumentException("Item inválido en posición {$i}");
+            }
         }
 
         // 1. Calcular totales
         $subtotal = 0;
         foreach ($items_carrito as $item) {
-            $subtotal += $item['precio_unitario'] * $item['cantidad'];
+            $precio_unitario = (float)($this->getItemVal($item, 'precio_unitario') ?? 0);
+            $cantidad = (int)($this->getItemVal($item, 'cantidad') ?? 0);
+            $subtotal += $precio_unitario * $cantidad;
         }
-        
-        // Lógica de negocio para descuentos e impuestos
-        $descuento = 0.00; // Aquí iría la lógica para aplicar promociones
-        $impuestos = $subtotal * 0.13; // Ejemplo: 13% de impuestos
+
+        $descuento = 0.00;
+        $impuestos = $subtotal * 0.13;
         $total = ($subtotal - $descuento) + $impuestos;
         $numero_pedido = 'LYM-' . strtoupper(uniqid());
 
-        // Iniciar transacción
+        // Obtener lista de columnas reales de la tabla pedidos
+        $availableCols = [];
+        try {
+            $colsStmt = $this->conn->prepare("SHOW COLUMNS FROM " . $this->tabla);
+            $colsStmt->execute();
+            $cols = $colsStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($cols as $c) {
+                if (!empty($c['Field'])) $availableCols[] = $c['Field'];
+            }
+        } catch (Exception $e) {
+            // Si falla, asumimos la tabla está muy incompleta; procedemos con columnas mínimas
+            $availableCols = ['id', 'usuario_id', 'direccion_envio_id'];
+        }
+
+        // Construir INSERT dinámico según columnas disponibles
+        $columnsWanted = ['usuario_id', 'direccion_envio_id', 'numero_pedido', 'estado', 'subtotal', 'descuento', 'impuestos', 'total'];
+        $insertCols = [];
+        $placeholders = [];
+        $bindings = [];
+
+        foreach ($columnsWanted as $col) {
+            if (in_array($col, $availableCols)) {
+                $insertCols[] = $col;
+                $placeholders[] = ':' . $col;
+            }
+        }
+
+        // usuario_id y direccion_envio_id son obligatorios para crear pedido
+        if (!in_array('usuario_id', $insertCols) || !in_array('direccion_envio_id', $insertCols)) {
+            // No es posible crear el pedido en este esquema
+            throw new Exception('Esquema de tabla pedidos no contiene columnas mínimas necesarias');
+        }
+
         $this->conn->beginTransaction();
 
         try {
-            // 2. Insertar en la tabla 'pedidos'
-            $query = "INSERT INTO " . $this->tabla . " 
-                      (usuario_id, direccion_envio_id, numero_pedido, estado, subtotal, descuento, impuestos, total) 
-                      VALUES (:usuario_id, :direccion_envio_id, :numero_pedido, 'pendiente', :subtotal, :descuento, :impuestos, :total)";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':usuario_id', $usuario_id);
-            $stmt->bindParam(':direccion_envio_id', $direccion_envio_id);
-            $stmt->bindParam(':numero_pedido', $numero_pedido);
-            $stmt->bindParam(':subtotal', $subtotal);
-            $stmt->bindParam(':descuento', $descuento);
-            $stmt->bindParam(':impuestos', $impuestos);
-            $stmt->bindParam(':total', $total);
+            $sql = "INSERT INTO " . $this->tabla . " (" . implode(',', $insertCols) . ") VALUES (" . implode(',', $placeholders) . ")";
+            $stmt = $this->conn->prepare($sql);
+
+            // Bind comunes
+            if (in_array('usuario_id', $insertCols)) $stmt->bindValue(':usuario_id', $usuario_id, PDO::PARAM_INT);
+            if (in_array('direccion_envio_id', $insertCols)) $stmt->bindValue(':direccion_envio_id', $direccion_envio_id, PDO::PARAM_INT);
+            if (in_array('numero_pedido', $insertCols)) $stmt->bindValue(':numero_pedido', $numero_pedido);
+            if (in_array('estado', $insertCols)) $stmt->bindValue(':estado', 'pendiente');
+            if (in_array('subtotal', $insertCols)) $stmt->bindValue(':subtotal', $subtotal);
+            if (in_array('descuento', $insertCols)) $stmt->bindValue(':descuento', $descuento);
+            if (in_array('impuestos', $insertCols)) $stmt->bindValue(':impuestos', $impuestos);
+            if (in_array('total', $insertCols)) $stmt->bindValue(':total', $total);
 
             $stmt->execute();
             $pedido_id = $this->conn->lastInsertId();
 
-            // 3. Insertar cada ítem en 'pedido_items'
-            $query_item = "INSERT INTO pedido_items (pedido_id, producto_id, nombre_producto, cantidad, precio_unitario) 
-                           VALUES (:pedido_id, :producto_id, :nombre_producto, :cantidad, :precio_unitario)";
-            
-            foreach ($items_carrito as $item) {
-                $stmt_item = $this->conn->prepare($query_item);
-                $stmt_item->bindParam(':pedido_id', $pedido_id);
-                $stmt_item->bindParam(':producto_id', $item['producto_id']);
-                $stmt_item->bindParam(':nombre_producto', $item['nombre_producto']); // Snapshot del nombre
-                $stmt_item->bindParam(':cantidad', $item['cantidad']);
-                $stmt_item->bindParam(':precio_unitario', $item['precio_unitario']); // Snapshot del precio
-                $stmt_item->execute();
-
-                // 4. (Opcional pero recomendado) Actualizar el stock del producto
-                $query_stock = "UPDATE productos SET stock = stock - :cantidad WHERE id = :producto_id";
-                $stmt_stock = $this->conn->prepare($query_stock);
-                $stmt_stock->bindParam(':cantidad', $item['cantidad']);
-                $stmt_stock->bindParam(':producto_id', $item['producto_id']);
-                $stmt_stock->execute();
+            // Verificar existencia de tabla pedido_detalles (antes se usaba pedido_items)
+            try {
+                $tblStmt = $this->conn->prepare("SHOW TABLES LIKE 'pedido_detalles'");
+                $tblStmt->execute();
+                $hasPedidoDetalles = (bool)$tblStmt->fetch(PDO::FETCH_NUM);
+            } catch (Exception $e) {
+                $hasPedidoDetalles = false;
             }
 
-            // 5. Registrar el estado inicial en el historial
+            if ($hasPedidoDetalles) {
+                $query_item = "INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario, subtotal, personalizaciones)
+                               VALUES (:pedido_id, :producto_id, :cantidad, :precio_unitario, :subtotal, :personalizaciones)";
+                $stmt_item = $this->conn->prepare($query_item);
+
+                $query_stock_select = "SELECT stock FROM productos WHERE id = :producto_id FOR UPDATE";
+                $stmt_stock_select = $this->conn->prepare($query_stock_select);
+
+                $query_stock_update = "UPDATE productos SET stock = stock - :cantidad WHERE id = :producto_id";
+                $stmt_stock_update = $this->conn->prepare($query_stock_update);
+            }
+
+            foreach ($items_carrito as $item) {
+                $producto_id = (int)$this->getItemVal($item, 'producto_id');
+                $cantidad = (int)($this->getItemVal($item, 'cantidad') ?? 0);
+                $precio_unitario = (float)($this->getItemVal($item, 'precio_unitario') ?? 0.0);
+                $personalizaciones = $this->getItemVal($item, 'personalizaciones');
+                $personalizaciones = $personalizaciones ? (is_string($personalizaciones) ? $personalizaciones : json_encode($personalizaciones)) : null;
+
+                if ($hasPedidoDetalles) {
+                    // Bloquear fila y verificar stock solo si la tabla productos tiene stock
+                    $stockOk = false;
+                    try {
+                        $stockCheck = $this->conn->prepare("SHOW COLUMNS FROM productos LIKE 'stock'");
+                        $stockCheck->execute();
+                        $hasStockCol = (bool)$stockCheck->fetch(PDO::FETCH_NUM);
+                    } catch (Exception $e) {
+                        $hasStockCol = false;
+                    }
+
+                    if ($hasStockCol) {
+            $stmt_stock_select->bindValue(':producto_id', $producto_id, PDO::PARAM_INT);
+            $stmt_stock_select->execute();
+            $row = $stmt_stock_select->fetch(PDO::FETCH_ASSOC);
+                        if ($row === false) {
+                            throw new Exception("Producto {$producto_id} no encontrado");
+                        }
+                        $stock_actual = (int)$row['stock'];
+                        if ($stock_actual < $cantidad) {
+                            throw new Exception("Stock insuficiente para producto {$producto_id}");
+                        }
+                        $stockOk = true;
+                    }
+
+                    // Insert detalle (sin nombre_producto, añadir subtotal y personalizaciones)
+                    $stmt_item->bindValue(':pedido_id', $pedido_id, PDO::PARAM_INT);
+                    $stmt_item->bindValue(':producto_id', $producto_id, PDO::PARAM_INT);
+                    $stmt_item->bindValue(':cantidad', $cantidad, PDO::PARAM_INT);
+                    $stmt_item->bindValue(':precio_unitario', $precio_unitario);
+                    $stmt_item->bindValue(':subtotal', $cantidad * $precio_unitario);
+                    $stmt_item->bindValue(':personalizaciones', $personalizaciones);
+                    $stmt_item->execute();
+
+                    // Actualizar stock si corresponde
+                    if ($hasStockCol && $stockOk) {
+                        $stmt_stock_update->bindValue(':cantidad', $cantidad, PDO::PARAM_INT);
+                        $stmt_stock_update->bindValue(':producto_id', $producto_id, PDO::PARAM_INT);
+                        $stmt_stock_update->execute();
+                    }
+                }
+            }
+
+            // Registrar historial y commit
             $this->registrarCambioEstado($pedido_id, null, 'pendiente', $usuario_id);
-
-            // 6. (Opcional) Limpiar el carrito de compras del usuario
-            // Aquí iría la lógica para eliminar los items de la tabla `carrito_items`
-
-            // Si todo fue bien, confirmar la transacción
             $this->conn->commit();
-
             return $pedido_id;
 
         } catch (Exception $e) {
-            // Si algo falla, revertir la transacción
-            $this->conn->rollBack();
-            // Opcional: registrar el error en un log
-            // error_log($e->getMessage());
-            return false;
+            // Rollback y log detallado
+            try { $this->conn->rollBack(); } catch (Exception $_) {}
+            error_log('[PedidoModel::crearDesdeCarrito] Excepción: ' . $e->getMessage());
+            if ($e instanceof PDOException && property_exists($e, 'errorInfo')) {
+                error_log('[PedidoModel::crearDesdeCarrito] errorInfo: ' . print_r($e->errorInfo, true));
+            }
+            // Re-lanzar excepción para que el controlador pueda responder con detalle en modo debug
+            throw new Exception('Error al crear pedido: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -132,17 +248,24 @@ class Pedido {
      * @return Pedido|null El objeto Pedido si se encuentra, o null si no.
      */
     public static function findById($db, $id) {
+        // Aceptar MySqlConnect o PDO
+        $pdo = $db;
+        if (is_object($db) && get_class($db) === 'MySqlConnect') {
+            $pdo = $db->getPdo();
+            if (!$pdo) return null;
+        }
+
         $query = "SELECT * FROM pedidos WHERE id = :id LIMIT 1";
-        $stmt = $db->prepare($query);
+        $stmt = $pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        $pedido = $stmt->fetchObject('Pedido', [$db]);
+        $pedido = $stmt->fetchObject('Pedido', [$pdo]);
 
         if ($pedido) {
             // Cargar los items del pedido
             $query_items = "SELECT * FROM pedido_items WHERE pedido_id = :pedido_id";
-            $stmt_items = $db->prepare($query_items);
+            $stmt_items = $pdo->prepare($query_items);
             $stmt_items->bindParam(':pedido_id', $id);
             $stmt_items->execute();
             $pedido->items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
@@ -184,7 +307,7 @@ class Pedido {
     }
 
     /**
-     * Registra un cambio de estado en la tabla 'pedido_historial_estados'.
+     * Registra un cambio de estado en la tabla 'pedido_historial'.
      *
      * @param int $pedido_id ID del pedido.
      * @param string|null $estado_anterior El estado previo.
@@ -192,14 +315,68 @@ class Pedido {
      * @param int $usuario_cambio_id ID del usuario que realiza el cambio.
      */
     private function registrarCambioEstado($pedido_id, $estado_anterior, $estado_nuevo, $usuario_cambio_id) {
-        $query = "INSERT INTO pedido_historial_estados (pedido_id, estado_anterior, estado_nuevo, usuario_cambio_id)
-                  VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :usuario_cambio_id)";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':pedido_id', $pedido_id);
-        $stmt->bindParam(':estado_anterior', $estado_anterior);
-        $stmt->bindParam(':estado_nuevo', $estado_nuevo);
-        $stmt->bindParam(':usuario_cambio_id', $usuario_cambio_id);
-        $stmt->execute();
+        // Nombre "oficial" según el script proporcionado
+        static $historialTableName = null; // cache por request
+
+        if ($historialTableName === null) {
+            $historialTableName = $this->descubrirTablaHistorial();
+        }
+
+        if (!$historialTableName) {
+            // No existe ninguna tabla de historial compatible: evitar romper el flujo
+            error_log('[PedidoModel::registrarCambioEstado] Tabla de historial no encontrada, se omite registro');
+            return; // silencioso; no es crítico para terminar el pedido
+        }
+
+        try {
+            $query = "INSERT INTO {$historialTableName} (pedido_id, estado_anterior, estado_nuevo, usuario_cambio_id)
+                      VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :usuario_cambio_id)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':pedido_id', $pedido_id);
+            $stmt->bindParam(':estado_anterior', $estado_anterior);
+            $stmt->bindParam(':estado_nuevo', $estado_nuevo);
+            $stmt->bindParam(':usuario_cambio_id', $usuario_cambio_id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            // Loguear y continuar sin interrumpir la transacción principal (ya estamos dentro de otra transacción normalmente)
+            error_log('[PedidoModel::registrarCambioEstado] Error al insertar historial: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Intenta encontrar la tabla de historial de estados probando variaciones de nombre comunes.
+     * Devuelve el nombre de la tabla existente o null si no se encuentra.
+     */
+    private function descubrirTablaHistorial() {
+        $candidatas = [
+            'pedido_historial',              // nuevo nombre oficial
+            'pedido_historial_estados',      // nombre legacy (anterior)
+            'pedidos_historial_estados',     // variación pluralizada
+            'historial_pedidos',             // versión acortada
+            'pedido_estados_historial',      // otra posible permutación
+        ];
+        foreach ($candidatas as $tabla) {
+            if ($this->existeTabla($tabla)) {
+                if ($tabla !== 'pedido_historial') {
+                    error_log('[PedidoModel] Usando tabla de historial alternativa detectada: ' . $tabla);
+                }
+                return $tabla;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Verifica si una tabla existe en la base de datos actual.
+     */
+    private function existeTabla($nombreTabla) {
+        try {
+            $stmt = $this->conn->prepare("SHOW TABLES LIKE :t");
+            $stmt->bindValue(':t', $nombreTabla);
+            $stmt->execute();
+            return (bool)$stmt->fetch(PDO::FETCH_NUM);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }

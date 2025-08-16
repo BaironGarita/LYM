@@ -59,21 +59,22 @@ class PromocionModel
     public function create($datos)
     {
         try {
-            // Validar la lógica de la promoción
             $this->validatePromoData($datos);
 
             $nombre = $this->enlace->escapeString($datos->nombre);
+            $descripcion = isset($datos->descripcion) ? $this->enlace->escapeString($datos->descripcion) : '';
             $tipo = $this->enlace->escapeString($datos->tipo);
-            $categoria_id = isset($datos->categoria_id) ? (int) $datos->categoria_id : 'NULL';
-            $producto_id = isset($datos->producto_id) ? (int) $datos->producto_id : 'NULL';
-            $porcentaje = (float) $datos->porcentaje;
+            $categoria_id = isset($datos->categoria_id) ? (int)$datos->categoria_id : 'NULL';
+            $producto_id = isset($datos->producto_id) ? (int)$datos->producto_id : 'NULL';
+            $porcentaje = isset($datos->porcentaje) ? (float)$datos->porcentaje : 0.0;
+            $monto_fijo = isset($datos->monto_fijo) ? (float)$datos->monto_fijo : 0.0;
+            $monto_minimo = isset($datos->monto_minimo) ? (float)$datos->monto_minimo : 0.0;
             $fecha_inicio = $this->enlace->escapeString($datos->fecha_inicio);
-            $fecha_fin = $this->enlace->escapeString($datos->fecha_fin);
-            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
+            $fecha_fin = isset($datos->fecha_fin) ? $this->enlace->escapeString($datos->fecha_fin) : null;
+            $activo = isset($datos->activo) ? (int)$datos->activo : 1;
 
-            $vSql = "INSERT INTO promociones (nombre, tipo, categoria_id, producto_id, porcentaje, fecha_inicio, fecha_fin, activo) 
-                     VALUES ('$nombre', '$tipo', $categoria_id, $producto_id, $porcentaje, '$fecha_inicio', '$fecha_fin', $activo)";
-
+            $vSql = "INSERT INTO promociones (nombre, descripcion, tipo, categoria_id, producto_id, porcentaje, monto_fijo, monto_minimo, fecha_inicio, fecha_fin, activo) 
+                     VALUES ('$nombre', '$descripcion', '$tipo', $categoria_id, $producto_id, $porcentaje, $monto_fijo, $monto_minimo, '$fecha_inicio', " . ($fecha_fin ? "'$fecha_fin'" : "NULL") . ", $activo)";
             $this->enlace->executeSQL_DML($vSql);
             $id = $this->enlace->getLastId();
             return $this->get($id);
@@ -88,29 +89,34 @@ class PromocionModel
     public function update($datos)
     {
         try {
-            $id = (int) $datos->id;
+            $id = (int)$datos->id;
             $this->validatePromoData($datos);
 
             $nombre = $this->enlace->escapeString($datos->nombre);
+            $descripcion = isset($datos->descripcion) ? $this->enlace->escapeString($datos->descripcion) : '';
             $tipo = $this->enlace->escapeString($datos->tipo);
-            $categoria_id = isset($datos->categoria_id) ? (int) $datos->categoria_id : 'NULL';
-            $producto_id = isset($datos->producto_id) ? (int) $datos->producto_id : 'NULL';
-            $porcentaje = (float) $datos->porcentaje;
+            $categoria_id = isset($datos->categoria_id) ? (int)$datos->categoria_id : 'NULL';
+            $producto_id = isset($datos->producto_id) ? (int)$datos->producto_id : 'NULL';
+            $porcentaje = isset($datos->porcentaje) ? (float)$datos->porcentaje : 0.0;
+            $monto_fijo = isset($datos->monto_fijo) ? (float)$datos->monto_fijo : 0.0;
+            $monto_minimo = isset($datos->monto_minimo) ? (float)$datos->monto_minimo : 0.0;
             $fecha_inicio = $this->enlace->escapeString($datos->fecha_inicio);
-            $fecha_fin = $this->enlace->escapeString($datos->fecha_fin);
-            $activa = isset($datos->activa) ? (int) $datos->activa : 1;
+            $fecha_fin = isset($datos->fecha_fin) ? $this->enlace->escapeString($datos->fecha_fin) : null;
+            $activo = isset($datos->activo) ? (int)$datos->activo : 1;
 
             $vSql = "UPDATE promociones SET
                         nombre = '$nombre',
+                        descripcion = '$descripcion',
                         tipo = '$tipo',
                         categoria_id = $categoria_id,
                         producto_id = $producto_id,
                         porcentaje = $porcentaje,
+                        monto_fijo = $monto_fijo,
+                        monto_minimo = $monto_minimo,
                         fecha_inicio = '$fecha_inicio',
-                        fecha_fin = '$fecha_fin',
-                        activa = $activa
+                        fecha_fin = " . ($fecha_fin ? "'$fecha_fin'" : "NULL") . ",
+                        activo = $activo
                      WHERE id = $id";
-
             $this->enlace->executeSQL_DML($vSql);
             return $this->get($id);
         } catch (Exception $e) {
@@ -137,11 +143,27 @@ class PromocionModel
      */
     private function validatePromoData($datos)
     {
-        if ($datos->tipo === 'categoria' && (empty($datos->categoria_id) || !empty($datos->producto_id))) {
-            throw new Exception("Para tipo 'categoria', se requiere 'categoria_id' y 'producto_id' debe ser nulo.", 400);
+        $tipo = $datos->tipo ?? '';
+        $porcentaje = isset($datos->porcentaje) ? (float)$datos->porcentaje : 0.0;
+        $monto_fijo = isset($datos->monto_fijo) ? (float)$datos->monto_fijo : 0.0;
+
+        if (!in_array($tipo, ['producto','categoria','total'])) {
+            throw new Exception("Tipo de promoción inválido");
         }
-        if ($datos->tipo === 'producto' && (empty($datos->producto_id) || !empty($datos->categoria_id))) {
-            throw new Exception("Para tipo 'producto', se requiere 'producto_id' y 'categoria_id' debe ser nulo.", 400);
+        if ($tipo === 'producto' && empty($datos->producto_id)) {
+            throw new Exception("producto_id requerido para tipo producto");
+        }
+        if ($tipo === 'categoria' && empty($datos->categoria_id)) {
+            throw new Exception("categoria_id requerido para tipo categoria");
+        }
+        if ($tipo === 'total' && (!empty($datos->producto_id) || !empty($datos->categoria_id))) {
+            throw new Exception("No debe enviar producto_id / categoria_id para tipo total");
+        }
+        if ($porcentaje <= 0 && $monto_fijo <= 0) {
+            throw new Exception("Debe definir porcentaje > 0 o monto_fijo > 0");
+        }
+        if (!isset($datos->fecha_inicio) || trim($datos->fecha_inicio) === '') {
+            throw new Exception("fecha_inicio requerida");
         }
     }
 }

@@ -26,6 +26,7 @@ class DireccionModel
             return $vResultado;
         } catch (Exception $e) {
             handleException($e);
+            return [];
         }
     }
 
@@ -46,6 +47,7 @@ class DireccionModel
             return !empty($vResultado) ? $vResultado[0] : null;
         } catch (Exception $e) {
             handleException($e);
+            return null;
         }
     }
 
@@ -57,15 +59,21 @@ class DireccionModel
     public function create($datos)
     {
         try {
-            // Validar y escapar datos
-            $usuarioId = (int) $datos->usuario_id;
-            $provincia = addslashes($datos->provincia);
-            $ciudad = addslashes($datos->ciudad);
-            $direccion1 = addslashes($datos->direccion_1);
-            $direccion2 = isset($datos->direccion_2) ? addslashes($datos->direccion_2) : null;
-            $codigoPostal = isset($datos->codigo_postal) ? addslashes($datos->codigo_postal) : null;
-            $telefono = isset($datos->telefono) ? addslashes($datos->telefono) : null;
-            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
+            // Validar y escapar datos. $datos puede ser array o stdClass
+            if (is_array($datos)) {
+                $get = function ($k, $d = null) use ($datos) { return isset($datos[$k]) ? $datos[$k] : $d; };
+            } else {
+                $get = function ($k, $d = null) use ($datos) { return isset($datos->{$k}) ? $datos->{$k} : $d; };
+            }
+
+            $usuarioId = (int) $get('usuario_id');
+            $provincia = addslashes($get('provincia', ''));
+            $ciudad = addslashes($get('ciudad', ''));
+            $direccion1 = addslashes($get('direccion_1', ''));
+            $direccion2 = $get('direccion_2', null) !== null ? addslashes($get('direccion_2')) : null;
+            $codigoPostal = $get('codigo_postal', null) !== null ? addslashes($get('codigo_postal')) : null;
+            $telefono = $get('telefono', null) !== null ? addslashes($get('telefono')) : null;
+            $activo = $get('activo', null) !== null ? (int) $get('activo') : 1;
 
             // Verificar que el usuario existe
             $vSqlCheck = "SELECT id FROM usuarios WHERE id = $usuarioId AND activo = 1";
@@ -97,9 +105,15 @@ class DireccionModel
             $idDireccion = $this->enlace->executeSQL_DML_last($vSql);
 
             // Retornar la dirección creada
-            return $this->get($idDireccion);
+            $created = $this->get($idDireccion);
+            // Si el caller espera un objeto con insertId, proveer compatibilidad
+            if ($created && is_object($created)) {
+                return $created;
+            }
+            return $created;
         } catch (Exception $e) {
             handleException($e);
+            return null;
         }
     }
 
@@ -111,15 +125,22 @@ class DireccionModel
     public function update($datos)
     {
         try {
-            $id = (int) $datos->id;
-            $usuarioId = (int) $datos->usuario_id;
-            $provincia = addslashes($datos->provincia);
-            $ciudad = addslashes($datos->ciudad);
-            $direccion1 = addslashes($datos->direccion_1);
-            $direccion2 = isset($datos->direccion_2) ? addslashes($datos->direccion_2) : null;
-            $codigoPostal = isset($datos->codigo_postal) ? addslashes($datos->codigo_postal) : null;
-            $telefono = isset($datos->telefono) ? addslashes($datos->telefono) : null;
-            $activo = isset($datos->activo) ? (int) $datos->activo : 1;
+            // $datos puede ser array o stdClass
+            if (is_array($datos)) {
+                $get = function ($k, $d = null) use ($datos) { return isset($datos[$k]) ? $datos[$k] : $d; };
+            } else {
+                $get = function ($k, $d = null) use ($datos) { return isset($datos->{$k}) ? $datos->{$k} : $d; };
+            }
+
+            $id = (int) $get('id');
+            $usuarioId = (int) $get('usuario_id');
+            $provincia = addslashes($get('provincia', ''));
+            $ciudad = addslashes($get('ciudad', ''));
+            $direccion1 = addslashes($get('direccion_1', ''));
+            $direccion2 = $get('direccion_2', null) !== null ? addslashes($get('direccion_2')) : null;
+            $codigoPostal = $get('codigo_postal', null) !== null ? addslashes($get('codigo_postal')) : null;
+            $telefono = $get('telefono', null) !== null ? addslashes($get('telefono')) : null;
+            $activo = $get('activo', null) !== null ? (int) $get('activo') : 1;
 
             // Verificar que la dirección pertenece al usuario
             $vSqlCheck = "SELECT id FROM direcciones WHERE id = $id AND usuario_id = $usuarioId";
@@ -142,6 +163,7 @@ class DireccionModel
             return $this->get($id);
         } catch (Exception $e) {
             handleException($e);
+            return null;
         }
     }
 
@@ -168,6 +190,7 @@ class DireccionModel
             return true;
         } catch (Exception $e) {
             handleException($e);
+            return false;
         }
     }
 
@@ -188,6 +211,7 @@ class DireccionModel
             return $vResultado;
         } catch (Exception $e) {
             handleException($e);
+            return [];
         }
     }
 
@@ -211,6 +235,7 @@ class DireccionModel
             return $vResultado;
         } catch (Exception $e) {
             handleException($e);
+            return [];
         }
     }
 }

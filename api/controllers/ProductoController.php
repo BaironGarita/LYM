@@ -186,10 +186,12 @@ class ProductoController
 
             // Guardar en BD usando la clave 'url_imagen' que espera el modelo
             $this->model->addImagen([
-                'producto_id' => $producto_id,
-                'url_imagen' => $ruta_db,
-                'alt_text' => $name,
-                'orden' => $key
+                'producto_id'    => $producto_id,
+                'nombre_archivo' => $nombre_archivo,
+                'ruta_archivo'   => $ruta_db,
+                'alt_text'       => $name,
+                'orden'          => 0,
+                'es_principal'   => 0
             ]);
         }
 

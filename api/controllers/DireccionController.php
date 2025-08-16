@@ -62,11 +62,14 @@ class DireccionController
             //Obtener json enviado
             $inputJSON = $request->getJSON();
 
-            // Validar campos requeridos
-            if (
-                empty($inputJSON->usuario_id) || empty($inputJSON->provincia) ||
-                empty($inputJSON->ciudad) || empty($inputJSON->direccion_1)
-            ) {
+            // Normalizar $inputJSON (puede ser array o stdClass) y validar campos requeridos
+            if (is_array($inputJSON)) {
+                $get = function ($k) use ($inputJSON) { return isset($inputJSON[$k]) ? $inputJSON[$k] : null; };
+            } else {
+                $get = function ($k) use ($inputJSON) { return isset($inputJSON->{$k}) ? $inputJSON->{$k} : null; };
+            }
+
+            if (empty($get('usuario_id')) || empty($get('provincia')) || empty($get('ciudad')) || empty($get('direccion_1'))) {
                 throw new Exception("Faltan campos requeridos: usuario_id, provincia, ciudad, direccion_1");
             }
 
@@ -90,12 +93,14 @@ class DireccionController
             //Obtener json enviado
             $inputJSON = $request->getJSON();
 
-            // Validar campos requeridos
-            if (
-                empty($inputJSON->id) || empty($inputJSON->usuario_id) ||
-                empty($inputJSON->provincia) || empty($inputJSON->ciudad) ||
-                empty($inputJSON->direccion_1)
-            ) {
+            // Normalizar input y validar
+            if (is_array($inputJSON)) {
+                $get = function ($k) use ($inputJSON) { return isset($inputJSON[$k]) ? $inputJSON[$k] : null; };
+            } else {
+                $get = function ($k) use ($inputJSON) { return isset($inputJSON->{$k}) ? $inputJSON->{$k} : null; };
+            }
+
+            if (empty($get('id')) || empty($get('usuario_id')) || empty($get('provincia')) || empty($get('ciudad')) || empty($get('direccion_1'))) {
                 throw new Exception("Faltan campos requeridos: id, usuario_id, provincia, ciudad, direccion_1");
             }
 

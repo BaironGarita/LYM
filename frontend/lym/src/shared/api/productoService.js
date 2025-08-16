@@ -63,6 +63,57 @@ const ProductoService = {
   },
 
   /**
+   * Opciones de personalización (backend)
+   */
+  getOpcionesPersonalizacion: () => {
+    return apiRequest(`${BASE_URL}/opciones`);
+  },
+
+  /**
+   * Valores de una opción de personalización
+   * @param {number|string} opcionId
+   */
+  getValoresPorOpcion: (opcionId) => {
+    return apiRequest(
+      `${BASE_URL}/valores_personalizacion?opcion_id=${opcionId}`
+    );
+  },
+
+  /**
+   * Asociar una opción a un producto (producto_personalizacion)
+   * @param {object} payload - { producto_id, opcion_id, obligatorio }
+   */
+  createProductoPersonalizacion: (payload) => {
+    return apiRequest(`${BASE_URL}/producto_personalizacion`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Eliminar asociación producto-opción
+   * Puede recibir un id de asociación o producto_id+opcion_id
+   */
+  deleteProductoPersonalizacion: ({ id, producto_id, opcion_id } = {}) => {
+    if (id) {
+      return apiRequest(`${BASE_URL}/producto_personalizacion/${id}`, {
+        method: "DELETE",
+      });
+    }
+    if (producto_id && opcion_id) {
+      // usar query params
+      return apiRequest(
+        `${BASE_URL}/producto_personalizacion?producto_id=${producto_id}&opcion_id=${opcion_id}`,
+        { method: "DELETE" }
+      );
+    }
+    return Promise.reject(
+      new Error("Parámetros insuficientes para eliminar asociación")
+    );
+  },
+
+  /**
    * Actualizar un producto existente
    */
   updateProducto: (id, formData) => {

@@ -28,6 +28,8 @@ const ProductUploadForm = () => {
     imagen: null,
   });
   const [categorias, setCategorias] = useState([]);
+  const [opciones, setOpciones] = useState([]);
+  const [selectedOpciones, setSelectedOpciones] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -46,6 +48,20 @@ const ProductUploadForm = () => {
       }
     };
     fetchCategorias();
+
+    const fetchOpciones = async () => {
+      try {
+        const data = await ProductoService.getOpcionesPersonalizacion();
+        setOpciones(Array.isArray(data) ? data : []);
+      } catch (error) {
+        // Silencioso: no bloquear creación de producto por falta de opciones
+        console.warn(
+          "No se pudieron cargar opciones de personalización",
+          error
+        );
+      }
+    };
+    fetchOpciones();
   }, []);
 
   const handleInputChange = (e) => {
@@ -90,7 +106,26 @@ const ProductUploadForm = () => {
     }
 
     try {
-      await ProductoService.createProducto(data);
+      const created = await ProductoService.createProducto(data);
+      // Si el backend devuelve el id del producto creado
+      const productoId =
+        created?.id || created?.insertId || created?.result?.id;
+
+      // Asociar opciones de personalización seleccionadas
+      if (selectedOpciones && selectedOpciones.length > 0 && productoId) {
+        for (const opcionId of selectedOpciones) {
+          try {
+            await ProductoService.createProductoPersonalizacion({
+              producto_id: productoId,
+              opcion_id: opcionId,
+              obligatorio: 0,
+            });
+          } catch (err) {
+            console.warn("No se pudo asociar opcion", opcionId, err);
+          }
+        }
+      }
+
       toast.success(
         t(
           "admin.productUpload.success.created",
@@ -248,6 +283,43 @@ const ProductUploadForm = () => {
             </div>
           </div>
         </div>
+
+        {/* --- Personalizaciones --- */}
+        {opciones.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-800 border-b pb-3">
+              {t(
+                "admin.productUpload.sections.personalization",
+                "Personalizaciones"
+              )}
+            </h2>
+            <p className="text-sm text-gray-600">
+              Seleccione las opciones que aplican a este producto (opcional)
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {opciones.map((op) => (
+                <label key={op.id} className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    value={op.id}
+                    checked={selectedOpciones.includes(String(op.id))}
+                    onChange={(e) => {
+                      const val = String(op.id);
+                      setSelectedOpciones((prev) =>
+                        prev.includes(val)
+                          ? prev.filter((p) => p !== val)
+                          : [...prev, val]
+                      );
+                    }}
+                  />
+                  <span className="font-medium">
+                    {op.nombre} ({op.tipo})
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* --- Imagen --- */}
         <div className="space-y-4">

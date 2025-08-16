@@ -281,6 +281,10 @@ export const CheckoutPage = () => {
         cantidad: item.quantity,
         nombre_producto: item.nombre || item.nombre_producto || "", // snapshot del nombre
         precio_unitario: item.promocionInfo?.precioFinal || item.precio,
+        // Incluir personalizaciones si vienen en el item (frontend puede añadirlas al añadir al carrito)
+        ...(item.personalizaciones
+          ? { personalizaciones: item.personalizaciones }
+          : {}),
       }));
 
       const pedidoPayload = {

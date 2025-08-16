@@ -88,7 +88,9 @@ class_alias('OpcionPersonalizacionController', 'opcionpersonalizacion');
 class_alias('UsuarioController', 'usuario');
 class_alias('PromocionController', 'promocion');
 class_alias('ResenaController', 'resena');
-class_alias('PedidoController', 'pedido');
+// Evitar colisión con la clase modelo `Pedido` (nombre de clase insensible a mayúsculas).
+// Usamos un alias diferente para el controlador.
+class_alias('PedidoController', 'pedido_controller');
 class_alias('ValoresPersonalizacionController', 'valores_personalizacion');
 class_alias('ProductoPersonalizacionController', 'producto_personalizacion');
 

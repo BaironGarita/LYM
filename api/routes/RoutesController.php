@@ -96,6 +96,17 @@ class RoutesController
             return true;
         }
 
+        // Endpoint para actualizar estado de pedido: /pedidos/{id}/estado
+        if ($resource === 'pedidos' && isset($segments[$offset + 1]) && is_numeric($segments[$offset + 1]) && isset($segments[$offset + 2]) && $segments[$offset + 2] === 'estado') {
+            // Solo aceptar PUT para cambio de estado
+            if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+                require_once __DIR__ . '/../controllers/PedidoController.php';
+                $controller = new PedidoController();
+                $controller->updateEstado();
+                return true;
+            }
+        }
+
         return false;
     }
 

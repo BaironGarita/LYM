@@ -167,14 +167,28 @@ const cartSlice = createSlice({
           item.quantity -= 1;
           const price = item.promocionInfo?.precioFinal || item.precio;
           item.totalPrice -= price;
-          state.totalQuantity -= 1;
-          state.totalAmount -= price;
+          // Recalculate totals to avoid inconsistencies
+          state.totalQuantity = state.items.reduce(
+            (total, it) => total + it.quantity,
+            0
+          );
+          state.totalAmount = state.items.reduce(
+            (total, it) => total + (Number(it.totalPrice) || 0),
+            0
+          );
           toast.info(`Se quitó una unidad de "${item.nombre}"`);
         } else {
           // Remove item completely
           state.items.splice(itemIndex, 1);
-          state.totalQuantity -= 1;
-          state.totalAmount -= item.totalPrice;
+          // Recalculate totals after removal
+          state.totalQuantity = state.items.reduce(
+            (total, it) => total + it.quantity,
+            0
+          );
+          state.totalAmount = state.items.reduce(
+            (total, it) => total + (Number(it.totalPrice) || 0),
+            0
+          );
           toast.success(`"${item.nombre}" eliminado del carrito`);
         }
 
@@ -197,8 +211,15 @@ const cartSlice = createSlice({
 
         const item = state.items[itemIndex];
         state.items.splice(itemIndex, 1);
-        state.totalQuantity -= item.quantity;
-        state.totalAmount -= item.totalPrice;
+        // Recalculate totals after deletion to remain consistent
+        state.totalQuantity = state.items.reduce(
+          (total, it) => total + it.quantity,
+          0
+        );
+        state.totalAmount = state.items.reduce(
+          (total, it) => total + (Number(it.totalPrice) || 0),
+          0
+        );
 
         state.lastUpdated = new Date().toISOString();
         saveCartToStorage(state);
@@ -253,7 +274,9 @@ export const cartActions = {
   addToCart:
     (item, quantity = 1) =>
     (dispatch) => {
-      dispatch(addItem({ item, quantity }));
+      // Call the prepared action creator with the same argument signature
+      // (item, quantity) so prepare() builds the correct payload.
+      dispatch(addItem(item, quantity));
     },
   removeFromCart: (itemId) => (dispatch) => {
     dispatch(removeItem(itemId));

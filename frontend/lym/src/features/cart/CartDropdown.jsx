@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { cartActions } from "@/App/store/cartSlice";
+import { cartActions, addItem } from "@/App/store/cartSlice";
 import { Button } from "@/shared/components/UI/button";
 import { ScrollArea } from "@/shared/components/UI/scroll-area";
 import { Separator } from "@/shared/components/UI/separator";
@@ -38,6 +38,29 @@ const CartDropdown = ({ onClose }) => {
 
   const isLoading = status === "loading";
 
+  // Helper para determinar si un item está en oferta real
+  const isItemOnOffer = (item) => {
+    try {
+      const promoPrice = item.promocionInfo?.precioFinal;
+      const origPrice = item.precio;
+      if (!promoPrice) return false;
+      const p = parseFloat(promoPrice);
+      const o = parseFloat(origPrice);
+      if (Number.isNaN(p) || Number.isNaN(o)) return false;
+      return p < o;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const getDiscountPercent = (item) => {
+    const promoPrice = parseFloat(item.promocionInfo?.precioFinal || 0);
+    const origPrice = parseFloat(item.precio || 0);
+    if (!promoPrice || !origPrice || promoPrice >= origPrice) return null;
+    const pct = Math.round(((origPrice - promoPrice) / origPrice) * 100);
+    return pct > 0 ? pct : null;
+  };
+
   const handleGoToCheckout = () => {
     if (items.length === 0) {
       toast.error("Tu carrito está vacío");
@@ -53,7 +76,9 @@ const CartDropdown = ({ onClose }) => {
       return;
     }
     setIsAnimating((prev) => ({ ...prev, [item.id]: "increase" }));
-    dispatch(cartActions.addToCart(item, 1));
+    // Use the prepared action creator directly to ensure the payload
+    // shape matches the reducer's expectations (item, quantity)
+    dispatch(addItem(item, 1));
   };
 
   const handleDecrease = (item) => {
@@ -181,9 +206,11 @@ const CartDropdown = ({ onClose }) => {
                           e.target.src = "/placeholder-product.jpg";
                         }}
                       />
-                      {item.promocionInfo && (
+                      {isItemOnOffer(item) && (
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                          Oferta
+                          {getDiscountPercent(item)
+                            ? `${getDiscountPercent(item)}%`
+                            : "Oferta"}
                         </div>
                       )}
                     </div>
@@ -199,11 +226,12 @@ const CartDropdown = ({ onClose }) => {
                               item.promocionInfo?.precioFinal || item.precio
                             )}
                           </p>
-                          {item.promocionInfo?.precioOriginal && (
-                            <p className="text-xs text-gray-400 line-through text-right">
-                              {formatPrice(item.promocionInfo.precioOriginal)}
-                            </p>
-                          )}
+                          {isItemOnOffer(item) &&
+                            item.promocionInfo?.precioOriginal && (
+                              <p className="text-xs text-gray-400 line-through text-right">
+                                {formatPrice(item.promocionInfo.precioOriginal)}
+                              </p>
+                            )}
                         </div>
                       </div>
 

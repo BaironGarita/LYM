@@ -52,7 +52,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm transition-all duration-300">
+  <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm transition-all duration-300">
         <div className="container mx-auto">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
             {/* Logo */}
@@ -113,15 +113,14 @@ export function Navbar() {
               </div>
             </button>
           </div>
+          {/* Dropdown del Carrito (posicionado respecto al header) */}
+          {showCart && (
+            <div className="absolute top-full right-4 z-50 mt-2" ref={cartDropdownRef}>
+              <CartDropdown onClose={menuHandlers.closeCart} />
+            </div>
+          )}
         </div>
       </header>
-
-      {/* Dropdown del Carrito */}
-      {showCart && (
-        <div className="absolute top-16 right-4 z-50" ref={cartDropdownRef}>
-          <CartDropdown onClose={menuHandlers.closeCart} />
-        </div>
-      )}
 
       {/* Menú móvil */}
       <MobileMenu

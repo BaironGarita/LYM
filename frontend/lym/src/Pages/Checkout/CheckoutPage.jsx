@@ -316,11 +316,7 @@ export const CheckoutPage = () => {
       }
 
       // backend devuelve 'pedido_id' en el controlador actual
-      const pedidoId =
-        pedidoData.pedido_id ||
-        pedidoData.id ||
-        pedidoData.insertId ||
-        pedidoData.result?.id;
+      const pedidoId = pedidoData.pedido_id || pedidoData.id;
       // ... resto del flujo (validación de tarjeta, marcar pagado, limpiar carrito) igual que antes ...
 
       // Limpiar carrito después de completar la orden

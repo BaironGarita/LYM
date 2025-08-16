@@ -51,7 +51,11 @@ class PedidoController {
 
         if ($nuevo_pedido_id) {
             http_response_code(201);
-            echo json_encode(['mensaje' => 'Pedido creado exitosamente.', 'pedido_id' => $nuevo_pedido_id]);
+            echo json_encode([
+                'mensaje' => 'Pedido creado exitosamente.',
+                'pedido_id' => $nuevo_pedido_id,
+                'result' => (array) $nuevo_pedido_id // Si es un objeto, conviértelo
+            ]);
             return;
         }
 

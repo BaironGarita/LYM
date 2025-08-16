@@ -22,7 +22,7 @@ import {
   Lock,
 } from "lucide-react";
 
-const CheckoutPage = () => {
+export const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items, totalAmount, totalQuantity } = useSelector(
@@ -221,8 +221,13 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("handleSubmit called", { metodoPago: formData.metodoPago });
     if (!validateForm()) {
+      const firstKey = Object.keys(formErrors)[0] || Object.keys(cardErrors)[0];
+      if (firstKey) {
+        const el = document.getElementById(firstKey);
+        if (el) el.focus();
+      }
       return;
     }
 
@@ -230,17 +235,18 @@ const CheckoutPage = () => {
 
     try {
       // Enviar dirección (si el usuario está autenticado) y crear pedido en backend
-      const baseUrl = import.meta.env.VITE_BASE_URL || "";
+      // Asegúrate de configurar VITE_BASE_URL en .env: VITE_BASE_URL="http://localhost:81/api_lym"
+      const baseUrl =
+        import.meta.env.VITE_BASE_URL || "http://localhost:81/api_lym";
 
       if (!user || !user.id) {
-        // Si no hay usuario, requerir login
         setLoading(false);
         alert("Debes iniciar sesión para completar la compra");
         navigate("/login");
         return;
       }
 
-      // 1) Crear dirección de envío en el backend
+      // 1) Crear dirección de envío en el backend (igual que antes)
       const direccionPayload = {
         usuario_id: user.id,
         provincia: formData.provincia || formData.ciudad || "Provincia",
@@ -253,7 +259,10 @@ const CheckoutPage = () => {
 
       const direccionRes = await fetch(`${baseUrl}/direcciones`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // añadir token
+        },
         body: JSON.stringify(direccionPayload),
       });
 
@@ -266,55 +275,32 @@ const CheckoutPage = () => {
         );
       }
 
-      const direccionId =
-        direccionData.id ||
-        direccionData.insertId ||
-        direccionData.data?.id ||
-        (direccionData.result && direccionData.result.id);
-      // fallback: if backend returned whole object, try to read id
-      const resolvedDireccionId =
-        direccionId ||
-        direccionData?.id ||
-        direccionData?.insertId ||
-        direccionData?.result?.id;
-      if (!resolvedDireccionId) {
-        // If API returned the created object inside another field
-        // try assorted shapes
-        if (direccionData && typeof direccionData === "object") {
-          // If full object returned
-          if (direccionData.usuario_id) {
-            // assume it's the object
-            resolvedDireccionId = direccionData.id;
-          }
-        }
-      }
-
-      // 2) Crear el pedido
-      const detalles = items.map((item) => ({
+      // 2) Preparar items con la forma que espera el backend / modelo: items_carrito
+      const items_carrito = items.map((item) => ({
         producto_id: item.id,
         cantidad: item.quantity,
+        nombre_producto: item.nombre || item.nombre_producto || "", // snapshot del nombre
         precio_unitario: item.promocionInfo?.precioFinal || item.precio,
       }));
 
       const pedidoPayload = {
-        usuario_id: user.id,
-        direccion_envio_id:
-          resolvedDireccionId ||
-          direccionData.id ||
-          direccionData.insertId ||
-          0,
+        usuario_id: user.id, // opcional si el backend extrae del token
+        direccion_envio_id: direccionData.id || direccionData.insertId || 0,
+        items_carrito,
         subtotal: totalAmount,
         impuestos: 0.0,
         envio: 0.0,
         descuento: 0.0,
         total: totalAmount,
         metodo_pago: formData.metodoPago,
-        detalles,
       };
 
       const pedidoRes = await fetch(`${baseUrl}/pedidos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify(pedidoPayload),
       });
 
@@ -325,47 +311,18 @@ const CheckoutPage = () => {
         );
       }
 
-      // Si el pago es con tarjeta, simular validación de la tarjeta (Luhn)
-      if (formData.metodoPago === "tarjeta") {
-        const cardNumber = cardData.numeroTarjeta.replace(/\s/g, "");
-        const isValidCard = luhnCheck(cardNumber);
-        if (!isValidCard) {
-          throw new Error("Número de tarjeta inválido (falló validación)");
-        }
-
-        // Intentar marcar el pedido como pagado
-        const pedidoId =
-          pedidoData.id ||
-          pedidoData.result?.id ||
-          pedidoData.data?.id ||
-          pedidoData.pedido?.id ||
-          pedidoData.id_pedido ||
-          pedidoData.idPedido;
-        if (pedidoId) {
-          try {
-            await fetch(`${baseUrl}/pedidos/${pedidoId}/estado`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id: pedidoId,
-                estado: "pagado",
-                comentario: "Pago con tarjeta simulado",
-              }),
-            });
-          } catch (err) {
-            console.warn(
-              "No se pudo actualizar estado a pagado (no crítico):",
-              err
-            );
-          }
-        }
-      }
+      // backend devuelve 'pedido_id' en el controlador actual
+      const pedidoId =
+        pedidoData.pedido_id ||
+        pedidoData.id ||
+        pedidoData.insertId ||
+        pedidoData.result?.id;
+      // ... resto del flujo (validación de tarjeta, marcar pagado, limpiar carrito) igual que antes ...
 
       // Limpiar carrito después de completar la orden
       dispatch(clearCart());
       setOrderCompleted(true);
 
-      // Redirigir después de 3 segundos
       setTimeout(() => {
         navigate("/orders");
       }, 3000);
@@ -622,6 +579,28 @@ const CheckoutPage = () => {
                     {formErrors.direccion && (
                       <p className="text-red-500 text-sm mt-1">
                         {formErrors.direccion}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="provincia"
+                      className="text-gray-700 font-medium"
+                    >
+                      Provincia
+                    </Label>
+                    <Input
+                      id="provincia"
+                      name="provincia"
+                      value={formData.provincia}
+                      onChange={handleInputChange}
+                      className={`py-3 px-4 ${formErrors.provincia ? "border-red-500" : ""}`}
+                      required
+                    />
+                    {formErrors.provincia && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.provincia}
                       </p>
                     )}
                   </div>

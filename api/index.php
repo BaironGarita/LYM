@@ -63,6 +63,8 @@ require_once "models/UsuarioModel.php";
 require_once "models/PromocionModel.php";
 require_once "models/ResenaModel.php";
 require_once "models/PedidoModel.php";
+require_once "models/ValoresPersonalizacionModel.php";
+require_once "models/ProductoPersonalizacionModel.php";
 
 /* --- Controladores --- */
 require_once "controllers/EtiquetaController.php";
@@ -74,6 +76,8 @@ require_once "controllers/UsuarioController.php";
 require_once "controllers/PromocionController.php";
 require_once "controllers/ResenaController.php";
 require_once "controllers/PedidoController.php";
+require_once "controllers/ValoresPersonalizacionController.php";
+require_once "controllers/ProductoPersonalizacionController.php";
 
 /* --- Alias para el enrutador --- */
 class_alias('EtiquetaController', 'etiqueta');
@@ -85,6 +89,8 @@ class_alias('UsuarioController', 'usuario');
 class_alias('PromocionController', 'promocion');
 class_alias('ResenaController', 'resena');
 class_alias('PedidoController', 'pedido');
+class_alias('ValoresPersonalizacionController', 'valores_personalizacion');
+class_alias('ProductoPersonalizacionController', 'producto_personalizacion');
 
 /* --- Manejo de rutas especiales antes del enrutador --- */
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';

@@ -1,247 +1,205 @@
 <?php
+
 /**
- * Modelo para la gestión de pedidos
+ * ================================================================
+ * MODELO: Pedido
+ * ================================================================
+ *
+ * Esta clase se encarga de toda la lógica de negocio relacionada
+ * con los pedidos. Interactúa directamente con la base de datos
+ * para crear, consultar y actualizar la información de los pedidos.
  */
-class PedidoModel
-{
-    private $enlace;
+class Pedido {
+    // Propiedades del objeto Pedido que coinciden con la tabla 'pedidos'
+    public $id;
+    public $usuario_id;
+    public $direccion_envio_id;
+    public $numero_pedido;
+    public $estado;
+    public $subtotal;
+    public $descuento;
+    public $impuestos;
+    public $total;
+    public $fecha_pedido;
 
-    public function __construct()
-    {
-        $this->enlace = new MySqlConnect();
+    // Propiedades para datos relacionados
+    public $items = []; // Array para almacenar los objetos PedidoItem
+    public $direccion_envio; // Objeto para almacenar la dirección
+
+    private $conn; // Conexión a la base de datos
+    private $tabla = 'pedidos';
+
+    /**
+     * Constructor de la clase.
+     * @param PDO $db Conexión a la base de datos.
+     */
+    public function __construct($db) {
+        $this->conn = $db;
     }
 
     /**
-     * Obtener todos los pedidos
+     * Crea un nuevo pedido a partir de los datos del carrito.
+     * Esta es una operación transaccional para garantizar la integridad de los datos.
+     *
+     * @param int $usuario_id ID del usuario que realiza el pedido.
+     * @param int $direccion_envio_id ID de la dirección de envío.
+     * @param array $items_carrito Array de ítems del carrito.
+     * @return int|false El ID del pedido creado o false en caso de error.
      */
-    public function getAll()
-    {
-        try {
-            $vSql = "SELECT 
-                        p.id,
-                        p.usuario_id,
-                        u.nombre as cliente_nombre,
-                        u.correo as cliente_correo,
-                        p.direccion_envio_id,
-                        CONCAT(d.ciudad, ', ', d.provincia) as direccion_envio,
-                        p.subtotal,
-                        p.impuestos,
-                        p.envio,
-                        p.descuento,
-                        p.total,
-                        p.estado,
-                        p.metodo_pago,
-                        p.created_at,
-                        p.updated_at,
-                        COUNT(pd.id) as total_items
-                     FROM pedidos p
-                     JOIN usuarios u ON p.usuario_id = u.id
-                     JOIN direcciones d ON p.direccion_envio_id = d.id
-                     LEFT JOIN pedido_detalles pd ON p.id = pd.pedido_id
-                     GROUP BY p.id
-                     ORDER BY p.created_at DESC";
-
-            return $this->enlace->executeSQL($vSql);
-        } catch (Exception $e) {
-            handleException($e);
+    public function crearDesdeCarrito($usuario_id, $direccion_envio_id, $items_carrito) {
+        if (empty($items_carrito)) {
+            return false; // No se puede crear un pedido sin items
         }
-    }
 
-    /**
-     * Obtener pedido por ID con detalles
-     */
-    public function get($id)
-    {
+        // 1. Calcular totales
+        $subtotal = 0;
+        foreach ($items_carrito as $item) {
+            $subtotal += $item['precio_unitario'] * $item['cantidad'];
+        }
+        
+        // Lógica de negocio para descuentos e impuestos
+        $descuento = 0.00; // Aquí iría la lógica para aplicar promociones
+        $impuestos = $subtotal * 0.13; // Ejemplo: 13% de impuestos
+        $total = ($subtotal - $descuento) + $impuestos;
+        $numero_pedido = 'LYM-' . strtoupper(uniqid());
+
+        // Iniciar transacción
+        $this->conn->beginTransaction();
+
         try {
-            // Obtener datos del pedido
-            $id = $this->enlace->escapeString($id);
-            $vSql = "SELECT 
-                        p.*,
-                        u.nombre as cliente_nombre,
-                        u.correo as cliente_correo,
-                        d.provincia,
-                        d.ciudad,
-                        d.direccion_1,
-                        d.direccion_2,
-                        d.codigo_postal,
-                        d.telefono
-                     FROM pedidos p
-                     JOIN usuarios u ON p.usuario_id = u.id
-                     JOIN direcciones d ON p.direccion_envio_id = d.id
-                     WHERE p.id = '$id'";
+            // 2. Insertar en la tabla 'pedidos'
+            $query = "INSERT INTO " . $this->tabla . " 
+                      (usuario_id, direccion_envio_id, numero_pedido, estado, subtotal, descuento, impuestos, total) 
+                      VALUES (:usuario_id, :direccion_envio_id, :numero_pedido, 'pendiente', :subtotal, :descuento, :impuestos, :total)";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':usuario_id', $usuario_id);
+            $stmt->bindParam(':direccion_envio_id', $direccion_envio_id);
+            $stmt->bindParam(':numero_pedido', $numero_pedido);
+            $stmt->bindParam(':subtotal', $subtotal);
+            $stmt->bindParam(':descuento', $descuento);
+            $stmt->bindParam(':impuestos', $impuestos);
+            $stmt->bindParam(':total', $total);
 
-            $pedido = $this->enlace->executeSQL($vSql);
-            if (empty($pedido)) {
-                return null;
+            $stmt->execute();
+            $pedido_id = $this->conn->lastInsertId();
+
+            // 3. Insertar cada ítem en 'pedido_items'
+            $query_item = "INSERT INTO pedido_items (pedido_id, producto_id, nombre_producto, cantidad, precio_unitario) 
+                           VALUES (:pedido_id, :producto_id, :nombre_producto, :cantidad, :precio_unitario)";
+            
+            foreach ($items_carrito as $item) {
+                $stmt_item = $this->conn->prepare($query_item);
+                $stmt_item->bindParam(':pedido_id', $pedido_id);
+                $stmt_item->bindParam(':producto_id', $item['producto_id']);
+                $stmt_item->bindParam(':nombre_producto', $item['nombre_producto']); // Snapshot del nombre
+                $stmt_item->bindParam(':cantidad', $item['cantidad']);
+                $stmt_item->bindParam(':precio_unitario', $item['precio_unitario']); // Snapshot del precio
+                $stmt_item->execute();
+
+                // 4. (Opcional pero recomendado) Actualizar el stock del producto
+                $query_stock = "UPDATE productos SET stock = stock - :cantidad WHERE id = :producto_id";
+                $stmt_stock = $this->conn->prepare($query_stock);
+                $stmt_stock->bindParam(':cantidad', $item['cantidad']);
+                $stmt_stock->bindParam(':producto_id', $item['producto_id']);
+                $stmt_stock->execute();
             }
 
-            $pedido = $pedido[0];
+            // 5. Registrar el estado inicial en el historial
+            $this->registrarCambioEstado($pedido_id, null, 'pendiente', $usuario_id);
 
-            // Obtener detalles del pedido
-            $vSqlDetalles = "SELECT 
-                                pd.*,
-                                pr.nombre as producto_nombre,
-                                pr.sku as producto_sku
-                             FROM pedido_detalles pd
-                             JOIN productos pr ON pd.producto_id = pr.id
-                             WHERE pd.pedido_id = '$id'
-                             ORDER BY pd.id";
+            // 6. (Opcional) Limpiar el carrito de compras del usuario
+            // Aquí iría la lógica para eliminar los items de la tabla `carrito_items`
 
-            $detalles = $this->enlace->executeSQL($vSqlDetalles);
-            $pedido->detalles = $detalles;
+            // Si todo fue bien, confirmar la transacción
+            $this->conn->commit();
 
-            return $pedido;
+            return $pedido_id;
+
         } catch (Exception $e) {
-            handleException($e);
+            // Si algo falla, revertir la transacción
+            $this->conn->rollBack();
+            // Opcional: registrar el error en un log
+            // error_log($e->getMessage());
+            return false;
         }
     }
 
     /**
-     * Obtener pedidos por usuario
+     * Busca un pedido por su ID y carga sus datos y los de sus ítems.
+     *
+     * @param int $id El ID del pedido a buscar.
+     * @return Pedido|null El objeto Pedido si se encuentra, o null si no.
      */
-    public function getByUsuario($usuario_id)
-    {
-        try {
-            $usuario_id = $this->enlace->escapeString($usuario_id);
-            $vSql = "SELECT 
-                        p.*,
-                        COUNT(pd.id) as total_items
-                     FROM pedidos p
-                     LEFT JOIN pedido_detalles pd ON p.id = pd.pedido_id
-                     WHERE p.usuario_id = '$usuario_id'
-                     GROUP BY p.id
-                     ORDER BY p.created_at DESC";
+    public static function findById($db, $id) {
+        $query = "SELECT * FROM pedidos WHERE id = :id LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
 
-            return $this->enlace->executeSQL($vSql);
+        $pedido = $stmt->fetchObject('Pedido', [$db]);
+
+        if ($pedido) {
+            // Cargar los items del pedido
+            $query_items = "SELECT * FROM pedido_items WHERE pedido_id = :pedido_id";
+            $stmt_items = $db->prepare($query_items);
+            $stmt_items->bindParam(':pedido_id', $id);
+            $stmt_items->execute();
+            $pedido->items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $pedido;
+    }
+    
+    /**
+     * Actualiza el estado de un pedido y registra el cambio en el historial.
+     *
+     * @param string $nuevo_estado El nuevo estado del pedido.
+     * @param int $usuario_cambio_id ID del usuario (generalmente admin) que realiza el cambio.
+     * @return bool True si se actualizó correctamente, false en caso contrario.
+     */
+    public function actualizarEstado($nuevo_estado, $usuario_cambio_id) {
+        $estado_anterior = $this->estado;
+
+        $query = "UPDATE " . $this->tabla . " SET estado = :estado WHERE id = :id";
+        
+        $this->conn->beginTransaction();
+        
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':estado', $nuevo_estado);
+            $stmt->bindParam(':id', $this->id);
+            $stmt->execute();
+            
+            $this->registrarCambioEstado($this->id, $estado_anterior, $nuevo_estado, $usuario_cambio_id);
+            
+            $this->conn->commit();
+            $this->estado = $nuevo_estado; // Actualizar el estado en el objeto actual
+            return true;
+
         } catch (Exception $e) {
-            handleException($e);
+            $this->conn->rollBack();
+            return false;
         }
     }
 
     /**
-     * Crear nuevo pedido
+     * Registra un cambio de estado en la tabla 'pedido_historial_estados'.
+     *
+     * @param int $pedido_id ID del pedido.
+     * @param string|null $estado_anterior El estado previo.
+     * @param string $estado_nuevo El nuevo estado.
+     * @param int $usuario_cambio_id ID del usuario que realiza el cambio.
      */
-    public function create($datos)
-    {
-        try {
-            $usuario_id = (int) $datos->usuario_id;
-            $direccion_envio_id = (int) $datos->direccion_envio_id;
-            $subtotal = (float) $datos->subtotal;
-            $impuestos = (float) ($datos->impuestos ?? 0);
-            $envio = (float) ($datos->envio ?? 0);
-            $descuento = (float) ($datos->descuento ?? 0);
-            $total = (float) $datos->total;
-            $metodo_pago = $this->enlace->escapeString($datos->metodo_pago ?? 'pendiente');
-
-            // Insertar pedido
-            $vSql = "INSERT INTO pedidos (
-                        usuario_id, direccion_envio_id, subtotal, impuestos, 
-                        envio, descuento, total, estado, metodo_pago, created_at, updated_at
-                     ) VALUES (
-                        $usuario_id, $direccion_envio_id, $subtotal, $impuestos,
-                        $envio, $descuento, $total, 'en_proceso', '$metodo_pago', NOW(), NOW()
-                     )";
-
-            $this->enlace->executeSQL_DML($vSql);
-            $pedido_id = $this->enlace->getLastId();
-
-            // Insertar detalles del pedido
-            foreach ($datos->detalles as $detalle) {
-                $this->addDetalle($pedido_id, $detalle);
-            }
-
-            // Agregar al historial
-            $this->addHistorial($pedido_id, null, 'en_proceso', 'Pedido creado');
-
-            return $this->get($pedido_id);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * Agregar detalle al pedido
-     */
-    private function addDetalle($pedido_id, $detalle)
-    {
-        try {
-            $producto_id = (int) $detalle->producto_id;
-            $cantidad = (int) $detalle->cantidad;
-            $precio_unitario = (float) $detalle->precio_unitario;
-            $subtotal = $cantidad * $precio_unitario;
-
-            $vSql = "INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario, subtotal)
-                     VALUES ($pedido_id, $producto_id, $cantidad, $precio_unitario, $subtotal)";
-
-            $this->enlace->executeSQL_DML($vSql);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * Actualizar estado del pedido
-     */
-    public function updateEstado($id, $nuevo_estado, $comentario = '')
-    {
-        try {
-            // Obtener estado actual
-            $pedido_actual = $this->get($id);
-            if (!$pedido_actual) {
-                throw new Exception("Pedido no encontrado");
-            }
-
-            $estado_anterior = $pedido_actual->estado;
-            $id = $this->enlace->escapeString($id);
-            $nuevo_estado = $this->enlace->escapeString($nuevo_estado);
-
-            // Actualizar pedido
-            $vSql = "UPDATE pedidos SET estado = '$nuevo_estado', updated_at = NOW() WHERE id = '$id'";
-            $this->enlace->executeSQL_DML($vSql);
-
-            // Agregar al historial
-            $this->addHistorial($id, $estado_anterior, $nuevo_estado, $comentario);
-
-            return $this->get($id);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * Agregar entrada al historial
-     */
-    private function addHistorial($pedido_id, $estado_anterior, $estado_nuevo, $comentario)
-    {
-        try {
-            $pedido_id = $this->enlace->escapeString($pedido_id);
-            $estado_anterior = $estado_anterior ? "'" . $this->enlace->escapeString($estado_anterior) . "'" : 'NULL';
-            $estado_nuevo = $this->enlace->escapeString($estado_nuevo);
-            $comentario = $this->enlace->escapeString($comentario);
-
-            $vSql = "INSERT INTO pedido_historial (pedido_id, estado_anterior, estado_nuevo, comentario, created_at)
-                     VALUES ('$pedido_id', $estado_anterior, '$estado_nuevo', '$comentario', NOW())";
-
-            $this->enlace->executeSQL_DML($vSql);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * Obtener historial del pedido
-     */
-    public function getHistorial($pedido_id)
-    {
-        try {
-            $pedido_id = $this->enlace->escapeString($pedido_id);
-            $vSql = "SELECT * FROM pedido_historial 
-                     WHERE pedido_id = '$pedido_id' 
-                     ORDER BY created_at ASC";
-
-            return $this->enlace->executeSQL($vSql);
-        } catch (Exception $e) {
-            handleException($e);
-        }
+    private function registrarCambioEstado($pedido_id, $estado_anterior, $estado_nuevo, $usuario_cambio_id) {
+        $query = "INSERT INTO pedido_historial_estados (pedido_id, estado_anterior, estado_nuevo, usuario_cambio_id)
+                  VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :usuario_cambio_id)";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':pedido_id', $pedido_id);
+        $stmt->bindParam(':estado_anterior', $estado_anterior);
+        $stmt->bindParam(':estado_nuevo', $estado_nuevo);
+        $stmt->bindParam(':usuario_cambio_id', $usuario_cambio_id);
+        $stmt->execute();
     }
 }

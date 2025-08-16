@@ -1,170 +1,148 @@
 <?php
+
+// Incluir el modelo y la configuración de la base de datos
+// require_once 'config/Database.php'; // Asumiendo que tienes un archivo para la conexión
+// require_once 'models/Pedido.php';
+
 /**
- * Controlador para la gestión de pedidos del sistema LYM
+ * ================================================================
+ * CONTROLADOR: PedidoController
+ * ================================================================
+ *
+ * Esta clase maneja las solicitudes HTTP relacionadas con los pedidos.
+ * Actúa como intermediario entre la vista (el cliente) y el modelo (Pedido.php).
  */
-class PedidoController
-{
-    private $model;
-    private $response;
+class PedidoController {
+    private $db;
+    private $pedido;
 
-    public function __construct()
-    {
-        $this->model = new PedidoModel();
-        $this->response = new Response();
+    /**
+     * Constructor para inicializar la conexión a la BD y el modelo.
+     */
+    public function __construct() {
+        // En una aplicación real, la conexión a la BD se gestionaría de forma centralizada.
+        // $database = new Database();
+        // $this->db = $database->connect();
+        // $this->pedido = new Pedido($this->db);
+        
+        // Para este ejemplo, simularemos la conexión
+        // $this->db = new PDO(...); 
+        // $this->pedido = new Pedido($this->db);
     }
 
     /**
-     * GET /api/pedidos - Obtener todos los pedidos
+     * Endpoint para crear un nuevo pedido.
+     * Recibe los datos por POST en formato JSON.
+     *
+     * Ejemplo de JSON esperado:
+     * {
+     * "direccion_envio_id": 1,
+     * "items_carrito": [
+     * { "producto_id": 1, "nombre_producto": "Bolso Milano", "cantidad": 1, "precio_unitario": 299.99 },
+     * { "producto_id": 2, "nombre_producto": "Cinturón Clásico", "cantidad": 1, "precio_unitario": 79.50 }
+     * ]
+     * }
      */
-    public function index()
-    {
-        try {
-            $pedidos = $this->model->getAll();
-            $this->response->toJSON($pedidos);
-        } catch (Exception $e) {
-            handleException($e);
+    public function crear() {
+        // Obtener los datos enviados en el cuerpo de la solicitud
+        $raw = file_get_contents("php://input");
+        $data = json_decode($raw);
+
+        // Si el frontend envía usuario_id (temporal) úsalo, si no usar auth real en su lugar
+        $usuario_autenticado_id = isset($data->usuario_id) ? (int)$data->usuario_id : 1; // reemplazar por extracción de token/session en producción
+
+        if (!$data || !isset($data->direccion_envio_id) || empty($data->items_carrito)) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['mensaje' => 'Datos incompletos para crear el pedido.']);
+            return;
+        }
+
+        // Crear una instancia del modelo (asumiendo que $this->db está disponible)
+        $pedido = new Pedido($this->db);
+
+        // Intentar crear el pedido
+        $nuevo_pedido_id = $pedido->crearDesdeCarrito(
+            $usuario_autenticado_id,
+            $data->direccion_envio_id,
+            (array) $data->items_carrito
+        );
+
+        if ($nuevo_pedido_id) {
+            http_response_code(201); // Created
+            echo json_encode([
+                'mensaje' => 'Pedido creado exitosamente.',
+                'pedido_id' => $nuevo_pedido_id
+            ]);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['mensaje' => 'No se pudo procesar el pedido.']);
         }
     }
 
     /**
-     * GET /api/pedidos/{id} - Obtener pedido por ID
+     * Endpoint para obtener los detalles de un pedido específico.
+     * El ID del pedido se pasa por la URL (ej: /api/pedidos/123).
+     *
+     * @param int $id El ID del pedido.
      */
-    public function get()
-    {
-        try {
-            $request = new Request();
-            $id = $request->get('id');
+    public function obtenerPorId($id) {
+        // Simular la obtención del ID de usuario autenticado
+        $usuario_autenticado_id = 1;
+        $rol_usuario = 'cliente'; // o 'administrador'
 
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
+        $pedido = Pedido::findById($this->db, $id);
+
+        if ($pedido) {
+            // Validar permisos: el usuario debe ser el dueño del pedido o un administrador
+            if ($pedido->usuario_id == $usuario_autenticado_id || $rol_usuario === 'administrador') {
+                http_response_code(200); // OK
+                echo json_encode($pedido);
+            } else {
+                http_response_code(403); // Forbidden
+                echo json_encode(['mensaje' => 'No tienes permiso para ver este pedido.']);
             }
-
-            $pedido = $this->model->get($id);
-            if (!$pedido) {
-                $this->response->status(404)->toJSON(['error' => 'Pedido no encontrado']);
-                return;
-            }
-
-            $this->response->toJSON($pedido);
-        } catch (Exception $e) {
-            handleException($e);
+        } else {
+            http_response_code(404); // Not Found
+            echo json_encode(['mensaje' => 'Pedido no encontrado.']);
         }
     }
 
     /**
-     * GET /api/pedidos/usuario/{id} - Obtener pedidos por usuario
+     * Endpoint para actualizar el estado de un pedido (solo para administradores).
+     *
+     * @param int $id El ID del pedido.
      */
-    public function getByUsuario()
-    {
-        try {
-            $request = new Request();
-            $usuario_id = $request->get('usuario_id');
+    public function actualizarEstadoPedido($id) {
+        // Simular la obtención del usuario autenticado
+        $usuario_autenticado_id = 10; // ID de un administrador
+        $rol_usuario = 'administrador';
 
-            if (empty($usuario_id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID de usuario es requerido']);
-                return;
-            }
-
-            $pedidos = $this->model->getByUsuario($usuario_id);
-            $this->response->toJSON($pedidos);
-        } catch (Exception $e) {
-            handleException($e);
+        if ($rol_usuario !== 'administrador') {
+            http_response_code(403);
+            echo json_encode(['mensaje' => 'Acción no autorizada.']);
+            return;
         }
-    }
 
-    /**
-     * POST /api/pedidos - Crear nuevo pedido
-     */
-    public function create()
-    {
-        try {
-            $request = new Request();
-            $data = $request->getBody();
-
-            // Validaciones básicas
-            if (empty($data->usuario_id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID de usuario es obligatorio']);
-                return;
-            }
-
-            if (empty($data->direccion_envio_id)) {
-                $this->response->status(400)->toJSON(['error' => 'Dirección de envío es obligatoria']);
-                return;
-            }
-
-            if (empty($data->detalles) || !is_array($data->detalles)) {
-                $this->response->status(400)->toJSON(['error' => 'Los detalles del pedido son obligatorios']);
-                return;
-            }
-
-            $pedido = $this->model->create($data);
-            $this->response->status(201)->toJSON($pedido);
-        } catch (Exception $e) {
-            handleException($e);
+        $data = json_decode(file_get_contents("php://input"));
+        if (!$data || !isset($data->nuevo_estado)) {
+            http_response_code(400);
+            echo json_encode(['mensaje' => 'Falta el nuevo estado del pedido.']);
+            return;
         }
-    }
 
-    /**
-     * PUT /api/pedidos/{id} - Actualizar pedido
-     */
-    public function update()
-    {
-        try {
-            $request = new Request();
-            $data = $request->getBody();
+        $pedido = Pedido::findById($this->db, $id);
 
-            if (empty($data->id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
+        if ($pedido) {
+            if ($pedido->actualizarEstado($data->nuevo_estado, $usuario_autenticado_id)) {
+                http_response_code(200);
+                echo json_encode(['mensaje' => 'Estado del pedido actualizado correctamente.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['mensaje' => 'Error al actualizar el estado del pedido.']);
             }
-
-            $pedido = $this->model->update($data);
-            $this->response->toJSON($pedido);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * PUT /api/pedidos/{id}/estado - Actualizar estado del pedido
-     */
-    public function updateEstado()
-    {
-        try {
-            $request = new Request();
-            $data = $request->getBody();
-
-            if (empty($data->id) || empty($data->estado)) {
-                $this->response->status(400)->toJSON(['error' => 'ID y estado son requeridos']);
-                return;
-            }
-
-            $resultado = $this->model->updateEstado($data->id, $data->estado, $data->comentario ?? '');
-            $this->response->toJSON($resultado);
-        } catch (Exception $e) {
-            handleException($e);
-        }
-    }
-
-    /**
-     * GET /api/pedidos/{id}/historial - Obtener historial del pedido
-     */
-    public function getHistorial()
-    {
-        try {
-            $request = new Request();
-            $id = $request->get('id');
-
-            if (empty($id)) {
-                $this->response->status(400)->toJSON(['error' => 'ID es requerido']);
-                return;
-            }
-
-            $historial = $this->model->getHistorial($id);
-            $this->response->toJSON($historial);
-        } catch (Exception $e) {
-            handleException($e);
+        } else {
+            http_response_code(404);
+            echo json_encode(['mensaje' => 'Pedido no encontrado.']);
         }
     }
 }

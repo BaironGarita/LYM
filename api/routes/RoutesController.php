@@ -18,6 +18,8 @@ class RoutesController
             'direcciones' => 'DireccionController',
             'direccion' => 'DireccionController', // Alias
             'opciones' => 'OpcionPersonalizacionController',
+            'valores_personalizacion' => 'ValoresPersonalizacionController',
+            'producto_personalizacion' => 'ProductoPersonalizacionController',
             'carrito' => 'CarritoController',
             'resenas' => 'ResenaController',
             'resena' => 'ResenaController', // Alias
@@ -102,7 +104,9 @@ class RoutesController
             if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
                 require_once __DIR__ . '/../controllers/PedidoController.php';
                 $controller = new PedidoController();
-                $controller->updateEstado();
+                $id = (int)$segments[$offset + 1];
+                // Llamar al método que actualiza el estado pasando el ID
+                $controller->actualizarEstadoPedido($id);
                 return true;
             }
         }

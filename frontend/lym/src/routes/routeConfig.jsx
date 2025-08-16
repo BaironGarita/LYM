@@ -8,6 +8,8 @@ import ProductsPage from "../Pages/Admin/AdminProductsPage";
 import ResenasList from "../features/reviews/ResenasList";
 import ResenaDetail from "../features/reviews/ResenaDetail";
 import Dashboard from "../Pages/Admin/Dashboard";
+import AdminCategoriesPage from "../Pages/Admin/AdminCategoriesPage";
+import AdminTagsPage from "../Pages/Admin/AdminTagsPage";
 
 // Rutas públicas
 export const publicRoutes = [
@@ -88,6 +90,22 @@ export const adminRoutes = [
     element: (
       <ProtectedRoute requireAdmin={true}>
         <UploadProductImage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/categorias",
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminCategoriesPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/etiquetas",
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminTagsPage />
       </ProtectedRoute>
     ),
   },

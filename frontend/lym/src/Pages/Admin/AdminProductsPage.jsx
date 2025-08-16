@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Package, Plus, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "../../shared/hooks/useAuth.jsx";
 import { useI18n } from "../../shared/hooks/useI18n.js";
@@ -157,10 +158,22 @@ const AdminProductsPage = () => {
           </h1>
           <p className="mt-2 text-gray-600">{t("products.subtitle")}</p>
         </div>
-        <Button onClick={() => openModal()} className="gap-2">
-          <Plus className="h-5 w-5" />
-          {t("products.newProduct")}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Link to="/admin/categorias">
+            <button className="px-3 py-2 rounded-md border text-sm">
+              {t("admin.categories", "Categorías")}
+            </button>
+          </Link>
+          <Link to="/admin/etiquetas">
+            <button className="px-3 py-2 rounded-md border text-sm">
+              {t("admin.tags", "Etiquetas")}
+            </button>
+          </Link>
+          <Button onClick={() => openModal()} className="gap-2">
+            <Plus className="h-5 w-5" />
+            {t("products.newProduct")}
+          </Button>
+        </div>
       </div>
 
       {error && (

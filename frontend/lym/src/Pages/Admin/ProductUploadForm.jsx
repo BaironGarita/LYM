@@ -25,7 +25,8 @@ const ProductUploadForm = () => {
     categoria_id: "",
     stock: "0",
     sku: "",
-    imagen: null,
+  imagen: null,
+  etiquetas: [],
   });
   const [categorias, setCategorias] = useState([]);
   const [opciones, setOpciones] = useState([]);
@@ -58,7 +59,7 @@ const ProductUploadForm = () => {
         console.warn(
           "No se pudieron cargar opciones de personalización",
           error
-        );
+      );
       }
     };
     fetchOpciones();
@@ -74,8 +75,11 @@ const ProductUploadForm = () => {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files.length) {
+    if (e.target.files && e.target.files.length) {
+      // Single file expected by backend under 'imagen'
       setFormData((prev) => ({ ...prev, imagen: e.target.files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, imagen: null }));
     }
   };
 
@@ -93,20 +97,35 @@ const ProductUploadForm = () => {
     setSubmitting(true);
 
     const data = new FormData();
-    for (const key in formData) {
-      const value = formData[key];
-      if (value === null || typeof value === "undefined") continue;
-      // Si es array (p. ej. etiquetas) añadir cada elemento
-      if (Array.isArray(value)) {
-        value.forEach((v) => data.append(`${key}[]`, v));
-        continue;
-      }
-      // Si es File, FormData lo soporta
-      data.append(key, value);
+    // Append scalar fields
+    data.append('nombre', formData.nombre || '');
+    data.append('descripcion', formData.descripcion || '');
+    data.append('precio', formData.precio || '0');
+    data.append('categoria_id', formData.categoria_id || '');
+    data.append('stock', formData.stock || '0');
+    if (formData.sku) data.append('sku', formData.sku);
+
+    // File field expected as 'imagen'
+    if (formData.imagen) {
+      data.append('imagen', formData.imagen, formData.imagen.name);
+    }
+
+    // Etiquetas (array) -> enviar como CSV y como índices separados
+    if (Array.isArray(formData.etiquetas) && formData.etiquetas.length > 0) {
+      // backend ProductoModel.create acepta etiquetas como CSV o array ids, so send as CSV
+      data.append('etiquetas', formData.etiquetas.join(','));
+      formData.etiquetas.forEach((val) => data.append('etiquetas[]', val));
+    }
+
+    // Opciones de personalización seleccionadas
+    if (Array.isArray(selectedOpciones) && selectedOpciones.length > 0) {
+      data.append('opciones', selectedOpciones.join(','));
+      selectedOpciones.forEach((val) => data.append('opciones[]', val));
     }
 
     try {
       const created = await ProductoService.createProducto(data);
+  // ProductoService.createProducto should detect FormData and post without setting Content-Type
       // Si el backend devuelve el id del producto creado
       const productoId =
         created?.id || created?.insertId || created?.result?.id;
@@ -123,6 +142,11 @@ const ProductUploadForm = () => {
           } catch (err) {
             console.warn("No se pudo asociar opcion", opcionId, err);
           }
+        }
+        // If API requires separate endpoints to associate options, call them here.
+        // Placeholder: ProductoService.associateOpciones(productoId, selectedOpciones)
+        if (ProductoService.associateOpciones) {
+          await ProductoService.associateOpciones(productoId, selectedOpciones);
         }
       }
 

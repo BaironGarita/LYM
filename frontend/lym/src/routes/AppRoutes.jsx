@@ -18,6 +18,8 @@ import { Dashboard } from "@/Pages/Admin/Dashboard";
 import AdminProductsPage from "@/Pages/Admin/AdminProductsPage"; // <-- CORREGIDO: Importación por defecto
 import PromotionsPage from "@/Pages/Admin/PromotionsPage";
 import ProductUploadForm from "@/Pages/Admin/ProductUploadForm";
+import AdminCategoriesPage from "@/Pages/Admin/AdminCategoriesPage";
+import AdminTagsPage from "@/Pages/Admin/AdminTagsPage";
 
 // Componente para proteger las rutas de administrador
 const PrivateRoute = ({ children }) => {
@@ -62,6 +64,8 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         {/* <-- CORREGIDO: Usar el componente importado */}
         <Route path="promotions" element={<PromotionsPage />} />
         <Route path="upload" element={<ProductUploadForm />} />
+        <Route path="categorias" element={<AdminCategoriesPage />} />
+        <Route path="etiquetas" element={<AdminTagsPage />} />
       </Route>
 
       {/* Ruta para cualquier otra URL no definida */}

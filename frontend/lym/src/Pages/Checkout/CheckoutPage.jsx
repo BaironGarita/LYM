@@ -51,6 +51,7 @@ export const CheckoutPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  const [orderId, setOrderId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [cardErrors, setCardErrors] = useState({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -221,7 +222,6 @@ export const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("handleSubmit called", { metodoPago: formData.metodoPago });
     if (!validateForm()) {
       const firstKey = Object.keys(formErrors)[0] || Object.keys(cardErrors)[0];
       if (firstKey) {
@@ -234,11 +234,8 @@ export const CheckoutPage = () => {
     setLoading(true);
 
     try {
-      // Enviar dirección (si el usuario está autenticado) y crear pedido en backend
-      // Asegúrate de configurar VITE_BASE_URL en .env: VITE_BASE_URL="http://localhost:81/api_lym"
       const baseUrl =
         import.meta.env.VITE_BASE_URL || "http://localhost:81/api_lym";
-
       if (!user || !user.id) {
         setLoading(false);
         alert("Debes iniciar sesión para completar la compra");
@@ -246,7 +243,7 @@ export const CheckoutPage = () => {
         return;
       }
 
-      // 1) Crear dirección de envío en el backend (igual que antes)
+      // Crear dirección
       const direccionPayload = {
         usuario_id: user.id,
         provincia: formData.provincia || formData.ciudad || "Provincia",
@@ -261,42 +258,45 @@ export const CheckoutPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // añadir token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(direccionPayload),
       });
-
       const direccionData = await direccionRes.json();
       if (!direccionRes.ok) {
         throw new Error(
           direccionData.error ||
+            direccionData.mensaje ||
             direccionData.message ||
             "Error al crear dirección"
         );
       }
+      const direccionId = direccionData.id || direccionData.insertId;
+      if (!direccionId)
+        throw new Error("No se obtuvo ID de la dirección creada");
 
-      // 2) Preparar items con la forma que espera el backend / modelo: items_carrito
+      // Preparar items
       const items_carrito = items.map((item) => ({
         producto_id: item.id,
         cantidad: item.quantity,
-        nombre_producto: item.nombre || item.nombre_producto || "", // snapshot del nombre
-        precio_unitario: item.promocionInfo?.precioFinal || item.precio,
-        // Incluir personalizaciones si vienen en el item (frontend puede añadirlas al añadir al carrito)
+        precio_unitario: Number(
+          item.promocionInfo?.precioFinal ?? item.precio ?? 0
+        ),
         ...(item.personalizaciones
           ? { personalizaciones: item.personalizaciones }
           : {}),
       }));
 
+      const invalid = items_carrito.find(
+        (it) => !it.producto_id || it.cantidad <= 0 || it.precio_unitario < 0
+      );
+      if (invalid) throw new Error("Carrito contiene items inválidos");
+
+      // Crear pedido (backend calcula totales)
       const pedidoPayload = {
-        usuario_id: user.id, // opcional si el backend extrae del token
-        direccion_envio_id: direccionData.id || direccionData.insertId || 0,
+        usuario_id: user.id,
+        direccion_envio_id: direccionId,
         items_carrito,
-        subtotal: totalAmount,
-        impuestos: 0.0,
-        envio: 0.0,
-        descuento: 0.0,
-        total: totalAmount,
-        metodo_pago: formData.metodoPago,
       };
 
       const pedidoRes = await fetch(`${baseUrl}/pedidos`, {
@@ -307,25 +307,21 @@ export const CheckoutPage = () => {
         },
         body: JSON.stringify(pedidoPayload),
       });
-
       const pedidoData = await pedidoRes.json();
       if (!pedidoRes.ok) {
         throw new Error(
-          pedidoData.error || pedidoData.message || "Error al crear pedido"
+          pedidoData.error ||
+            pedidoData.mensaje ||
+            pedidoData.message ||
+            "Error al crear pedido"
         );
       }
-
-      // backend devuelve 'pedido_id' en el controlador actual
       const pedidoId = pedidoData.pedido_id || pedidoData.id;
-      // ... resto del flujo (validación de tarjeta, marcar pagado, limpiar carrito) igual que antes ...
+      if (pedidoId) setOrderId(pedidoId);
 
-      // Limpiar carrito después de completar la orden
       dispatch(clearCart());
       setOrderCompleted(true);
-
-      setTimeout(() => {
-        navigate("/orders");
-      }, 3000);
+      setTimeout(() => navigate("/orders"), 3000);
     } catch (error) {
       console.error("Error al procesar la orden:", error);
       alert(error.message || "Error al procesar la orden");
@@ -396,10 +392,16 @@ export const CheckoutPage = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             ¡Pedido completado!
           </h2>
-          <p className="text-gray-600 mb-6">
-            Tu pedido ha sido procesado correctamente. Redirigiendo a tus
-            órdenes...
+          <p className="text-gray-600 mb-2">
+            Tu pedido ha sido procesado correctamente.
           </p>
+          {orderId && (
+            <p className="text-gray-800 font-medium mb-4">
+              Código de pedido:{" "}
+              <span className="text-blue-600">#{orderId}</span>
+            </p>
+          )}
+          <p className="text-gray-600 mb-6">Redirigiendo a tus órdenes...</p>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div className="bg-green-600 h-2.5 rounded-full animate-progress"></div>
           </div>

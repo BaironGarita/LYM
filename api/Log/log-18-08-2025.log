@@ -1,0 +1,4 @@
+[18-08-2025 00:03:03] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 61 - Message: Table 'lym_db.opciones_personalizacion' doesn't exist
+ [18-08-2025 00:06:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 61 - Message: Table 'lym_db.opciones_personalizacion' doesn't exist
+ [18-08-2025 00:06:24] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\MySqlConnect.php - line: 61 - Message: Table 'lym_db.opciones_personalizacion' doesn't exist
+ 

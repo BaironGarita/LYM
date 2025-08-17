@@ -28,7 +28,11 @@ export const Dashboard = () => {
           {t("admin.dashboard.title", "Panel de Administración")}
         </h1>
         <p className="text-muted-foreground">
-          {t("admin.dashboard.welcome", "Bienvenido de nuevo")}, {user?.nombre}. {t("admin.dashboard.summary", "Aquí tienes un resumen de la actividad de tu tienda.")}
+          {t("admin.dashboard.welcome", "Bienvenido de nuevo")}, {user?.nombre}.{" "}
+          {t(
+            "admin.dashboard.summary",
+            "Aquí tienes un resumen de la actividad de tu tienda."
+          )}
         </p>
       </div>
 
@@ -38,21 +42,33 @@ export const Dashboard = () => {
           icon={DollarSign}
           title={t("admin.dashboard.stats.totalSales", "Ventas Totales")}
           value="S/15,231.89"
-          description={t("admin.dashboard.stats.salesIncrease", "+20.1% desde el mes pasado")}
+          description={t(
+            "admin.dashboard.stats.salesIncrease",
+            "+20.1% desde el mes pasado"
+          )}
           color="bg-green-500"
         />
         <StatCard
           icon={Package}
           title={t("admin.dashboard.stats.totalProducts", "Total Productos")}
           value="235"
-          description={t("admin.dashboard.stats.inStock", "Actualmente en stock")}
+          description={t(
+            "admin.dashboard.stats.inStock",
+            "Actualmente en stock"
+          )}
           color="bg-blue-500"
         />
         <StatCard
           icon={Tag}
-          title={t("admin.dashboard.stats.activePromotions", "Promociones Activas")}
+          title={t(
+            "admin.dashboard.stats.activePromotions",
+            "Promociones Activas"
+          )}
           value="5"
-          description={t("admin.dashboard.stats.currentOffers", "Ofertas vigentes")}
+          description={t(
+            "admin.dashboard.stats.currentOffers",
+            "Ofertas vigentes"
+          )}
           color="bg-orange-500"
         />
         <StatCard
@@ -66,28 +82,57 @@ export const Dashboard = () => {
 
       {/* Acciones Rápidas */}
       <div>
-        <h2 className="text-xl font-bold">{t("admin.dashboard.quickActions.title", "Acciones Rápidas")}</h2>
+        <h2 className="text-xl font-bold">
+          {t("admin.dashboard.quickActions.title", "Acciones Rápidas")}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link
             to="/admin/productos"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Package className="mx-auto h-8 w-8 text-blue-600 mb-2" />
-            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.manageProducts", "Gestionar Productos")}</h3>
+            <h3 className="text-lg font-medium">
+              {t(
+                "admin.dashboard.quickActions.manageProducts",
+                "Gestionar Productos"
+              )}
+            </h3>
           </Link>
           <Link
             to="/admin/promotions"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Tag className="mx-auto h-8 w-8 text-orange-600 mb-2" />
-            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.viewPromotions", "Ver Promociones")}</h3>
+            <h3 className="text-lg font-medium">
+              {t(
+                "admin.dashboard.quickActions.viewPromotions",
+                "Ver Promociones"
+              )}
+            </h3>
           </Link>
           <Link
             to="/admin/upload"
             className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
           >
             <Upload className="mx-auto h-8 w-8 text-green-600 mb-2" />
-            <h3 className="text-lg font-medium">{t("admin.dashboard.quickActions.uploadProduct", "Subir Nuevo Producto")}</h3>
+            <h3 className="text-lg font-medium">
+              {t(
+                "admin.dashboard.quickActions.uploadProduct",
+                "Subir Nuevo Producto"
+              )}
+            </h3>
+          </Link>
+          <Link
+            to="/admin/personalizados"
+            className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
+          >
+            <Package className="mx-auto h-8 w-8 text-indigo-600 mb-2" />
+            <h3 className="text-lg font-medium">
+              {t(
+                "admin.dashboard.quickActions.personalizedProducts",
+                "Productos Personalizados"
+              )}
+            </h3>
           </Link>
         </div>
       </div>

@@ -10,6 +10,7 @@ import ResenaDetail from "../features/reviews/ResenaDetail";
 import Dashboard from "../Pages/Admin/Dashboard";
 import AdminCategoriesPage from "../Pages/Admin/AdminCategoriesPage";
 import AdminTagsPage from "../Pages/Admin/AdminTagsPage";
+import AdminPersonalizedProductsPage from "../Pages/Admin/AdminPersonalizedProductsPage";
 
 // Rutas públicas
 export const publicRoutes = [
@@ -24,6 +25,10 @@ export const publicRoutes = [
   {
     path: "/producto/:id",
     element: () => <ProductDetail />, // Sin props
+  },
+  {
+    path: "/producto/personalizado/:id",
+    element: () => <ProductDetail />, // placeholder, loaded by AppRoutes as PersonalizedProductDetail
   },
   {
     path: "/offers",
@@ -106,6 +111,14 @@ export const adminRoutes = [
     element: (
       <ProtectedRoute requireAdmin={true}>
         <AdminTagsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/personalizados",
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminPersonalizedProductsPage />
       </ProtectedRoute>
     ),
   },

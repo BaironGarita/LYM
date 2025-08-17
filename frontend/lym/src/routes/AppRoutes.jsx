@@ -6,6 +6,7 @@ import { Home } from "@/Pages/home/HomePage";
 import { ProductsPage } from "@/Pages/Products/ProductsPage";
 import ProductList from "../features/product-management/ProductList";
 import ProductDetail from "@/features/product-management/ProductDetail";
+import PersonalizedProductDetail from "@/features/product-management/PersonalizedProductDetail";
 import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/Products/ReviewsPage";
 import ResenaDetail from "@/features/reviews/ResenaDetail";
@@ -20,6 +21,7 @@ import PromotionsPage from "@/Pages/Admin/PromotionsPage";
 import ProductUploadForm from "@/Pages/Admin/ProductUploadForm";
 import AdminCategoriesPage from "@/Pages/Admin/AdminCategoriesPage";
 import AdminTagsPage from "@/Pages/Admin/AdminTagsPage";
+import AdminPersonalizedProductsPage from "@/Pages/Admin/AdminPersonalizedProductsPage";
 
 // Componente para proteger las rutas de administrador
 const PrivateRoute = ({ children }) => {
@@ -48,6 +50,11 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         path="/producto/:id"
         element={<ProductDetail onAddToCart={addToCart} />}
       />
+      {/* Página para productos con opciones de personalización */}
+      <Route
+        path="/producto/personalizado/:id"
+        element={<PersonalizedProductDetail />}
+      />
       <Route path="/checkout" element={<CheckoutPage />} />
 
       {/* --- Rutas de Administrador Protegidas --- */}
@@ -60,8 +67,14 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         }
       >
         <Route index element={<Dashboard />} />
+  {/* Ruta explícita para /admin/dashboard (algunos enlaces la usan) */}
+  <Route path="dashboard" element={<Dashboard />} />
         <Route path="productos" element={<AdminProductsPage />} />{" "}
         {/* <-- CORREGIDO: Usar el componente importado */}
+        <Route
+          path="personalizados"
+          element={<AdminPersonalizedProductsPage />}
+        />
         <Route path="promotions" element={<PromotionsPage />} />
         <Route path="upload" element={<ProductUploadForm />} />
         <Route path="categorias" element={<AdminCategoriesPage />} />

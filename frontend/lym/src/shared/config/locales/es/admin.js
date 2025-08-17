@@ -1,21 +1,22 @@
 export const admin = {
   uploadProduct: {
     title: "Subir Nuevo Producto",
-    subtitle: "Completa el formulario para agregar un nuevo artículo al inventario.",
+    subtitle:
+      "Completa el formulario para agregar un nuevo artículo al inventario.",
     fields: {
       name: "Nombre del Producto",
       description: "Descripción del Producto",
       price: "Precio",
       stock: "Stock",
       categoryId: "ID de Categoría",
-      imageUrl: "URL de la Imagen"
+      imageUrl: "URL de la Imagen",
     },
     uploading: "Subiendo...",
     addButton: "Agregar Producto",
     success: "¡Producto subido exitosamente!",
     errors: {
-      upload: "Error al subir el producto."
-    }
+      upload: "Error al subir el producto.",
+    },
   },
   dashboard: {
     title: "Panel de Administración",
@@ -26,7 +27,7 @@ export const admin = {
       title: "Acciones Rápidas",
       manageProducts: "Gestionar Productos",
       viewPromotions: "Ver Promociones",
-      uploadProduct: "Subir Nuevo Producto"
+      uploadProduct: "Subir Nuevo Producto",
     },
     stats: {
       totalSales: "Ventas Totales",
@@ -36,15 +37,15 @@ export const admin = {
       activePromotions: "Promociones Activas",
       currentOffers: "Ofertas vigentes",
       newCustomers: "Nuevos Clientes",
-      thisMonth: "Este mes"
+      thisMonth: "Este mes",
     },
     actions: {
       viewPromotions: "Ver Promociones",
-      uploadNewProduct: "Subir Nuevo Producto"
-    }
+      uploadNewProduct: "Subir Nuevo Producto",
+    },
   },
   products: {
-    error: "Error al cargar los datos"
+    error: "Error al cargar los datos",
   },
   promotions: {
     title: "Gestión de Promociones",
@@ -156,5 +157,52 @@ export const admin = {
         },
       },
     },
+  },
+  // Entities translations for admin UI
+  tags: {
+    title: "Etiquetas",
+    subtitle: "Gestiona las etiquetas usadas en productos",
+    new: "Nueva etiqueta",
+    name: "Nombre",
+    empty: "No hay etiquetas",
+    created: "Etiqueta creada",
+    updated: "Etiqueta actualizada",
+    deleted: "Etiqueta eliminada",
+    confirmDelete: "¿Eliminar etiqueta?",
+    errors: {
+      load: "No se pudieron cargar las etiquetas",
+      create: "Error al crear la etiqueta",
+      update: "Error al actualizar la etiqueta",
+      delete: "Error al eliminar la etiqueta",
+      process: "Error al procesar la solicitud",
+    },
+    modal: {
+      create: "Crear etiqueta",
+      edit: "Editar etiqueta",
+    },
+    searchPlaceholder: "Buscar por nombre...",
+  },
+  categories: {
+    title: "Categorías",
+    subtitle: "Gestiona las categorías del catálogo",
+    new: "Nueva categoría",
+    name: "Nombre",
+    empty: "No hay categorías",
+    created: "Categoría creada",
+    updated: "Categoría actualizada",
+    deleted: "Categoría eliminada",
+    confirmDelete: "¿Eliminar categoría?",
+    errors: {
+      load: "No se pudieron cargar las categorías",
+      create: "Error al crear la categoría",
+      update: "Error al actualizar la categoría",
+      delete: "Error al eliminar la categoría",
+      process: "Error al procesar la solicitud",
+    },
+    modal: {
+      create: "Crear categoría",
+      edit: "Editar categoría",
+    },
+    searchPlaceholder: "Buscar por nombre...",
   },
 };

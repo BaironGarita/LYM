@@ -161,12 +161,12 @@ const AdminProductsPage = () => {
         <div className="flex items-center gap-3">
           <Link to="/admin/categorias">
             <button className="px-3 py-2 rounded-md border text-sm">
-              {t("admin.categories", "Categorías")}
+              {t("admin.categories.title", "Categorías")}
             </button>
           </Link>
           <Link to="/admin/etiquetas">
             <button className="px-3 py-2 rounded-md border text-sm">
-              {t("admin.tags", "Etiquetas")}
+              {t("admin.tags.title", "Etiquetas")}
             </button>
           </Link>
           <Button onClick={() => openModal()} className="gap-2">

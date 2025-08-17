@@ -96,4 +96,20 @@ export const admin = {
       formErrors: "Please correct the errors in the form",
     },
   },
+  tags: {
+    title: "Tags",
+    subtitle: "Manage tags used on products",
+    new: "New tag",
+    name: "Name",
+    empty: "No tags",
+    modal: { create: "Create tag", edit: "Edit tag" },
+  },
+  categories: {
+    title: "Categories",
+    subtitle: "Manage catalog categories",
+    new: "New category",
+    name: "Name",
+    empty: "No categories",
+    modal: { create: "Create category", edit: "Edit category" },
+  },
 };

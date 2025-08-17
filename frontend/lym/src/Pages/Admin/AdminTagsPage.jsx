@@ -129,13 +129,16 @@ const AdminTagsPage = () => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder={t("tags.searchPlaceholder", "Buscar por nombre...")}
+              placeholder={t(
+                "admin.tags.searchPlaceholder",
+                "Buscar por nombre..."
+              )}
               className="pl-9 pr-3 py-2 border rounded-md text-sm w-64"
             />
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            {t("tags.new", "Nueva etiqueta")}
+            {t("admin.tags.new", "Nueva etiqueta")}
           </Button>
         </div>
       </div>
@@ -144,10 +147,10 @@ const AdminTagsPage = () => {
         {etiquetas.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-gray-600 mb-4">
-              {t("tags.empty", "No hay etiquetas")}
+              {t("admin.tags.empty", "No hay etiquetas")}
             </p>
-            <Button onClick={handleCreate}>
-              {t("tags.new", "Crear primera etiqueta")}
+            <Button onClick={openCreateModal}>
+              {t("admin.tags.new", "Crear primera etiqueta")}
             </Button>
           </div>
         ) : (
@@ -157,7 +160,7 @@ const AdminTagsPage = () => {
                 <thead>
                   <tr className="text-left text-sm text-gray-600">
                     <th className="py-2">ID</th>
-                    <th className="py-2">{t("tags.name", "Nombre")}</th>
+                    <th className="py-2">{t("admin.tags.name", "Nombre")}</th>
                     <th className="py-2 text-right">
                       {t("actions", "Acciones")}
                     </th>
@@ -179,7 +182,7 @@ const AdminTagsPage = () => {
                           >
                             <Edit2 className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                              {t("edit", "Editar")}
+                              {t("common.edit", "Editar")}
                             </span>
                           </button>
                           <button
@@ -189,7 +192,7 @@ const AdminTagsPage = () => {
                           >
                             <Trash2 className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                              {t("delete", "Eliminar")}
+                              {t("common.delete", "Eliminar")}
                             </span>
                           </button>
                         </div>

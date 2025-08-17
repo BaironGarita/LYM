@@ -131,16 +131,13 @@ const AdminCategoriesPage = () => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder={t(
-                "categories.searchPlaceholder",
-                "Buscar por nombre..."
-              )}
+              placeholder={t("admin.categories.searchPlaceholder", "Buscar por nombre...")}
               className="pl-9 pr-3 py-2 border rounded-md text-sm w-64"
             />
           </div>
           <Button onClick={openCreateModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />{" "}
-            {t("categories.new", "Nueva categoría")}
+            {t("admin.categories.new", "Nueva categoría")}
           </Button>
         </div>
       </div>
@@ -149,10 +146,10 @@ const AdminCategoriesPage = () => {
         {categorias.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-gray-600 mb-4">
-              {t("categories.empty", "No hay categorías")}
+              {t("admin.categories.empty", "No hay categorías")}
             </p>
             <Button onClick={openCreateModal}>
-              {t("categories.new", "Crear primera categoría")}
+              {t("admin.categories.new", "Crear primera categoría")}
             </Button>
           </div>
         ) : (
@@ -162,7 +159,7 @@ const AdminCategoriesPage = () => {
                 <thead>
                   <tr className="text-left text-sm text-gray-600">
                     <th className="py-2">ID</th>
-                    <th className="py-2">{t("categories.name", "Nombre")}</th>
+                    <th className="py-2">{t("admin.categories.name", "Nombre")}</th>
                     <th className="py-2 text-right">
                       {t("actions", "Acciones")}
                     </th>
@@ -184,7 +181,7 @@ const AdminCategoriesPage = () => {
                           >
                             <Edit2 className="h-4 w-4" />{" "}
                             <span className="hidden sm:inline">
-                              {t("edit", "Editar")}
+                              {t("common.edit", "Editar")}
                             </span>
                           </button>
                           <button
@@ -194,7 +191,7 @@ const AdminCategoriesPage = () => {
                           >
                             <Trash2 className="h-4 w-4" />{" "}
                             <span className="hidden sm:inline">
-                              {t("delete", "Eliminar")}
+                              {t("common.delete", "Eliminar")}
                             </span>
                           </button>
                         </div>
@@ -207,8 +204,8 @@ const AdminCategoriesPage = () => {
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
-              <div className="text-sm text-gray-600">
-                {t("pagination.showing", "Mostrando")}{" "}
+                <div className="text-sm text-gray-600">
+                {t("pagination.showing", "Mostrando")} {" "}
                 <strong>{filtered.length ? start + 1 : 0}</strong> -{" "}
                 <strong>{start + paginated.length}</strong>{" "}
                 {t("pagination.of", "de")} {filtered.length}

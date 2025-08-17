@@ -67,8 +67,8 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         }
       >
         <Route index element={<Dashboard />} />
-  {/* Ruta explícita para /admin/dashboard (algunos enlaces la usan) */}
-  <Route path="dashboard" element={<Dashboard />} />
+        {/* Ruta explícita para /admin/dashboard (algunos enlaces la usan) */}
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="productos" element={<AdminProductsPage />} />{" "}
         {/* <-- CORREGIDO: Usar el componente importado */}
         <Route

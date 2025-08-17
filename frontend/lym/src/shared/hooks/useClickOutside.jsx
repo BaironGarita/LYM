@@ -2,7 +2,12 @@ import { useEffect } from "react";
 
 // Mejorada: acepta un ignoredRef (por ejemplo, botón que abre el dropdown)
 // y escucha eventos táctiles (touchstart) para funcionar en móviles.
-export function useClickOutside(ref, callback, ignoredRef = null, isActive = true) {
+export function useClickOutside(
+  ref,
+  callback,
+  ignoredRef = null,
+  isActive = true
+) {
   useEffect(() => {
     if (!isActive) return;
 

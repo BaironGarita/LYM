@@ -1,0 +1,33 @@
+{
+    "time": "2025-08-17T23:22:27+02:00",
+    "server_method": "POST",
+    "post_keys": [
+        "temporada",
+        "genero",
+        "color",
+        "material",
+        "dimensiones",
+        "peso",
+        "etiquetas",
+        "categoria_id",
+        "stock",
+        "precio",
+        "descripcion",
+        "nombre"
+    ],
+    "files_keys": [
+        "imagenes"
+    ],
+    "files_summary": [
+        {
+            "field": "imagenes",
+            "index": 0,
+            "name": "Polo.jpeg",
+            "type": "image/jpeg",
+            "size": 5235,
+            "tmp_exists": true,
+            "tmp_path": "C:\\xampp\\tmp\\phpBB02.tmp"
+        }
+    ],
+    "raw_input_length": 0
+}

@@ -82,52 +82,41 @@ class ProductoModel
     }
 
     /**
-     * Crear nuevo producto
-     * $datos puede ser array o stdClass
+     * Crear producto y devolver ['id'=>int] o false en error
      */
     public function create($datos)
     {
         try {
-            // DEBUG adicional (no modifica nada)
-            error_log('DEBUG ProductoModel::create invoked. $_FILES present? ' . (empty($_FILES) ? 'no' : 'si') . ' | datos keys: ' . json_encode(array_keys((array)$datos)));
-            $datos = $this->normalize($datos);
+            $data = $this->normalize($datos);
 
-            $nombre = $this->enlace->escapeString($datos['nombre'] ?? '');
-            if ($nombre === '') {
-                throw new Exception('Nombre requerido');
+            // Campos básicos (ajusta según tu esquema)
+            $nombre = $data['nombre'] ?? '';
+            $descripcion = $data['descripcion'] ?? '';
+            $precio = isset($data['precio']) ? (float)$data['precio'] : 0.0;
+            $categoria_id = isset($data['categoria_id']) ? (int)$data['categoria_id'] : 0;
+            $stock = isset($data['stock']) ? (int)$data['stock'] : 0;
+            $sku = $this->generateSKU();
+            $peso = isset($data['peso']) ? (float)$data['peso'] : 0.0;
+            $dimensiones = isset($data['dimensiones']) ? $this->enlace->escapeString($data['dimensiones']) : '';
+            $material = $this->enlace->escapeString($data['material'] ?? '');
+            $color_principal = $this->enlace->escapeString($data['color_principal'] ?? '');
+            $genero = $this->enlace->escapeString($data['genero'] ?? 'unisex');
+            $temporada = $this->enlace->escapeString($data['temporada'] ?? '');
+
+            // Usar runInsert para obtener el ID de forma segura (prepared stmt)
+            $sql = "INSERT INTO productos (nombre, descripcion, precio, categoria_id, sku, stock, peso, dimensiones, material, color_principal, genero, temporada)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $params = [$nombre, $descripcion, $precio, $categoria_id, $sku, $stock, $peso, $dimensiones, $material, $color_principal, $genero, $temporada];
+
+            $res = $this->enlace->runInsert($sql, $params);
+            $id = isset($res['id']) ? (int)$res['id'] : 0;
+
+            if ($id <= 0) {
+                error_log('ProductoModel::create - insert no devolvió id. runInsert result: ' . json_encode($res));
+                return false;
             }
 
-            $descripcion = $this->enlace->escapeString($datos['descripcion'] ?? '');
-            $precio = isset($datos['precio']) ? (float)$datos['precio'] : 0.0;
-            $categoria_id = isset($datos['categoria_id']) ? (int)$datos['categoria_id'] : 0;
-            $stock = (int)($datos['stock'] ?? 0);
-            $sku = $this->enlace->escapeString($datos['sku'] ?? $this->generateSKU());
-            $peso = (float)($datos['peso'] ?? 0);
-            $dimensiones = $this->enlace->escapeString($datos['dimensiones'] ?? '');
-            $material = $this->enlace->escapeString($datos['material'] ?? '');
-            $color_principal = $this->enlace->escapeString($datos['color_principal'] ?? '');
-            $genero = $this->enlace->escapeString($datos['genero'] ?? 'unisex');
-            $temporada = $this->enlace->escapeString($datos['temporada'] ?? '');
-
-            $vSql = "INSERT INTO productos (
-                        nombre, descripcion, precio, categoria_id, stock, sku, peso, dimensiones, material, color_principal, genero, temporada, created_at
-                    ) VALUES (
-                        '$nombre', '$descripcion', $precio, $categoria_id, $stock, '$sku', $peso, '$dimensiones', '$material', '$color_principal', '$genero', '$temporada', NOW()
-                    )";
-
-            $this->enlace->executeSQL_DML($vSql);
-            $id = $this->enlace->getLastId();
-
-            // Manejo de etiquetas: admite array (ids) o cadena separada por comas
-            $etiquetas = $datos['etiquetas'] ?? [];
-            if (is_string($etiquetas)) {
-                $etiquetas = array_filter(array_map('trim', explode(',', $etiquetas)));
-            }
-            if (is_array($etiquetas) && !empty($etiquetas)) {
-                $this->associateEtiquetas($id, $etiquetas);
-            }
-
-            return $this->get($id);
+            return ['id' => $id];
         } catch (Exception $e) {
             handleException($e);
             return false;
@@ -344,39 +333,42 @@ class ProductoModel
         try {
             $data = $this->normalize($data);
 
-            $producto_id = isset($data['producto_id']) ? (int)$data['producto_id'] : 0;
+            $producto_id    = isset($data['producto_id']) ? (int)$data['producto_id'] : 0;
             if ($producto_id <= 0) {
                 error_log('ProductoModel::addImagen - producto_id inválido');
                 return false;
             }
 
-            // Preparar campos (sanitizar con el helper del enlace)
-            $nombre_archivo = $this->enlace->escapeString($data['nombre_archivo'] ?? '');
-            $ruta_archivo = $this->enlace->escapeString($data['ruta_archivo'] ?? $data['url_imagen'] ?? '');
-            $url_imagen = $this->enlace->escapeString($data['url_imagen'] ?? $ruta_archivo);
-            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? '');
-            $orden = isset($data['orden']) ? (int)$data['orden'] : 0;
-            $es_principal = isset($data['es_principal']) ? (int)$data['es_principal'] : 0;
-            $creado_at = date('Y-m-d H:i:s');
+            $nombre_archivo = $data['nombre_archivo'] ?? '';
+            $ruta_archivo   = $data['ruta_archivo']   ?? ''; // debe ser algo como "uploads/archivo.ext"
+            $alt_text       = $data['alt_text']       ?? null;
+            $orden          = isset($data['orden']) ? (int)$data['orden'] : 0;
+            $es_principal   = isset($data['es_principal']) ? (int)$data['es_principal'] : 0;
 
-            $vSql = "INSERT INTO producto_imagenes
-                (producto_id, nombre_archivo, ruta_archivo, url_imagen, alt_text, `orden`, es_principal, creado_at)
-                VALUES
-                ({$producto_id}, '{$nombre_archivo}', '{$ruta_archivo}', '{$url_imagen}', '{$alt_text}', {$orden}, {$es_principal}, '{$creado_at}')";
 
-            $ok = $this->enlace->executeSQL_DML($vSql);
-            if ($ok === false) {
-                error_log('ProductoModel::addImagen - fallo executeSQL_DML');
+            // Alineado con la estructura de la tabla (incluye created_at)
+            $sql = "INSERT INTO producto_imagenes
+                    (producto_id, nombre_archivo, ruta_archivo, alt_text, `orden`, es_principal)
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            $params = [
+                $producto_id,
+                $nombre_archivo,
+                $ruta_archivo,
+                $alt_text,
+                $orden, 
+                $es_principal,
+            ];
+
+            // runInsert debe devolver ['id' => int]
+            $res = $this->enlace->runInsert($sql, $params);
+            $id = isset($res['id']) ? (int)$res['id'] : 0;
+            if ($id <= 0) {
+                error_log('ProductoModel::addImagen - runInsert no devolvió id. res: ' . json_encode($res));
                 return false;
             }
 
-            $id = $this->enlace->getLastId();
-            if (!$id) {
-                error_log('ProductoModel::addImagen - no se obtuvo lastId');
-                return false;
-            }
-
-            $row = $this->enlace->executeSQL("SELECT * FROM producto_imagenes WHERE id = " . (int)$id . " LIMIT 1");
+            // Devolver la fila insertada
+            $row = $this->enlace->runQuery("SELECT * FROM producto_imagenes WHERE id = ?", [$id]);
             return (!empty($row) && is_array($row)) ? $row[0] : false;
         } catch (Exception $e) {
             handleException($e);

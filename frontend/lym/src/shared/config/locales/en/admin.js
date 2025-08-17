@@ -8,14 +8,14 @@ export const admin = {
       price: "Price",
       stock: "Stock",
       categoryId: "Category ID",
-      imageUrl: "Image URL"
+      imageUrl: "Image URL",
     },
     uploading: "Uploading...",
     addButton: "Add Product",
     success: "Product uploaded successfully!",
     errors: {
-      upload: "Error uploading product."
-    }
+      upload: "Error uploading product.",
+    },
   },
   dashboard: {
     title: "Admin Dashboard",
@@ -26,7 +26,7 @@ export const admin = {
       title: "Quick Actions",
       manageProducts: "Manage Products",
       viewPromotions: "View Promotions",
-      uploadProduct: "Upload New Product"
+      uploadProduct: "Upload New Product",
     },
     stats: {
       totalSales: "Total Sales",
@@ -36,15 +36,15 @@ export const admin = {
       activePromotions: "Active Promotions",
       currentOffers: "Current offers",
       newCustomers: "New Customers",
-      thisMonth: "This month"
+      thisMonth: "This month",
     },
     actions: {
       viewPromotions: "View Promotions",
-      uploadNewProduct: "Upload New Product"
-    }
+      uploadNewProduct: "Upload New Product",
+    },
   },
   products: {
-    error: "Error loading data"
+    error: "Error loading data",
   },
   promotions: {
     title: "Promotions Management",

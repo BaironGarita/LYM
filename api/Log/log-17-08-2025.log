@@ -1,0 +1,26 @@
+[17-08-2025 00:32:18] [Usuario] error: File: C:\xampp\htdocs\api_lym\index.php - line: 167 - Message: preg_match(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
+ [17-08-2025 21:46:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:46:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:46:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:46:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\controllers\core\Logger.php - line: 20 - Message: preg_replace(): Allocation of JIT memory failed, PCRE JIT will be disabled. This is likely caused by security restrictions. Either grant PHP permission to allocate executable memory, or set pcre.jit=0
+ [17-08-2025 21:47:00] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:01] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:26] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:27] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:40] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:40] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:58] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:47:59] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:48:25] [Usuario] error: File: C:\xampp\htdocs\api_lym\models\ProductoModel.php - line: 403 - Message: syntax error, unexpected token "public", expecting end of file
+ [17-08-2025 21:54:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:06] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:07] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:08] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ [17-08-2025 21:54:08] [Usuario] error: File: C:\xampp\htdocs\api_lym\routes\RoutesController.php - line: 94 - Message: Call to undefined method ProductoController::getImagenes()
+ 

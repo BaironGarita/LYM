@@ -62,6 +62,60 @@ class ProductoController
     public function create()
     {
         try {
+            // --- SAFE DEBUG: registrar si llegan archivos (NO mover ni insertar) ---
+            $debug = [
+                'time' => date('c'),
+                'server_method' => $_SERVER['REQUEST_METHOD'] ?? null,
+                'post_keys' => array_keys($_POST),
+                'files_keys' => array_keys($_FILES),
+                'files_summary' => [],
+                'raw_input_length' => strlen(file_get_contents('php://input') ?: '')
+            ];
+            foreach ($_FILES as $field => $info) {
+                // resumen seguro: no incluir contenido binario ni mover ficheros
+                if (is_array($info['name'])) {
+                    foreach ($info['name'] as $i => $n) {
+                        $tmp = $info['tmp_name'][$i] ?? null;
+                        $debug['files_summary'][] = [
+                            'field' => $field,
+                            'index' => $i,
+                            'name' => $n,
+                            'type' => $info['type'][$i] ?? null,
+                            'size' => $info['size'][$i] ?? null,
+                            'tmp_exists' => ($tmp ? file_exists($tmp) : false),
+                            'tmp_path' => ($tmp ? $tmp : null)
+                        ];
+                    }
+                } else {
+                    $tmp = $info['tmp_name'] ?? null;
+                    $debug['files_summary'][] = [
+                        'field' => $field,
+                        'name' => $info['name'] ?? null,
+                        'type' => $info['type'] ?? null,
+                        'size' => $info['size'] ?? null,
+                        'tmp_exists' => ($tmp ? file_exists($tmp) : false),
+                        'tmp_path' => ($tmp ? $tmp : null)
+                    ];
+                }
+            }
+
+            error_log('DEBUG ProductoController::create incoming: ' . json_encode($debug));
+
+            // Guardar JSON de debug y copiar sólo temporales (COPIA, no MOVE) para inspección
+            $debugDir = __DIR__ . '/../uploads/debug';
+            if (!is_dir($debugDir)) mkdir($debugDir, 0755, true);
+            $debugFile = realpath($debugDir) . DIRECTORY_SEPARATOR . 'create_debug_' . time() . '_' . uniqid() . '.json';
+            @file_put_contents($debugFile, json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+            foreach ($debug['files_summary'] as $f) {
+                if (!empty($f['tmp_path']) && $f['tmp_exists']) {
+                    // copiar con nombre seguro para inspección (no afecta DB)
+                    $safeName = 'debug_' . preg_replace('/[^a-z0-9_.-]/i', '_', basename($f['name'] ?? 'tmp'));
+                    @copy($f['tmp_path'], realpath($debugDir) . DIRECTORY_SEPARATOR . $safeName . '_' . time() . '_' . rand(100,999));
+                }
+            }
+            // --- END SAFE DEBUG ---
+
             // Leer datos directamente de $_POST (array)
             $data = $_POST;
 
@@ -149,7 +203,6 @@ class ProductoController
             $mime = $finfo ? finfo_file($finfo, $tmp) : null;
             $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
             if (!$ext && $mime) {
-                // intento simple para mapear algunos mime
                 if ($mime === 'image/jpeg') $ext = 'jpg';
                 if ($mime === 'image/png') $ext = 'png';
                 if ($mime === 'image/webp') $ext = 'webp';
@@ -162,6 +215,13 @@ class ProductoController
                 continue;
             }
 
+            // Opcional: limitar tamaño (ej. 5MB)
+            $maxBytes = 5 * 1024 * 1024;
+            if (file_exists($tmp) && filesize($tmp) > $maxBytes) {
+                error_log("Archivo $name excede tamaño máximo permitido");
+                continue;
+            }
+
             $nombre_archivo = uniqid('prodimg_') . ($ext ? '.' . $ext : '');
             $ruta_archivo = $uploads_dir . $nombre_archivo;
             $ruta_db = 'uploads/' . $nombre_archivo;
@@ -171,7 +231,6 @@ class ProductoController
             if (is_uploaded_file($tmp)) {
                 $moved = @move_uploaded_file($tmp, $ruta_archivo);
             } else {
-                // Fallback (por ejemplo pruebas locales): intentar copiar/renombrar
                 $moved = @rename($tmp, $ruta_archivo) || @copy($tmp, $ruta_archivo);
             }
 
@@ -184,8 +243,8 @@ class ProductoController
             // Asegurar permisos de lectura pública
             @chmod($ruta_archivo, 0644);
 
-            // Guardar en BD usando la clave 'url_imagen' que espera el modelo
-            $this->model->addImagen([
+            // Guardar en BD y si falla, eliminar archivo físico
+            $insertResult = $this->model->addImagen([
                 'producto_id'    => $producto_id,
                 'nombre_archivo' => $nombre_archivo,
                 'ruta_archivo'   => $ruta_db,
@@ -193,6 +252,12 @@ class ProductoController
                 'orden'          => 0,
                 'es_principal'   => 0
             ]);
+
+            if (!$insertResult) {
+                error_log("Inserción en BD falló para $nombre_archivo, eliminando archivo físico");
+                @unlink($ruta_archivo);
+                continue;
+            }
         }
 
         if ($finfo) {
@@ -391,7 +456,20 @@ class ProductoController
                 $this->response->status(400)->toJSON(['error' => 'producto_id es requerido']);
                 return;
             }
-            $imagenes = $this->model->getImagenes($producto_id);
+
+            // Evitar llamar a un método inexistente en el modelo; probar nombres alternativos o devolver error informativo
+            if (method_exists($this->model, 'getImagenes')) {
+                $imagenes = $this->model->getImagenes($producto_id);
+            } elseif (method_exists($this->model, 'getImages')) {
+                $imagenes = $this->model->getImages($producto_id);
+            } elseif (method_exists($this->model, 'getImagenesByProducto')) {
+                $imagenes = $this->model->getImagenesByProducto($producto_id);
+            } else {
+                // El modelo no implementa la obtención de imágenes; informar al cliente para evitar error fatal
+                $this->response->status(501)->toJSON(['error' => 'El modelo no implementa la obtención de imágenes']);
+                return;
+            }
+
             $this->response->toJSON($imagenes);
         } catch (Exception $e) {
             handleException($e);

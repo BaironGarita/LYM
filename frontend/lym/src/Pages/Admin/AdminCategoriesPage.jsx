@@ -131,7 +131,10 @@ const AdminCategoriesPage = () => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder={t("admin.categories.searchPlaceholder", "Buscar por nombre...")}
+              placeholder={t(
+                "admin.categories.searchPlaceholder",
+                "Buscar por nombre..."
+              )}
               className="pl-9 pr-3 py-2 border rounded-md text-sm w-64"
             />
           </div>
@@ -159,7 +162,9 @@ const AdminCategoriesPage = () => {
                 <thead>
                   <tr className="text-left text-sm text-gray-600">
                     <th className="py-2">ID</th>
-                    <th className="py-2">{t("admin.categories.name", "Nombre")}</th>
+                    <th className="py-2">
+                      {t("admin.categories.name", "Nombre")}
+                    </th>
                     <th className="py-2 text-right">
                       {t("actions", "Acciones")}
                     </th>
@@ -204,8 +209,8 @@ const AdminCategoriesPage = () => {
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-600">
-                {t("pagination.showing", "Mostrando")} {" "}
+              <div className="text-sm text-gray-600">
+                {t("pagination.showing", "Mostrando")}{" "}
                 <strong>{filtered.length ? start + 1 : 0}</strong> -{" "}
                 <strong>{start + paginated.length}</strong>{" "}
                 {t("pagination.of", "de")} {filtered.length}

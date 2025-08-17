@@ -88,6 +88,8 @@ class ProductoModel
     public function create($datos)
     {
         try {
+            // DEBUG adicional (no modifica nada)
+            error_log('DEBUG ProductoModel::create invoked. $_FILES present? ' . (empty($_FILES) ? 'no' : 'si') . ' | datos keys: ' . json_encode(array_keys((array)$datos)));
             $datos = $this->normalize($datos);
 
             $nombre = $this->enlace->escapeString($datos['nombre'] ?? '');
@@ -108,11 +110,9 @@ class ProductoModel
             $temporada = $this->enlace->escapeString($datos['temporada'] ?? '');
 
             $vSql = "INSERT INTO productos (
-                        nombre, descripcion, precio, categoria_id, stock, sku,
-                        created_at
+                        nombre, descripcion, precio, categoria_id, stock, sku, peso, dimensiones, material, color_principal, genero, temporada, created_at
                     ) VALUES (
-                        '$nombre', '$descripcion', $precio, $categoria_id, $stock, '$sku',
-                        NOW()
+                        '$nombre', '$descripcion', $precio, $categoria_id, $stock, '$sku', $peso, '$dimensiones', '$material', '$color_principal', '$genero', '$temporada', NOW()
                     )";
 
             $this->enlace->executeSQL_DML($vSql);
@@ -337,47 +337,53 @@ class ProductoModel
     /**
      * Insertar imagen de producto en la base de datos
      * Acepta claves: 'url_imagen' o 'ruta_archivo' o 'nombre_archivo'
+     * Devuelve la fila insertada o false en error
      */
     public function addImagen($data)
     {
         try {
             $data = $this->normalize($data);
+
             $producto_id = isset($data['producto_id']) ? (int)$data['producto_id'] : 0;
             if ($producto_id <= 0) {
-                throw new Exception('producto_id inválido');
+                error_log('ProductoModel::addImagen - producto_id inválido');
+                return false;
             }
 
-            // Compatibilidad: aceptar url_imagen legacy -> derivar nombre_archivo / ruta_archivo
-            $ruta_archivo = $data['ruta_archivo'] ?? null;
-            $nombre_archivo = $data['nombre_archivo'] ?? null;
-
-            if (!$ruta_archivo && isset($data['url_imagen'])) {
-                $ruta_archivo = $data['url_imagen'];
-            }
-            if ($ruta_archivo && !$nombre_archivo) {
-                $nombre_archivo = basename($ruta_archivo);
-            }
-
-            if (!$ruta_archivo || !$nombre_archivo) {
-                throw new Exception('Datos de imagen incompletos (ruta_archivo / nombre_archivo)');
-            }
-
-            $ruta_archivo = $this->enlace->escapeString($ruta_archivo);
-            $nombre_archivo = $this->enlace->escapeString($nombre_archivo);
-            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? 'Imagen de producto');
-            $orden = (int)($data['orden'] ?? 0);
+            // Preparar campos (sanitizar con el helper del enlace)
+            $nombre_archivo = $this->enlace->escapeString($data['nombre_archivo'] ?? '');
+            $ruta_archivo = $this->enlace->escapeString($data['ruta_archivo'] ?? $data['url_imagen'] ?? '');
+            $url_imagen = $this->enlace->escapeString($data['url_imagen'] ?? $ruta_archivo);
+            $alt_text = $this->enlace->escapeString($data['alt_text'] ?? '');
+            $orden = isset($data['orden']) ? (int)$data['orden'] : 0;
             $es_principal = isset($data['es_principal']) ? (int)$data['es_principal'] : 0;
+            $creado_at = date('Y-m-d H:i:s');
 
-            $sql = "INSERT INTO producto_imagenes (producto_id, nombre_archivo, ruta_archivo, alt_text, orden, es_principal)
-                    VALUES ($producto_id, '$nombre_archivo', '$ruta_archivo', '$alt_text', $orden, $es_principal)";
-            $this->enlace->executeSQL_DML($sql);
-            return true;
+            $vSql = "INSERT INTO producto_imagenes
+                (producto_id, nombre_archivo, ruta_archivo, url_imagen, alt_text, `orden`, es_principal, creado_at)
+                VALUES
+                ({$producto_id}, '{$nombre_archivo}', '{$ruta_archivo}', '{$url_imagen}', '{$alt_text}', {$orden}, {$es_principal}, '{$creado_at}')";
+
+            $ok = $this->enlace->executeSQL_DML($vSql);
+            if ($ok === false) {
+                error_log('ProductoModel::addImagen - fallo executeSQL_DML');
+                return false;
+            }
+
+            $id = $this->enlace->getLastId();
+            if (!$id) {
+                error_log('ProductoModel::addImagen - no se obtuvo lastId');
+                return false;
+            }
+
+            $row = $this->enlace->executeSQL("SELECT * FROM producto_imagenes WHERE id = " . (int)$id . " LIMIT 1");
+            return (!empty($row) && is_array($row)) ? $row[0] : false;
         } catch (Exception $e) {
             handleException($e);
             return false;
         }
     }
-
+    
     /**
      * Obtener imágenes de un producto
      */
@@ -385,12 +391,31 @@ class ProductoModel
     {
         try {
             $producto_id = (int)$producto_id;
-            $sql = "SELECT * FROM producto_imagenes WHERE producto_id = $producto_id ORDER BY orden ASC, id ASC";
-            $imagenes = $this->enlace->executeSQL($sql);
-            return $imagenes;
+            if ($producto_id <= 0) {
+                return [];
+            }
+
+            $vSql = "SELECT * FROM producto_imagenes WHERE producto_id = {$producto_id} ORDER BY `orden` ASC, id ASC";
+            $result = $this->enlace->executeSQL($vSql);
+            if ($result === false) {
+                return [];
+            }
+            return $result;
         } catch (Exception $e) {
             handleException($e);
-            return false;
+            return [];
         }
     }
+
+    // Aliases para compatibilidad con controlador
+    public function getImages($producto_id)
+    {
+        return $this->getImagenes($producto_id);
+    }
+
+    public function getImagenesByProducto($producto_id)
+    {
+        return $this->getImagenes($producto_id);
+    }
 }
+

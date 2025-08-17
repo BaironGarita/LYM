@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/UI/button";
@@ -15,6 +15,7 @@ import {
 import { Upload, Save } from "lucide-react";
 import ProductoService from "@/shared/api/productoService";
 import { useI18n } from "@/shared/hooks/useI18n";
+import UploadProductImage from "@/features/product-management/UploadProductImage";
 
 const ProductUploadForm = () => {
   const { t } = useI18n();
@@ -25,13 +26,16 @@ const ProductUploadForm = () => {
     categoria_id: "",
     stock: "0",
     sku: "",
-  imagen: null,
-  etiquetas: [],
+    imagen: null,
+    etiquetas: [],
   });
   const [categorias, setCategorias] = useState([]);
   const [opciones, setOpciones] = useState([]);
   const [selectedOpciones, setSelectedOpciones] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState(null);
+  const xhrRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,7 +63,7 @@ const ProductUploadForm = () => {
         console.warn(
           "No se pudieron cargar opciones de personalización",
           error
-      );
+        );
       }
     };
     fetchOpciones();
@@ -75,21 +79,23 @@ const ProductUploadForm = () => {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length) {
-      // Single file expected by backend under 'imagen'
-      setFormData((prev) => ({ ...prev, imagen: e.target.files[0] }));
+    // deprecated: file input now handled by UploadProductImage
+    if (e && e.length) {
+      // e is the array of file metadata we receive from UploadProductImage
+      setFormData((prev) => ({ ...prev, imagen: null, imagenes_meta: e }));
     } else {
-      setFormData((prev) => ({ ...prev, imagen: null }));
+      setFormData((prev) => ({ ...prev, imagen: null, imagenes_meta: [] }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.imagen) {
+    const images = formData.imagenes_meta || [];
+    if (!images || images.length === 0) {
       toast.error(
         t(
           "admin.productUpload.errors.noImage",
-          "Por favor, selecciona una imagen para el producto."
+          "Por favor, selecciona al menos una imagen para el producto."
         )
       );
       return;
@@ -98,37 +104,83 @@ const ProductUploadForm = () => {
 
     const data = new FormData();
     // Append scalar fields
-    data.append('nombre', formData.nombre || '');
-    data.append('descripcion', formData.descripcion || '');
-    data.append('precio', formData.precio || '0');
-    data.append('categoria_id', formData.categoria_id || '');
-    data.append('stock', formData.stock || '0');
-    if (formData.sku) data.append('sku', formData.sku);
+    data.append("nombre", formData.nombre || "");
+    data.append("descripcion", formData.descripcion || "");
+    data.append("precio", formData.precio || "0");
+    data.append("categoria_id", formData.categoria_id || "");
+    data.append("stock", formData.stock || "0");
+    if (formData.sku) data.append("sku", formData.sku);
 
-    // File field expected as 'imagen'
-    if (formData.imagen) {
-      data.append('imagen', formData.imagen, formData.imagen.name);
-    }
+    // Append images and metadata arrays. We send files as imagenes[] and parallel arrays alt_text[], orden[]
+    // Also send es_principal_index to indicate which index is principal.
+    let principalIndex = -1;
+    images.forEach((it, idx) => {
+      if (it.file) {
+        data.append("imagenes[]", it.file, it.file.name);
+      } else if (it.remote && it.preview) {
+        // remote images: send their path or URL so backend can re-use if editing existing product
+        data.append("imagenes_remote[]", it.preview);
+      }
+      data.append("alt_text[]", it.alt_text || "");
+      data.append("orden[]", it.orden != null ? it.orden : idx + 1);
+      if (it.isPrincipal) principalIndex = idx;
+    });
+    if (principalIndex >= 0)
+      data.append("es_principal_index", String(principalIndex));
 
     // Etiquetas (array) -> enviar como CSV y como índices separados
     if (Array.isArray(formData.etiquetas) && formData.etiquetas.length > 0) {
       // backend ProductoModel.create acepta etiquetas como CSV o array ids, so send as CSV
-      data.append('etiquetas', formData.etiquetas.join(','));
-      formData.etiquetas.forEach((val) => data.append('etiquetas[]', val));
+      data.append("etiquetas", formData.etiquetas.join(","));
+      formData.etiquetas.forEach((val) => data.append("etiquetas[]", val));
     }
 
     // Opciones de personalización seleccionadas
     if (Array.isArray(selectedOpciones) && selectedOpciones.length > 0) {
-      data.append('opciones', selectedOpciones.join(','));
-      selectedOpciones.forEach((val) => data.append('opciones[]', val));
+      data.append("opciones", selectedOpciones.join(","));
+      selectedOpciones.forEach((val) => data.append("opciones[]", val));
     }
 
     try {
-      const created = await ProductoService.createProducto(data);
-  // ProductoService.createProducto should detect FormData and post without setting Content-Type
+      // Use XHR for progress reporting and retry logic
+      const token = ProductoService.getAuthToken
+        ? ProductoService.getAuthToken()
+        : null;
+      const uploadPromise = new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
+        xhr.open("POST", ProductoService.createProductoUrl || "/api/productos");
+        if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) {
+            const p = Math.round((ev.loaded / ev.total) * 100);
+            setUploadProgress(p);
+          }
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const json = JSON.parse(xhr.responseText);
+              resolve(json);
+            } catch (err) {
+              resolve(xhr.responseText);
+            }
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(data);
+      });
+
+      const created = await uploadPromise;
+      // ProductoService.createProducto should detect FormData and post without setting Content-Type
       // Si el backend devuelve el id del producto creado
       const productoId =
-        created?.id || created?.insertId || created?.result?.id;
+        created?.id ||
+        created?.insertId ||
+        created?.result?.id ||
+        created?.data?.id;
 
       // Asociar opciones de personalización seleccionadas
       if (selectedOpciones && selectedOpciones.length > 0 && productoId) {
@@ -158,6 +210,7 @@ const ProductUploadForm = () => {
       );
       navigate("/admin/productos");
     } catch (error) {
+      setUploadError(error.message || String(error));
       toast.error(
         t(
           "admin.productUpload.errors.create",

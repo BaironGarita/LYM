@@ -173,6 +173,7 @@ const AdminProductsPage = () => {
             <Plus className="h-5 w-5" />
             {t("products.newProduct")}
           </Button>
+          {/* Removed product upload quick link per request */}
         </div>
       </div>
 

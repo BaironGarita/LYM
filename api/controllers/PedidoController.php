@@ -262,4 +262,164 @@ class PedidoController {
         http_response_code(200);
         echo json_encode(['mensaje' => 'Endpoint de listado de pedidos (implementar según necesidad).']);
     }
+
+    /**
+     * Estadísticas de ventas: total ventas, costo estimado, ganancia y porcentaje.
+     * Opcionales GET params: start_date, end_date (ISO 8601)
+     */
+    public function estadisticasVentas()
+    {
+        $configPath = __DIR__ . '/../config.php';
+        if (!file_exists($configPath)) {
+            http_response_code(500);
+            echo json_encode(['mensaje' => 'Falta configuración de BD']);
+            return;
+        }
+
+        try {
+            require_once __DIR__ . '/core/MySqlConnect.php';
+            $mysql = new MySqlConnect();
+            $pdo = $mysql->getPdo();
+            if (!$pdo) {
+                http_response_code(500);
+                echo json_encode(['mensaje' => 'Fallo al conectar a BD']);
+                return;
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['mensaje' => 'Fallo al conectar a BD']);
+            return;
+        }
+
+        // Filtros opcionales por fecha
+        $start = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+        $end = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+
+        $where = "1=1 AND (estado IS NULL OR estado <> 'cancelado')"; // excluir cancelados
+        $params = [];
+        if ($start) {
+            $where .= " AND fecha_pedido >= :start";
+            $params[':start'] = $start;
+        }
+        if ($end) {
+            $where .= " AND fecha_pedido <= :end";
+            $params[':end'] = $end;
+        }
+
+        try {
+            $stmt = $pdo->prepare("SELECT id, COALESCE(total,0) as total FROM pedidos WHERE $where");
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $totalVentas = 0.0;
+            $totalCosto = 0.0;
+            $totalPedidos = count($pedidos);
+
+            // Cargar columnas de productos para decidir si existe campo de costo real
+            $productoCols = [];
+            try {
+                $colsStmt = $pdo->query("SHOW COLUMNS FROM productos");
+                $cols = $colsStmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($cols as $c) {
+                    if (!empty($c['Field'])) $productoCols[] = $c['Field'];
+                }
+            } catch (Exception $_) {
+                // ignorar si tabla no existe o falla
+            }
+
+            $productCostCache = [];
+
+            foreach ($pedidos as $p) {
+                $pedidoId = (int)$p['id'];
+                $totalVentas += (float)$p['total'];
+
+                // Obtener items del pedido (intentar ambas tablas conocidas)
+                $items = [];
+                try {
+                    $stmtItems = $pdo->prepare("SELECT producto_id, cantidad, precio_unitario, subtotal FROM pedido_items WHERE pedido_id = :pid");
+                    $stmtItems->bindValue(':pid', $pedidoId, PDO::PARAM_INT);
+                    $stmtItems->execute();
+                    $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+                } catch (Exception $_) {
+                    // intentar tabla alternativa 'pedido_detalles'
+                    try {
+                        $stmtItems = $pdo->prepare("SELECT producto_id, cantidad, precio_unitario, subtotal FROM pedido_detalles WHERE pedido_id = :pid");
+                        $stmtItems->bindValue(':pid', $pedidoId, PDO::PARAM_INT);
+                        $stmtItems->execute();
+                        $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+                    } catch (Exception $__) {
+                        $items = [];
+                    }
+                }
+
+                foreach ($items as $it) {
+                    $productoId = (int)($it['producto_id'] ?? 0);
+                    $cantidad = (int)($it['cantidad'] ?? 0);
+                    $precioUnit = (float)($it['precio_unitario'] ?? 0.0);
+
+                    if ($cantidad <= 0) continue;
+
+                    // Obtener costo por unidad con cache
+                    if (!isset($productCostCache[$productoId])) {
+                        $costPerUnit = null;
+
+                        // Si existe columna 'costo' o 'precio_compra' en tabla productos, usarla
+                        if (in_array('costo', $productoCols) || in_array('precio_compra', $productoCols) || in_array('precio_proveedor', $productoCols)) {
+                            $col = in_array('costo', $productoCols) ? 'costo' : (in_array('precio_compra', $productoCols) ? 'precio_compra' : 'precio_proveedor');
+                            try {
+                                $pstmt = $pdo->prepare("SELECT $col, precio FROM productos WHERE id = :pid LIMIT 1");
+                                $pstmt->bindValue(':pid', $productoId, PDO::PARAM_INT);
+                                $pstmt->execute();
+                                $prow = $pstmt->fetch(PDO::FETCH_ASSOC);
+                                if ($prow) {
+                                    $val = isset($prow[$col]) ? (float)$prow[$col] : null;
+                                    if ($val && $val > 0) {
+                                        $costPerUnit = $val;
+                                    } else {
+                                        $pricePublic = isset($prow['precio']) ? (float)$prow['precio'] : $precioUnit;
+                                        $costPerUnit = $pricePublic * 0.6; // fallback heuristic
+                                    }
+                                }
+                            } catch (Exception $_) {
+                                $costPerUnit = $precioUnit * 0.6;
+                            }
+                        } else {
+                            // No hay columna de costo: usar heurística (60% del precio de venta)
+                            $costPerUnit = $precioUnit * 0.6;
+                        }
+
+                        // última salvaguarda
+                        if (!$costPerUnit || $costPerUnit <= 0) $costPerUnit = $precioUnit * 0.6;
+                        $productCostCache[$productoId] = $costPerUnit;
+                    }
+
+                    $totalCosto += $productCostCache[$productoId] * $cantidad;
+                }
+            }
+
+            $ganancia = $totalVentas - $totalCosto;
+            $porcentaje = ($totalCosto > 0) ? ($ganancia / $totalCosto) * 100 : null;
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'totalPedidos' => $totalPedidos,
+                'totalVentas' => round($totalVentas, 2),
+                'totalCostoEstimado' => round($totalCosto, 2),
+                'ganancia' => round($ganancia, 2),
+                'porcentajeGanancia' => is_null($porcentaje) ? null : round($porcentaje, 2),
+                'start_date' => $start,
+                'end_date' => $end,
+                'nota' => 'Si no existe campo de costo en productos, se usa heurística (costo = 60% del precio de venta).'
+            ]);
+            return;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['mensaje' => 'Error al calcular estadísticas', 'error' => $e->getMessage()]);
+            return;
+        }
+    }
 }

@@ -150,6 +150,16 @@ class RoutesController
             }
         }
 
+        // Endpoint para estadísticas: /pedidos/estadisticas
+        if ($resource === 'pedidos' && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'estadisticas') {
+            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                require_once __DIR__ . '/../controllers/PedidoController.php';
+                $controller = new PedidoController();
+                $controller->estadisticasVentas();
+                return true;
+            }
+        }
+
         return false;
     }
 

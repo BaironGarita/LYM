@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -53,6 +53,7 @@ import ProductReviews from "./ProductReviews";
 import { useI18n } from "@/shared/hooks/useI18n";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/App/store/cartSlice"; // Cambiar la importación
+import ProductExtrasSelector from "./ProductExtrasSelector";
 
 const useClickOutside = (ref, handler) => {
   useEffect(() => {
@@ -85,8 +86,38 @@ const ProductDetail = () => {
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const [viewCount, setViewCount] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
+  const [selectedExtras, setSelectedExtras] = useState([]); // extras seleccionados (objetos)
   const shareMenuRef = useRef(null);
   const { calcularPrecio } = usePromociones();
+  // Cuando cambian los extras recalculamos precios y guardamos en el producto
+  const handleExtrasChange = useCallback(
+    (ids, objects) => {
+      const extrasArray = objects || [];
+      setSelectedExtras(extrasArray);
+      if (typeof calcularPrecio !== "function") return; // defensivo
+      setProduct((prev) => {
+        if (!prev) return prev;
+        const basePromo = calcularPrecio(prev) || {};
+        const extrasTotal = extrasArray.reduce(
+          (acc, ex) => acc + (Number(ex.precio) || 0),
+          0
+        );
+        return {
+          ...prev,
+          selectedExtras: extrasArray,
+          promocionInfo: {
+            ...basePromo,
+            extrasTotal,
+            precioFinalConExtras:
+              (basePromo.precioFinal || prev.precio || 0) + extrasTotal,
+            precioOriginalConExtras:
+              (basePromo.precioOriginal || prev.precio || 0) + extrasTotal,
+          },
+        };
+      });
+    },
+    [calcularPrecio]
+  );
   const { t } = useI18n();
 
   useClickOutside(shareMenuRef, () => setShareMenuOpen(false));
@@ -159,7 +190,7 @@ const ProductDetail = () => {
     return product?.promocionInfo?.descuento || 0;
   };
 
-  // Usar Redux para agregar al carrito
+  // Usar Redux para agregar al carrito (incluyendo extras y precios recalculados)
   const handleAddToCart = () => {
     // Validar datos antes de enviar
     if (!product || !product.id || !product.nombre || !product.precio) {
@@ -172,6 +203,10 @@ const ProductDetail = () => {
       return;
     }
 
+    const extrasTotal = selectedExtras.reduce(
+      (acc, ex) => acc + (Number(ex.precio) || 0),
+      0
+    );
     const productToAdd = {
       id: product.id,
       nombre: product.nombre,
@@ -179,10 +214,17 @@ const ProductDetail = () => {
       stock: product.stock || 0,
       quantity: quantity, // Agregar la cantidad aquí
       promocionInfo: {
-        precioFinal: product.promocionInfo?.precioFinal || product.precio,
-        precioOriginal: product.promocionInfo?.precioOriginal || product.precio,
+        precioFinal:
+          product.promocionInfo?.precioFinalConExtras ||
+          product.promocionInfo?.precioFinal ||
+          product.precio + extrasTotal,
+        precioOriginal:
+          product.promocionInfo?.precioOriginalConExtras ||
+          product.promocionInfo?.precioOriginal ||
+          product.precio + extrasTotal,
         descuento: product.promocionInfo?.descuento || 0,
         ahorroMonetario: product.promocionInfo?.ahorroMonetario || 0,
+        extrasTotal,
       },
       imagen:
         imagenes.length > 0
@@ -192,6 +234,11 @@ const ProductDetail = () => {
       color_principal: product.color_principal,
       material: product.material,
       categoria_nombre: product.categoria_nombre,
+      extras: selectedExtras.map((ex) => ({
+        id: ex.id,
+        nombre: ex.nombre,
+        precio: ex.precio,
+      })),
     };
 
     // Usar addToCart directamente
@@ -281,7 +328,17 @@ const ProductDetail = () => {
     precioFinal: product?.precio || 0,
     descuento: 0,
     promocionAplicada: null,
+    extrasTotal: selectedExtras.reduce(
+      (a, e) => a + (Number(e.precio) || 0),
+      0
+    ),
   };
+  const extrasTotal = promocionInfo.extrasTotal || 0;
+  const displayFinalPrice =
+    (promocionInfo.precioFinalConExtras ?? promocionInfo.precioFinal) + 0;
+  // Mostrar siempre el primer precio del producto como precio tachado (precio base)
+  const displayOriginalPrice =
+    (product?.precio ?? promocionInfo.precioOriginal ?? 0) + 0;
 
   const pageVariants = {
     initial: {
@@ -721,22 +778,30 @@ const ProductDetail = () => {
               >
                 <div className="flex items-baseline gap-3 flex-wrap">
                   <span className="text-4xl font-extrabold text-gray-900">
-                    {formatPrice(promocionInfo.precioFinal)}
+                    {formatPrice(displayFinalPrice)}
                   </span>
-                  {isOnSale && (
+                  {(isOnSale || extrasTotal > 0) && (
                     <span className="text-xl text-gray-500 line-through">
-                      {formatPrice(promocionInfo.precioOriginal)}
+                      {formatPrice(displayOriginalPrice)}
                     </span>
                   )}
                 </div>
-                {isOnSale && (
-                  <div className="mt-2">
+                <div className="mt-2 flex flex-wrap gap-2 items-center">
+                  {isOnSale && (
                     <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1 font-semibold">
                       Ahorras {formatPrice(promocionInfo.ahorroMonetario)} (
                       {promocionInfo.descuento}%)
                     </Badge>
-                  </div>
-                )}
+                  )}
+                  {extrasTotal > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="px-3 py-1 font-semibold"
+                    >
+                      + {formatPrice(extrasTotal)} en extras
+                    </Badge>
+                  )}
+                </div>
                 {promocionInfo.promocionAplicada && (
                   <Alert className="mt-3 border-blue-200 bg-blue-50 text-blue-800">
                     <Tag className="h-4 w-4 text-blue-600" />
@@ -747,6 +812,12 @@ const ProductDetail = () => {
                   </Alert>
                 )}
               </motion.div>
+
+              {/* Extras selector (solo se renderiza si el producto tiene extras asignados) */}
+              <ProductExtrasSelector
+                productId={product.id}
+                onChange={handleExtrasChange}
+              />
 
               {/* 4. Actions: Quantity and Add to Cart */}
               <motion.div
@@ -807,8 +878,7 @@ const ProductDetail = () => {
                   {isInStock && (
                     <div className="text-center text-gray-600 font-medium">
                       <span className="font-bold text-gray-800">
-                        Total:{" "}
-                        {formatPrice(promocionInfo.precioFinal * quantity)}
+                        Total: {formatPrice(displayFinalPrice * quantity)}
                       </span>
                       {isOnSale && quantity > 0 && (
                         <span className="text-green-600 ml-2">

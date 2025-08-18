@@ -48,6 +48,64 @@ if (savedCart) {
   initialState.lastUpdated = savedCart.lastUpdated || null;
 }
 
+// Thunk para crear pedido en el backend (incluye extras / personalizaciones)
+export const createOrder = createAsyncThunk(
+  "cart/createOrder",
+  async (
+    { usuario_id = 1, direccion_envio_id = 1 } = {},
+    { getState, rejectWithValue }
+  ) => {
+    try {
+      const state = getState();
+      const cart = state.cart;
+      if (!cart || !cart.items || cart.items.length === 0) {
+        return rejectWithValue("El carrito está vacío");
+      }
+
+      // Mapear items al formato que espera el backend
+      const items_carrito = cart.items.map((it) => {
+        const precioUnitario =
+          Number(
+            it.promocionInfo?.precioFinal ??
+              it.promocionInfo?.precioFinalConExtras ??
+              it.precio
+          ) || 0;
+        return {
+          producto_id: it.id,
+          cantidad: it.quantity || 1,
+          precio_unitario: precioUnitario,
+          // personalizaciones = extras u otros campos seleccionados
+          personalizaciones:
+            it.extras && it.extras.length > 0 ? it.extras : null,
+        };
+      });
+
+      const payload = {
+        usuario_id,
+        direccion_envio_id,
+        items_carrito,
+      };
+
+      const res = await fetch("http://localhost:81/api_lym/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(
+          data?.mensaje || data?.error || "Error al crear pedido"
+        );
+      }
+
+      return { data, payload };
+    } catch (err) {
+      return rejectWithValue(err.message || "Error desconocido");
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
@@ -254,6 +312,29 @@ const cartSlice = createSlice({
       state.status = "succeeded";
       saveCartToStorage(state);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createOrder.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // Vaciar carrito local al finalizar el pedido
+        state.items = [];
+        state.totalQuantity = 0;
+        state.totalAmount = 0;
+        state.lastUpdated = new Date().toISOString();
+        saveCartToStorage(state);
+        toast.success("Pedido creado correctamente");
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.payload || action.error?.message || "Error al crear pedido";
+        toast.error(state.error);
+      });
   },
 });
 

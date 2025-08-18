@@ -6,7 +6,7 @@ import { Home } from "@/Pages/home/HomePage";
 import { ProductsPage } from "@/Pages/Products/ProductsPage";
 import ProductList from "../features/product-management/ProductList";
 import ProductDetail from "@/features/product-management/ProductDetail";
-import PersonalizedProductDetail from "@/features/product-management/PersonalizedProductDetail";
+
 import OffersPage from "@/Pages/Products/OffersPage";
 import { ReviewsPage } from "@/Pages/Products/ReviewsPage";
 import ResenaDetail from "@/features/reviews/ResenaDetail";
@@ -45,6 +45,7 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         element={<ProductsPage addToCart={addToCart} />}
       />
       <Route path="/ordenes" element={<OrdersPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/offers" element={<OffersPage />} />
       <Route path="/resenas" element={<ReviewsPage />} />
       <Route path="/resenas/:id" element={<ResenaDetail />} />
@@ -52,12 +53,6 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         path="/producto/:id"
         element={<ProductDetail onAddToCart={addToCart} />}
       />
-      {/* Página para productos con opciones de personalización */}
-      <Route
-        path="/producto/personalizado/:id"
-        element={<PersonalizedProductDetail />}
-      />
-      <Route path="/checkout" element={<CheckoutPage />} />
 
       {/* --- Rutas de Administrador Protegidas --- */}
       <Route

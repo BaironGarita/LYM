@@ -1,6 +1,6 @@
 export const navbar = {
   logo: {
-    slogan: "Encuentra tu estilo"
+    slogan: "Encuentra tu estilo",
   },
   menu: {
     products: "Productos",
@@ -12,25 +12,27 @@ export const navbar = {
     profile: "Mi Perfil",
     myOrders: "Mis Pedidos",
     admin: "Admin",
-    openMenu: "Abrir menú"
+    openMenu: "Abrir menú",
   },
   admin: {
     dashboard: "Panel Principal",
     manageProducts: "Gestionar Productos",
+    manageExtras: "Gestionar Extras",
+    manageProductExtras: "Producto ↔ Extras",
     managePromotions: "Gestionar Promociones",
     uploadProduct: "Subir Producto",
     orders: "Pedidos",
     users: "Usuarios",
     analytics: "Estadísticas",
     panel: "Panel de Administración",
-    storeManagement: "Gestión de la tienda"
+    storeManagement: "Gestión de la tienda",
   },
   user: {
     favorites: "Favoritos",
     administrator: "Administrador",
     client: "Cliente",
     accessAccount: "Accede a tu cuenta",
-    favoritesInDevelopment: "Funcionalidad de favoritos en desarrollo"
+    favoritesInDevelopment: "Funcionalidad de favoritos en desarrollo",
   },
   cart: {
     title: "Carrito",
@@ -39,11 +41,11 @@ export const navbar = {
     addProducts: "Agrega algunos productos para empezar",
     total: "Total:",
     clearCart: "Vaciar Carrito",
-    checkout: "Proceder al Pago"
+    checkout: "Proceder al Pago",
   },
   mobile: {
     selectLanguage: "Seleccionar idioma",
     welcome: "Bienvenido",
-    new: "¡Nuevo!"
-  }
+    new: "¡Nuevo!",
+  },
 };

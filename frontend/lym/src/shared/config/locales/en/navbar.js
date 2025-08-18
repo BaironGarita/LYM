@@ -1,6 +1,6 @@
 export const navbar = {
   logo: {
-    slogan: "Find your style"
+    slogan: "Find your style",
   },
   menu: {
     products: "Products",
@@ -12,25 +12,27 @@ export const navbar = {
     profile: "My Profile",
     myOrders: "My Orders",
     admin: "Admin",
-    openMenu: "Open menu"
+    openMenu: "Open menu",
   },
   admin: {
     dashboard: "Main Dashboard",
     manageProducts: "Manage Products",
+    manageExtras: "Manage Extras",
+    manageProductExtras: "Product ↔ Extras",
     managePromotions: "Manage Promotions",
     uploadProduct: "Upload Product",
     orders: "Orders",
     users: "Users",
     analytics: "Analytics",
     panel: "Administration Panel",
-    storeManagement: "Store Management"
+    storeManagement: "Store Management",
   },
   user: {
     favorites: "Favorites",
     administrator: "Administrator",
     client: "Client",
     accessAccount: "Access your account",
-    favoritesInDevelopment: "Favorites functionality in development"
+    favoritesInDevelopment: "Favorites functionality in development",
   },
   cart: {
     title: "Cart",
@@ -39,11 +41,11 @@ export const navbar = {
     addProducts: "Add some products to get started",
     total: "Total:",
     clearCart: "Clear Cart",
-    checkout: "Proceed to Checkout"
+    checkout: "Proceed to Checkout",
   },
   mobile: {
     selectLanguage: "Select language",
     welcome: "Welcome",
-    new: "New!"
-  }
+    new: "New!",
+  },
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { cartActions, addItem } from "@/App/store/cartSlice";
+import { cartActions, addItem, createOrder } from "@/App/store/cartSlice";
 import { Button } from "@/shared/components/UI/button";
 import { ScrollArea } from "@/shared/components/UI/scroll-area";
 import { Separator } from "@/shared/components/UI/separator";
@@ -68,6 +68,27 @@ const CartDropdown = ({ onClose }) => {
     }
     navigate("/checkout");
     if (onClose) onClose();
+  };
+
+  const handleQuickCreateOrder = async () => {
+    if (items.length === 0) {
+      toast.error("Tu carrito está vacío");
+      return;
+    }
+    try {
+      // Llamamos thunk con valores por defecto (usuario_id, direccion_envio_id)
+      const resultAction = await dispatch(createOrder({}));
+      if (createOrder.fulfilled.match(resultAction)) {
+        toast.success("Pedido creado y registrado en el servidor");
+        navigate("/orders");
+        if (onClose) onClose();
+      } else {
+        const err = resultAction.payload || resultAction.error?.message;
+        toast.error(err || "No se pudo crear el pedido");
+      }
+    } catch (e) {
+      toast.error(e.message || "Error creando pedido");
+    }
   };
 
   const handleIncrease = (item) => {
@@ -341,6 +362,15 @@ const CartDropdown = ({ onClose }) => {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full mt-2 text-sm"
+              onClick={handleQuickCreateOrder}
+              disabled={isLoading || items.length === 0}
+            >
+              Facturar (rápido)
             </Button>
 
             {items.length > 0 && (

@@ -12,6 +12,8 @@ import { productCard } from "./productCard";
 import { productStats } from "./productStats";
 import { productDetail } from "./productDetail";
 import { productoEnOferta } from "./productoEnOferta";
+import { productoExtras } from "./productoExtras";
+import { extras } from "./extras";
 
 export const en = {
   translation: {
@@ -29,27 +31,31 @@ export const en = {
     productStats,
     productDetail,
     productoEnOferta,
+    productoExtras,
+    extras,
     // Specific pages
     pages: {
       home: {
         title: "Welcome",
         subtitle: "Your online store",
         heroTitle: "Find Your Style at Look Your Mood",
-        heroSubtitle: "Explore our exclusive collections and discover the perfect garments that adapt to your mood.",
+        heroSubtitle:
+          "Explore our exclusive collections and discover the perfect garments that adapt to your mood.",
         exploreButton: "Explore Collection",
         featuredProducts: "Featured Products",
         loading: "Loading products...",
-        errorLoadingProducts: "Error loading featured products."
+        errorLoadingProducts: "Error loading featured products.",
       },
       products: {
         title: "Our Collection",
         subtitle: "Filter by category to find your perfect style.",
         loading: "Loading products...",
         noProducts: "No products found.",
-        tryAnotherCategory: "Try selecting another category or check back later.",
+        tryAnotherCategory:
+          "Try selecting another category or check back later.",
         errorLoading: "Could not load products.",
         errorLoadingProducts: "Error loading products.",
-        noProductsInCategory: "No products found for the selected category."
+        noProductsInCategory: "No products found for the selected category.",
       },
       offers: {
         title: "Products on Sale",
@@ -70,9 +76,10 @@ export const en = {
         noCategoryOffers: "No offers for this category. Try another category.",
         checkBackSoon: "Check back soon to discover amazing new offers",
         dontMiss: "Don't miss these offers!",
-        offersChangeRegularly: "Our offers change regularly. Keep visiting to discover new products with incredible discounts. Save on your favorite brands!",
+        offersChangeRegularly:
+          "Our offers change regularly. Keep visiting to discover new products with incredible discounts. Save on your favorite brands!",
         errorLoading: "Error loading products",
-        errorLoadingProducts: "Error loading products"
+        errorLoadingProducts: "Error loading products",
       },
       admin: {
         dashboard: "Control Panel",

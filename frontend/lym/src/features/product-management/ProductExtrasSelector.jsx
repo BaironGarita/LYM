@@ -34,7 +34,7 @@ export default function ProductExtrasSelector({
   initiallySelected = [], // array de IDs (number|string)
   collapsedInitially = false,
 }) {
-  const { t } = useI18n();
+  const { t, i18n } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [extras, setExtras] = useState([]);
@@ -42,6 +42,10 @@ export default function ProductExtrasSelector({
     new Set(initiallySelected.map(String))
   );
   const [collapsed, setCollapsed] = useState(collapsedInitially);
+
+  // Accessibility ids
+  const titleId = `product-extras-title-${productId ?? "unknown"}`;
+  const contentId = `product-extras-list-${productId ?? "unknown"}`;
 
   useEffect(() => {
     let mounted = true;
@@ -100,7 +104,7 @@ export default function ProductExtrasSelector({
         <CardContent className="py-6">
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <Loader2 className="h-4 w-4 animate-spin" />
-            {t("loading", "Cargando...")}
+            <span aria-live="polite">{t("loading", "Cargando...")}</span>
           </div>
         </CardContent>
       </Card>
@@ -111,7 +115,10 @@ export default function ProductExtrasSelector({
     return (
       <Card className="border border-red-200 bg-red-50/70">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2 text-red-700">
+          <CardTitle
+            id={titleId}
+            className="text-base flex items-center gap-2 text-red-700"
+          >
             <AlertCircle className="h-4 w-4" />
             {t("extras.selector.title", "Extras disponibles")}
           </CardTitle>
@@ -120,7 +127,9 @@ export default function ProductExtrasSelector({
           <Alert variant="destructive" className="border-0 p-3">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-xs md:text-sm">
-              {t("extras.selector.error", "No se pudieron cargar los extras")}
+              <span aria-live="polite">
+                {t("extras.selector.error", "No se pudieron cargar los extras")}
+              </span>
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -134,10 +143,10 @@ export default function ProductExtrasSelector({
   return (
     <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-md">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-base flex items-center gap-2">
+        <CardTitle id={titleId} className="text-base flex items-center gap-2">
           <Plus className="h-4 w-4 text-blue-600" />
           {t("extras.selector.title", "Extras disponibles")}
-          <Badge variant="secondary" className="ml-1">
+          <Badge variant="secondary" className="ml-1" aria-hidden>
             {extras.length}
           </Badge>
         </CardTitle>
@@ -145,6 +154,20 @@ export default function ProductExtrasSelector({
           type="button"
           className="text-xs text-blue-600 hover:underline"
           onClick={() => setCollapsed((c) => !c)}
+          aria-expanded={!collapsed}
+          aria-controls={contentId}
+          aria-label={
+            collapsed
+              ? t("extras.selector.expand", "Mostrar")
+              : t("extras.selector.collapse", "Ocultar")
+          }
+          onKeyDown={(e) => {
+            // allow Enter/Space to toggle as well
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setCollapsed((c) => !c);
+            }
+          }}
         >
           {collapsed
             ? t("extras.selector.expand", "Mostrar")
@@ -154,6 +177,9 @@ export default function ProductExtrasSelector({
       <AnimatePresence initial={false}>
         {!collapsed && (
           <motion.div
+            id={contentId}
+            role="region"
+            aria-labelledby={titleId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -201,11 +227,23 @@ export default function ProductExtrasSelector({
                       </div>
                       <div className="text-xs font-semibold text-gray-700 whitespace-nowrap">
                         +{" "}
-                        {new Intl.NumberFormat("es-CR", {
-                          style: "currency",
-                          currency: "CRC",
-                          minimumFractionDigits: 0,
-                        }).format(Number(ex.precio || 0))}
+                        {new Intl.NumberFormat(
+                          i18n &&
+                          i18n.language &&
+                          i18n.language.startsWith("es")
+                            ? "es-CR"
+                            : "en-US",
+                          {
+                            style: "currency",
+                            currency:
+                              i18n &&
+                              i18n.language &&
+                              i18n.language.startsWith("es")
+                                ? "CRC"
+                                : "USD",
+                            minimumFractionDigits: 0,
+                          }
+                        ).format(Number(ex.precio || 0))}
                       </div>
                     </label>
                   );

@@ -11,6 +11,7 @@ import Dashboard from "../Pages/Admin/Dashboard";
 import AdminCategoriesPage from "../Pages/Admin/AdminCategoriesPage";
 import AdminTagsPage from "../Pages/Admin/AdminTagsPage";
 import AdminPersonalizedProductsPage from "../Pages/Admin/AdminPersonalizedProductsPage";
+import AdminExtrasPage from "../Pages/Admin/AdminExtrasPage";
 
 // Rutas públicas
 export const publicRoutes = [
@@ -111,6 +112,14 @@ export const adminRoutes = [
     element: (
       <ProtectedRoute requireAdmin={true}>
         <AdminTagsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/extras",
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminExtrasPage />
       </ProtectedRoute>
     ),
   },

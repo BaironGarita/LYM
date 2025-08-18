@@ -22,6 +22,8 @@ import ProductUploadForm from "@/Pages/Admin/ProductUploadForm";
 import AdminCategoriesPage from "@/Pages/Admin/AdminCategoriesPage";
 import AdminTagsPage from "@/Pages/Admin/AdminTagsPage";
 import AdminPersonalizedProductsPage from "@/Pages/Admin/AdminPersonalizedProductsPage";
+import AdminExtrasPage from "@/Pages/Admin/AdminExtrasPage";
+import AdminProductoExtrasPage from "@/Pages/Admin/AdminProductoExtrasPage";
 
 // Componente para proteger las rutas de administrador
 const PrivateRoute = ({ children }) => {
@@ -79,6 +81,8 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         <Route path="upload" element={<ProductUploadForm />} />
         <Route path="categorias" element={<AdminCategoriesPage />} />
         <Route path="etiquetas" element={<AdminTagsPage />} />
+        <Route path="extras" element={<AdminExtrasPage />} />
+        <Route path="producto-extras" element={<AdminProductoExtrasPage />} />
       </Route>
 
       {/* Ruta para cualquier otra URL no definida */}

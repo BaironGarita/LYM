@@ -66,6 +66,9 @@ require_once "models/PedidoModel.php";
 require_once "models/ValoresPersonalizacionModel.php";
 require_once "models/ProductoPersonalizacionModel.php";
 
+require_once "models/ProductoExtraModel.php";
+require_once "models/ExtrasModel.php";
+
 /* --- Controladores --- */
 require_once "controllers/EtiquetaController.php";
 require_once "controllers/ProductoController.php";
@@ -78,6 +81,8 @@ require_once "controllers/ResenaController.php";
 require_once "controllers/PedidoController.php";
 require_once "controllers/ValoresPersonalizacionController.php";
 require_once "controllers/ProductoPersonalizacionController.php";
+require_once "controllers/ProductoExtraController.php";
+require_once "controllers/ExtrasController.php";
 
 /* --- Alias para el enrutador --- */
 class_alias('EtiquetaController', 'etiqueta');

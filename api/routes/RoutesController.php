@@ -13,6 +13,8 @@ class RoutesController
             'categorias' => 'CategoriaController',
             'etiquetas' => 'EtiquetaController',
             'promociones' => 'PromocionController',
+            'extras' => 'ExtrasController',
+            'producto_extras' => 'ProductoExtraController',
             'usuarios' => 'UsuarioController',
             'usuario' => 'UsuarioController', // Alias
             'direcciones' => 'DireccionController',
@@ -71,6 +73,43 @@ class RoutesController
     private function handleSpecialRoutes($resource, $segments, $offset)
     {
         // --- Lógica de rutas especiales fusionada ---
+
+        // Rutas para producto_extras
+        if ($resource === 'producto_extras') {
+            require_once __DIR__ . '/../controllers/ProductoExtraController.php';
+            $controller = new ProductoExtraController();
+            $method = $_SERVER['REQUEST_METHOD'];
+
+            // /producto_extras/assignments
+            if (isset($segments[$offset + 1]) && $segments[$offset + 1] === 'assignments') {
+                if ($method === 'GET') {
+                    $controller->assignments();
+                    return true;
+                }
+            }
+
+            // GET /producto_extras?producto_id=ID
+            if ($method === 'GET' && isset($_GET['producto_id'])) {
+                $productoId = (int)$_GET['producto_id'];
+                $controller->index($productoId);
+                return true;
+            }
+
+            // POST /producto_extras (attach)
+            if ($method === 'POST') {
+                $controller->create();
+                return true;
+            }
+
+            // DELETE /producto_extras/{productoId}/{extraId}
+            if ($method === 'DELETE' && isset($segments[$offset + 1]) && isset($segments[$offset + 2])
+                && is_numeric($segments[$offset + 1]) && is_numeric($segments[$offset + 2])) {
+                $productoId = (int)$segments[$offset + 1];
+                $extraId = (int)$segments[$offset + 2];
+                $controller->delete($productoId, $extraId);
+                return true;
+            }
+        }
 
         // Endpoint para login de usuario (acepta 'usuarios' y 'usuario')
         if (($resource === 'usuarios' || $resource === 'usuario') && isset($segments[$offset + 1]) && $segments[$offset + 1] === 'login') {

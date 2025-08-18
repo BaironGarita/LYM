@@ -1,6 +1,14 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom"; // <-- 1. Importa Link
-import { ChevronDown, Settings, Package, LayoutGrid, Tag } from "lucide-react";
+import {
+  ChevronDown,
+  Settings,
+  Package,
+  LayoutGrid,
+  Tag,
+  Plus,
+  Plug, // nuevo icono para producto-extras
+} from "lucide-react";
 import { useI18n } from "@/shared/hooks/useI18n";
 
 export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
@@ -15,6 +23,16 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
       href: "/admin/productos",
       icon: Package,
       label: t("navbar.admin.manageProducts"),
+    },
+    {
+      href: "/admin/extras",
+      icon: Plus,
+      label: t("navbar.admin.manageExtras"),
+    },
+    {
+      href: "/admin/producto-extras",
+      icon: Plug,
+      label: t("navbar.admin.manageProductExtras", "Producto ↔ Extras"),
     },
     {
       href: "/admin/promotions",

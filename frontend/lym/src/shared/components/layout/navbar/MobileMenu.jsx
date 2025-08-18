@@ -63,7 +63,9 @@ export function MobileMenu({
                 <span className="font-bold text-lg text-gray-900">
                   Look Your Mood
                 </span>
-                <p className="text-xs text-gray-500">{t("navbar.logo.slogan")}</p>
+                <p className="text-xs text-gray-500">
+                  {t("navbar.logo.slogan")}
+                </p>
               </div>
             </div>
             <button
@@ -92,7 +94,9 @@ export function MobileMenu({
                         isAdmin() ? "bg-red-500" : "bg-green-500"
                       }`}
                     ></span>
-                    {isAdmin() ? t("navbar.user.administrator") : t("navbar.user.client")}
+                    {isAdmin()
+                      ? t("navbar.user.administrator")
+                      : t("navbar.user.client")}
                   </p>
                 </div>
               </div>
@@ -105,8 +109,12 @@ export function MobileMenu({
                   <User className="h-6 w-6 text-gray-500" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="font-semibold text-gray-900">{t("navbar.menu.login")}</p>
-                  <p className="text-sm text-gray-500">{t("navbar.user.accessAccount")}</p>
+                  <p className="font-semibold text-gray-900">
+                    {t("navbar.menu.login")}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t("navbar.user.accessAccount")}
+                  </p>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
@@ -201,15 +209,6 @@ export function MobileMenu({
                         className="text-purple-600 bg-purple-50 hover:bg-purple-100"
                       >
                         {t("navbar.admin.managePromotions")}
-                      </NavItem>
-
-                      <NavItem
-                        href="/admin/upload"
-                        icon={Upload}
-                        onClick={onClose}
-                        className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100"
-                      >
-                        {t("navbar.admin.uploadProduct")}
                       </NavItem>
 
                       <NavItem

@@ -39,11 +39,6 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
       icon: Tag,
       label: t("navbar.admin.managePromotions"),
     },
-    {
-      href: "/admin/upload",
-      icon: LayoutGrid,
-      label: t("navbar.admin.uploadProduct"),
-    },
   ];
 
   return (

@@ -30,7 +30,12 @@ export const AdminLayout = () => {
       icon: Plug,
       end: false,
     },
-  { to: "/admin/promotions", label: t("navbar.admin.managePromotions"), icon: Tag, end: false },
+    {
+      to: "/admin/promotions",
+      label: t("navbar.admin.managePromotions"),
+      icon: Tag,
+      end: false,
+    },
   ];
   const getLinkClass = ({ isActive }) => {
     const baseClasses =

@@ -26,7 +26,15 @@ const AdminOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [dateFilter, setDateFilter] = useState("todos");
   const { user, isAuthenticated, isAdmin } = useAuth();
-  const { t, getCurrentLanguage } = useI18n();
+  const { t, i18n } = useI18n();
+  // keep existing calls that expect getCurrentLanguage() by providing a small helper
+  const getCurrentLanguage = () => {
+    try {
+      return i18n && i18n.language ? i18n.language : "en";
+    } catch (e) {
+      return "en";
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated() && isAdmin()) {
@@ -37,24 +45,67 @@ const AdminOrdersPage = () => {
   const fetchAllPedidos = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:81/api_lym/admin/pedidos`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const url = `http://localhost:81/api_lym/admin/pedidos`;
+      const token = localStorage.getItem("token");
+      console.log("[AdminOrdersPage] fetching orders from:", url);
+      console.log("[AdminOrdersPage] token present:", !!token);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error(t("orders.error"));
+        // Try to extract error message from body
+        let bodyText = "";
+        try {
+          const ct = response.headers.get("content-type") || "";
+          if (ct.includes("application/json")) {
+            const json = await response.json();
+            bodyText = JSON.stringify(json);
+          } else {
+            bodyText = await response.text();
+          }
+        } catch (e) {
+          bodyText = `<unable to read body: ${e.message}>`;
+        }
+        const errMsg = `HTTP ${response.status} ${response.statusText} - ${bodyText}`;
+        console.error("[AdminOrdersPage] fetch error:", errMsg);
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
-      setPedidos(data);
+      // Defensive parsing: API may return either an array or an object wrapper
+      let parsed = [];
+
+      if (Array.isArray(data)) {
+        parsed = data;
+      } else if (data && typeof data === "object") {
+        // common wrappers: { pedidos: [...] }, { data: [...] }, { orders: [...] }
+        if (Array.isArray(data.pedidos)) parsed = data.pedidos;
+        else if (Array.isArray(data.data)) parsed = data.data;
+        else if (Array.isArray(data.orders)) parsed = data.orders;
+        else if (Array.isArray(data.result)) parsed = data.result;
+        else {
+          // If object isn't an expected wrapper, attempt to find first array value
+          const firstArray = Object.values(data).find((v) => Array.isArray(v));
+          if (firstArray) parsed = firstArray;
+        }
+      }
+
+      if (!Array.isArray(parsed)) {
+        console.warn(
+          "[AdminOrdersPage] Unexpected pedidos payload, setting empty array:",
+          data
+        );
+        parsed = [];
+      }
+
+      setPedidos(parsed);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || t("orders.error"));
       console.error("Error fetching pedidos:", err);
     } finally {
       setLoading(false);
@@ -341,7 +392,14 @@ const StatsCard = ({ title, value, color, isMonetary = false }) => {
 // Componente para cada tarjeta de pedido en admin
 const AdminPedidoCard = ({ pedido }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const { t, getCurrentLanguage } = useI18n();
+  const { t, i18n } = useI18n();
+  const getCurrentLanguage = () => {
+    try {
+      return i18n && i18n.language ? i18n.language : "en";
+    } catch (e) {
+      return "en";
+    }
+  };
 
   const formatFecha = (fecha) => {
     const locale = getCurrentLanguage() === "es" ? "es-ES" : "en-US";

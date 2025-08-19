@@ -16,9 +16,10 @@ export function UserActions({
   clearCart,
   userMenuRef,
   cartBtnRef,
+  cartDropdownRef,
   handlers,
 }) {
-  const { t } = useI18n();
+  const { t, i18n } = useI18n();
   return (
     <div className="flex items-center space-x-3">
       {/* Botón favoritos */}
@@ -58,13 +59,13 @@ export function UserActions({
         ref={userMenuRef}
       />
 
-      {/* Carrito - Para todos los usuarios */}
+      {/* Carrito - Para todos los usuarios (visible también para admins) */}
       <div className="relative">
         <button
           ref={cartBtnRef}
           onClick={handlers.toggleCart}
           className="relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          aria-label="Abrir carrito de compras"
+          aria-label={t("navbar.cart.title")}
         >
           <ShoppingCart className="h-5 w-5 mr-2" />
           <span className="hidden sm:inline">{t("navbar.cart.title")}</span>
@@ -74,20 +75,24 @@ export function UserActions({
             </span>
           )}
           <span className="ml-2 text-xs font-semibold hidden sm:inline">
-            ₡
-            {cartStats.totalPrice.toLocaleString("es-CR", {
-              minimumFractionDigits: 2,
-            })}
+            {i18n && i18n.language && i18n.language.startsWith("es")
+              ? `${t("common.currency")} ${Number(cartStats.totalPrice).toLocaleString("es-CR", { minimumFractionDigits: 2 })}`
+              : `${t("common.currency")} ${Number(cartStats.totalPrice).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
           </span>
         </button>
 
         {showCart && (
-          <CartDropdown
-            cart={cart}
-            removeFromCart={removeFromCart}
-            clearCart={clearCart}
-            onClose={() => handlers.toggleCart()}
-          />
+          <div
+            ref={cartDropdownRef}
+            className="absolute top-full right-0 z-50 mt-2"
+          >
+            <CartDropdown
+              cart={cart}
+              removeFromCart={removeFromCart}
+              clearCart={clearCart}
+              onClose={() => handlers.toggleCart()}
+            />
+          </div>
         )}
       </div>
     </div>

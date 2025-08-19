@@ -17,19 +17,19 @@ const OrdersPage = () => {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated()) {
       fetchPedidos();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const fetchPedidos = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:81/api_lym/pedidos?usuario_id=${user.id}`,
+        `http://localhost:81/api_lym/pedidos?usuario_id=${user?.id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

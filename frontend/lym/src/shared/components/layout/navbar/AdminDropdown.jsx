@@ -8,6 +8,7 @@ import {
   Tag,
   Plus,
   Plug, // nuevo icono para producto-extras
+  Truck, // icono para pedidos
 } from "lucide-react";
 import { useI18n } from "@/shared/hooks/useI18n";
 
@@ -23,6 +24,11 @@ export const AdminDropdown = forwardRef(({ isOpen, onToggle }, ref) => {
       href: "/admin/productos",
       icon: Package,
       label: t("navbar.admin.manageProducts"),
+    },
+    {
+      href: "/admin/pedidos",
+      icon: Truck,
+      label: t("navbar.admin.orders", "Pedidos"),
     },
     {
       href: "/admin/extras",

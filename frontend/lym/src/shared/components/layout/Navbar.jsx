@@ -78,9 +78,11 @@ export function Navbar() {
                 isAdmin={isAdmin}
                 user={user}
                 showUserMenu={showUserMenu}
+                showCart={showCart}
                 cartStats={cartStats}
                 userMenuRef={userMenuRef}
                 cartBtnRef={cartBtnRef} // Pasar la nueva referencia al componente de acciones
+                cartDropdownRef={cartDropdownRef}
                 handlers={menuHandlers}
               />
             </div>
@@ -113,15 +115,7 @@ export function Navbar() {
               </div>
             </button>
           </div>
-          {/* Dropdown del Carrito (posicionado respecto al header) */}
-          {showCart && (
-            <div
-              className="absolute top-full right-4 z-50 mt-2"
-              ref={cartDropdownRef}
-            >
-              <CartDropdown onClose={menuHandlers.closeCart} />
-            </div>
-          )}
+          {/* Dropdown del Carrito: ahora lo renderiza `UserActions` para mantenerlo cerca del botón y visible también para admins */}
         </div>
       </header>
 

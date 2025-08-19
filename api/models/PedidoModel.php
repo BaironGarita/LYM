@@ -144,7 +144,8 @@ class Pedido {
             if (in_array('usuario_id', $insertCols)) $stmt->bindValue(':usuario_id', $usuario_id, PDO::PARAM_INT);
             if (in_array('direccion_envio_id', $insertCols)) $stmt->bindValue(':direccion_envio_id', $direccion_envio_id, PDO::PARAM_INT);
             if (in_array('numero_pedido', $insertCols)) $stmt->bindValue(':numero_pedido', $numero_pedido);
-            if (in_array('estado', $insertCols)) $stmt->bindValue(':estado', 'pendiente');
+            // Ajuste: usar estado válido según enum en la BD (por defecto 'en_proceso')
+            if (in_array('estado', $insertCols)) $stmt->bindValue(':estado', 'en_proceso');
             if (in_array('subtotal', $insertCols)) $stmt->bindValue(':subtotal', $subtotal);
             if (in_array('descuento', $insertCols)) $stmt->bindValue(':descuento', $descuento);
             if (in_array('impuestos', $insertCols)) $stmt->bindValue(':impuestos', $impuestos);
@@ -193,9 +194,9 @@ class Pedido {
                     }
 
                     if ($hasStockCol) {
-            $stmt_stock_select->bindValue(':producto_id', $producto_id, PDO::PARAM_INT);
-            $stmt_stock_select->execute();
-            $row = $stmt_stock_select->fetch(PDO::FETCH_ASSOC);
+                        $stmt_stock_select->bindValue(':producto_id', $producto_id, PDO::PARAM_INT);
+                        $stmt_stock_select->execute();
+                        $row = $stmt_stock_select->fetch(PDO::FETCH_ASSOC);
                         if ($row === false) {
                             throw new Exception("Producto {$producto_id} no encontrado");
                         }
@@ -225,7 +226,8 @@ class Pedido {
             }
 
             // Registrar historial y commit
-            $this->registrarCambioEstado($pedido_id, null, 'pendiente', $usuario_id);
+            // Ajuste: usar estado válido 'en_proceso'
+            $this->registrarCambioEstado($pedido_id, null, 'en_proceso', $usuario_id);
             $this->conn->commit();
             return $pedido_id;
 
@@ -257,21 +259,69 @@ class Pedido {
 
         $query = "SELECT * FROM pedidos WHERE id = :id LIMIT 1";
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
         $pedido = $stmt->fetchObject('Pedido', [$pdo]);
 
         if ($pedido) {
-            // Cargar los items del pedido
-            $query_items = "SELECT * FROM pedido_items WHERE pedido_id = :pedido_id";
-            $stmt_items = $pdo->prepare($query_items);
-            $stmt_items->bindParam(':pedido_id', $id);
-            $stmt_items->execute();
-            $pedido->items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
+            // Cargar los items del pedido: preferir pedido_detalles, fallback a pedido_items
+            $items = [];
+            try {
+                $stmt_items = $pdo->prepare("SELECT * FROM pedido_detalles WHERE pedido_id = :pedido_id");
+                $stmt_items->bindParam(':pedido_id', $id, PDO::PARAM_INT);
+                $stmt_items->execute();
+                $items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
+                if (empty($items)) {
+                    // intentar tabla alternativa 'pedido_items'
+                    $stmt_items2 = $pdo->prepare("SELECT * FROM pedido_items WHERE pedido_id = :pedido_id");
+                    $stmt_items2->bindParam(':pedido_id', $id, PDO::PARAM_INT);
+                    $stmt_items2->execute();
+                    $items = $stmt_items2->fetchAll(PDO::FETCH_ASSOC);
+                }
+            } catch (Exception $e) {
+                // en caso de error, devolver items vacíos
+                $items = [];
+            }
+            $pedido->items = $items;
         }
 
         return $pedido;
+    }
+
+    /**
+     * Devuelve un listado básico de pedidos (para administración).
+     * @param mixed $db PDO|MySqlConnect
+     * @return array
+     */
+    public static function getAll($db) {
+        // Aceptar MySqlConnect (wrapper) o PDO
+        $pdo = $db;
+        if (is_object($db) && get_class($db) === 'MySqlConnect') {
+            $pdo = $db->getPdo();
+            if (!$pdo) {
+                // Intentar usar el wrapper directamente (runQuery devuelve array o null)
+                try {
+                    // Ajuste: ordenar por created_at (columna real en la tabla pedidos)
+                    $rows = $db->runQuery('SELECT * FROM pedidos ORDER BY created_at DESC', []);
+                    return $rows ?: [];
+                } catch (Exception $e) {
+                    error_log('[PedidoModel::getAll] wrapper-runQuery error: ' . $e->getMessage());
+                    return [];
+                }
+            }
+        }
+
+        try {
+            // Ajuste: ordenar por created_at en lugar de fecha_pedido
+            $stmt = $pdo->prepare('SELECT * FROM pedidos ORDER BY created_at DESC');
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $rows ?: [];
+        } catch (Exception $e) {
+            error_log('[PedidoModel::getAll] PDO error: ' . $e->getMessage());
+            return [];
+        }
     }
     
     /**
@@ -328,17 +378,52 @@ class Pedido {
             return; // silencioso; no es crítico para terminar el pedido
         }
 
+        // Detectar columnas disponibles en la tabla de historial
+        $cols = [];
         try {
-            $query = "INSERT INTO {$historialTableName} (pedido_id, estado_anterior, estado_nuevo, usuario_cambio_id)
-                      VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :usuario_cambio_id)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':pedido_id', $pedido_id);
-            $stmt->bindParam(':estado_anterior', $estado_anterior);
-            $stmt->bindParam(':estado_nuevo', $estado_nuevo);
-            $stmt->bindParam(':usuario_cambio_id', $usuario_cambio_id);
-            $stmt->execute();
+            $colsStmt = $this->conn->prepare("SHOW COLUMNS FROM {$historialTableName}");
+            $colsStmt->execute();
+            $colsRaw = $colsStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($colsRaw as $c) {
+                if (!empty($c['Field'])) $cols[] = $c['Field'];
+            }
         } catch (Exception $e) {
-            // Loguear y continuar sin interrumpir la transacción principal (ya estamos dentro de otra transacción normalmente)
+            $cols = [];
+        }
+
+        try {
+            if (in_array('usuario_cambio_id', $cols)) {
+                // Tabla antigua/extendida: soporta usuario_cambio_id
+                $query = "INSERT INTO {$historialTableName} (pedido_id, estado_anterior, estado_nuevo, usuario_cambio_id)
+                          VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :usuario_cambio_id)";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':pedido_id', $pedido_id, PDO::PARAM_INT);
+                $stmt->bindParam(':estado_anterior', $estado_anterior);
+                $stmt->bindParam(':estado_nuevo', $estado_nuevo);
+                $stmt->bindParam(':usuario_cambio_id', $usuario_cambio_id, PDO::PARAM_INT);
+                $stmt->execute();
+            } elseif (in_array('comentario', $cols)) {
+                // Schema actual del dump: insertar comentario con referencia al usuario si se quiere
+                $comentario = $usuario_cambio_id ? "Usuario: {$usuario_cambio_id}" : null;
+                $query = "INSERT INTO {$historialTableName} (pedido_id, estado_anterior, estado_nuevo, comentario)
+                          VALUES (:pedido_id, :estado_anterior, :estado_nuevo, :comentario)";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':pedido_id', $pedido_id, PDO::PARAM_INT);
+                $stmt->bindParam(':estado_anterior', $estado_anterior);
+                $stmt->bindParam(':estado_nuevo', $estado_nuevo);
+                $stmt->bindParam(':comentario', $comentario);
+                $stmt->execute();
+            } else {
+                // Fallback: insertar solo lo mínimo (si la tabla sólo tuviera pedido_id/estado_nuevo)
+                $query = "INSERT INTO {$historialTableName} (pedido_id, estado_nuevo)
+                          VALUES (:pedido_id, :estado_nuevo)";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':pedido_id', $pedido_id, PDO::PARAM_INT);
+                $stmt->bindParam(':estado_nuevo', $estado_nuevo);
+                $stmt->execute();
+            }
+        } catch (Exception $e) {
+            // Loguear y continuar sin interrumpir la transacción principal
             error_log('[PedidoModel::registrarCambioEstado] Error al insertar historial: ' . $e->getMessage());
         }
     }

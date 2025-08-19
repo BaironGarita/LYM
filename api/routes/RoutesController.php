@@ -35,11 +35,12 @@ class RoutesController
         $url = $_GET['url'] ?? '';
         $segments = explode('/', trim($url, '/'));
 
-        // Permitir rutas con o sin el prefijo 'api'
+        // Permitir rutas con o sin prefijos como 'api', 'admin' o variantes 'api_*' (p.ej. api_lym)
         $first = strtolower($segments[0] ?? '');
         $second = strtolower($segments[1] ?? '');
 
-        if ($first === 'api') {
+        // Si el primer segmento es un prefijo conocido, usar el segundo como recurso.
+        if (in_array($first, ['api', 'admin']) || preg_match('/^api_\w+$/', $first)) {
             $resource = $second;
             $offset = 1;
         } else {

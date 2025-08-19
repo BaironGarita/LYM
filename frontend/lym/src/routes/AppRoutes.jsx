@@ -24,6 +24,7 @@ import AdminTagsPage from "@/Pages/Admin/AdminTagsPage";
 import AdminPersonalizedProductsPage from "@/Pages/Admin/AdminPersonalizedProductsPage";
 import AdminExtrasPage from "@/Pages/Admin/AdminExtrasPage";
 import AdminProductoExtrasPage from "@/Pages/Admin/AdminProductoExtrasPage";
+import AdminOrdersPage from "@/Pages/Admin/AdminOrdersPage";
 
 // Componente para proteger las rutas de administrador
 const PrivateRoute = ({ children }) => {
@@ -78,6 +79,7 @@ const AppRoutes = ({ cart, addToCart, removeFromCart, clearCart }) => {
         <Route path="etiquetas" element={<AdminTagsPage />} />
         <Route path="extras" element={<AdminExtrasPage />} />
         <Route path="producto-extras" element={<AdminProductoExtrasPage />} />
+        <Route path="pedidos" element={<AdminOrdersPage />} />
       </Route>
 
       {/* Ruta para cualquier otra URL no definida */}

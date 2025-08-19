@@ -31,7 +31,7 @@ const ProductStats = () => {
 
       const totalProductos = productos.length;
       const stockBajo = productos.filter(
-        (p) => p.stock > 0 && p.stock < 10
+        (p) => p.stock > 0 && p.stock < 20
       ).length;
       const sinStock = productos.filter((p) => p.stock === 0).length;
       const valorInventario = productos.reduce((total, p) => {
@@ -99,7 +99,9 @@ const ProductStats = () => {
             <Package className="h-8 w-8 text-blue-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.totalProducts")}</p>
+            <p className="text-sm font-medium text-gray-500">
+              {t("productStats.stats.totalProducts")}
+            </p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.totalProductos}
             </p>
@@ -131,7 +133,9 @@ const ProductStats = () => {
             <AlertTriangle className="h-8 w-8 text-yellow-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.lowStock")}</p>
+            <p className="text-sm font-medium text-gray-500">
+              {t("productStats.stats.lowStock")}
+            </p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.stockBajo}
             </p>
@@ -146,7 +150,9 @@ const ProductStats = () => {
             <TrendingUp className="h-8 w-8 text-red-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-500">{t("productStats.stats.outOfStock")}</p>
+            <p className="text-sm font-medium text-gray-500">
+              {t("productStats.stats.outOfStock")}
+            </p>
             <p className="text-2xl font-semibold text-gray-900">
               {stats.sinStock}
             </p>

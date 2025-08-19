@@ -233,8 +233,31 @@ class PedidoController {
             return;
         }
 
-        http_response_code(200);
-        echo json_encode(['mensaje' => 'Endpoint de listado de pedidos (implementar según necesidad).']);
+        // Intentar devolver listado real de pedidos
+        $configPath = __DIR__ . '/../config.php';
+        if (!file_exists($configPath)) {
+            http_response_code(500);
+            echo json_encode(['mensaje' => 'Falta configuración de BD']);
+            return;
+        }
+
+        try {
+            require_once __DIR__ . '/core/MySqlConnect.php';
+            $mysql = new MySqlConnect();
+            $db = $mysql;
+            // Llamar al modelo para obtener todos los pedidos
+            require_once __DIR__ . '/../models/PedidoModel.php';
+            $pedidos = Pedido::getAll($db);
+            // Asegurar Content-Type JSON
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(200);
+            echo json_encode($pedidos);
+            return;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['mensaje' => 'Error al obtener pedidos', 'error' => $e->getMessage()]);
+            return;
+        }
     }
 
     public function update()
@@ -259,8 +282,8 @@ class PedidoController {
 
     public function index()
     {
-        http_response_code(200);
-        echo json_encode(['mensaje' => 'Endpoint de listado de pedidos (implementar según necesidad).']);
+        // Delegar a la misma lógica de listado que ya existe en get()
+        $this->get();
     }
 
     /**

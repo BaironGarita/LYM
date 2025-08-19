@@ -5,13 +5,13 @@ const ProductTable = ({ productos, onEdit, onDelete }) => {
   const { t } = useI18n();
   const getStatusColor = (stock) => {
     if (stock === 0) return "text-red-600 bg-red-100";
-    if (stock < 10) return "text-yellow-600 bg-yellow-100";
+    if (stock < 20) return "text-yellow-600 bg-yellow-100";
     return "text-green-600 bg-green-100";
   };
 
   const getStatusText = (stock) => {
     if (stock === 0) return t("productTable.table.status.outOfStock");
-    if (stock < 10) return t("productTable.table.status.lowStock");
+    if (stock < 20) return t("productTable.table.status.lowStock");
     return t("productTable.table.status.inStock");
   };
 
@@ -20,8 +20,12 @@ const ProductTable = ({ productos, onEdit, onDelete }) => {
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
         <div className="px-6 py-12 text-center">
           <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">{t("productTable.table.empty.title")}</p>
-          <p className="text-gray-400">{t("productTable.table.empty.subtitle")}</p>
+          <p className="text-gray-500 text-lg">
+            {t("productTable.table.empty.title")}
+          </p>
+          <p className="text-gray-400">
+            {t("productTable.table.empty.subtitle")}
+          </p>
         </div>
       </div>
     );
@@ -83,7 +87,8 @@ const ProductTable = ({ productos, onEdit, onDelete }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    {producto.categoria_nombre || t("productTable.table.noCategory")}
+                    {producto.categoria_nombre ||
+                      t("productTable.table.noCategory")}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

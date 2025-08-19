@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { LayoutDashboard, Package, Tag, Plus, Plug } from "lucide-react";
+import { LayoutDashboard, Package, Tag, Plus, Plug, Truck } from "lucide-react";
 import { useI18n } from "@/shared/hooks/useI18n";
 
 export const AdminLayout = () => {
@@ -16,6 +16,12 @@ export const AdminLayout = () => {
       to: "/admin/productos",
       label: t("navbar.menu.products"),
       icon: Package,
+      end: false,
+    },
+    {
+      to: "/admin/pedidos",
+      label: t("navbar.admin.orders", "Pedidos"),
+      icon: Truck,
       end: false,
     },
     {

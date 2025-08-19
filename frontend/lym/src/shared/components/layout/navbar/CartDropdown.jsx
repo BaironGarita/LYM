@@ -1,9 +1,12 @@
 import { X, Trash2, ShoppingBag } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useI18n } from "@/shared/hooks/useI18n";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth.jsx";
 
 export function CartDropdown({ removeFromCart, clearCart, onClose }) {
   const { t } = useI18n();
+  const { isAuthenticated, isAdmin } = useAuth();
   // Leer el carrito desde Redux
   const cart = useSelector((state) => state.cart.items);
   const totalPrice = cart.reduce(
@@ -16,7 +19,9 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
       <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">{t("navbar.cart.shoppingCart")}</h3>
+            <h3 className="text-lg font-semibold">
+              {t("navbar.cart.shoppingCart")}
+            </h3>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
@@ -31,6 +36,19 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
             <p className="text-sm text-gray-400 mt-1">
               {t("navbar.cart.addProducts")}
             </p>
+            {isAuthenticated() && (
+              <div className="mt-4">
+                <Link
+                  to={isAdmin() ? "/admin/pedidos" : "/orders"}
+                  onClick={onClose}
+                  className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  {isAdmin()
+                    ? t("navbar.admin.orders", "Pedidos")
+                    : t("navbar.menu.myOrders")}
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -41,7 +59,9 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
     <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">{t("navbar.cart.shoppingCart")}</h3>
+          <h3 className="text-lg font-semibold">
+            {t("navbar.cart.shoppingCart")}
+          </h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -108,6 +128,17 @@ export function CartDropdown({ removeFromCart, clearCart, onClose }) {
             >
               {t("navbar.cart.checkout")}
             </button>
+            {isAuthenticated() && (
+              <Link
+                to={isAdmin() ? "/admin/pedidos" : "/orders"}
+                onClick={onClose}
+                className="w-full inline-flex items-center justify-center py-2 px-4 text-sm bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                {isAdmin()
+                  ? t("navbar.admin.orders", "Gestionar pedidos")
+                  : t("navbar.menu.myOrders")}
+              </Link>
+            )}
           </div>
         </div>
       </div>
